@@ -13,7 +13,8 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.5rem 0.75rem; /* compacté */
+  padding: 0.5rem 0.75rem;
+  padding-right: calc(0.75rem + 6px); /* réserve de l’espace pour le ruban vert */
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
@@ -21,6 +22,7 @@
   position: relative;
   backdrop-filter: blur(10px);
   animation: serieAppear 0.3s ease-out backwards;
+  overflow: hidden; /* coupe ce qui dépasse du cadre arrondi */
 }
 
 .serie-item:hover {
@@ -29,7 +31,7 @@
 }
 
 .serie-item.completed {
-  background: rgba(255, 255, 255, 0.03); /* fond neutre */
+  background: rgba(255, 255, 255, 0.03);
   border-color: rgba(16, 185, 129, 0.4);
   box-shadow: none;
   position: relative;
@@ -41,11 +43,12 @@
   position: absolute;
   top: 0;
   right: 0;
-  width: 6px; /* ruban vert discret */
+  width: 6px;
   height: 100%;
   border-radius: 0 12px 12px 0;
   background: linear-gradient(180deg, #10B981 0%, #059669 100%);
   box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+  z-index: 0;
 }
 
 /* Numéro de série */
@@ -105,7 +108,7 @@
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  padding: 0.25rem 0.5rem; /* compacté */
+  padding: 0.25rem 0.5rem;
   background: rgba(59, 130, 246, 0.12);
   border: 1px solid rgba(59, 130, 246, 0.25);
   border-radius: 8px;
@@ -127,7 +130,8 @@
 
 /* Checkbox moderne */
 .serie-check {
-  margin-left: auto; /* pousse à droite */
+  margin-left: auto;
+  margin-right: 0;
   width: 28px;
   height: 28px;
   min-width: 28px;
@@ -140,6 +144,8 @@
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
+  box-sizing: border-box;
+  z-index: 1;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -197,34 +203,34 @@
     gap: 0.625rem;
     padding: 0.75rem 0.875rem;
   }
-  
+
   .serie-number {
     width: 28px;
     height: 28px;
     font-size: 0.85rem;
   }
-  
+
   .serie-reps {
     font-size: 0.85rem;
   }
-  
+
   .serie-weight {
     font-size: 1rem;
   }
-  
+
   .serie-check {
     width: 24px;
     height: 24px;
   }
-  
+
   .check-icon {
     font-size: 0.8rem;
   }
-  
+
   .rest-time {
     font-size: 0.7rem;
   }
-  
+
   .serie-rest {
     padding: 0.2rem 0.35rem;
   }
@@ -235,47 +241,23 @@
     gap: 0.5rem;
     padding: 0.625rem 0.75rem;
   }
-  
+
   .serie-number {
     width: 26px;
     height: 26px;
     font-size: 0.8rem;
   }
-  
+
   .serie-check {
     width: 22px;
     height: 22px;
   }
-  
+
   .serie-rest {
     padding: 0.2rem 0.3rem;
   }
-  
+
   .rest-icon {
     font-size: 0.7rem;
   }
-}
-/* Empêche le débordement visuel à droite */
-.serie-item {
-  overflow: hidden; /* coupe ce qui dépasse du cadre arrondi */
-  padding-right: calc(0.75rem + 6px); /* réserve de l’espace pour le ruban vert */
-}
-
-/* Le ruban vert reste derrière le contenu */
-.serie-item.completed::after {
-  z-index: 0;
-}
-
-/* La case à cocher reste bien visible au-dessus */
-.serie-check {
-  z-index: 1;
-  box-sizing: border-box; /* évite que la bordure agrandisse le bouton */
-  margin-right: 0;         /* pas de marge inutile à droite */
-}
-
-/* Si tu vois encore un petit décalage, tu peux ajuster finement */
-.serie-check {
-  /* Active une seule ligne si nécessaire */
-  /* margin-right: -1px; */
-  /* transform: translateX(0.5px); */
 }
