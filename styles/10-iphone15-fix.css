@@ -18,15 +18,47 @@
     -webkit-overflow-scrolling: touch;
   }
   
-  /* ✅ IMPORTANT : S'assurer que les cartes de séries ne sont pas coupées */
-  .serie-item {
+  /* ✅ CORRECTION CRITIQUE : Empêche tous les débordements */
+  .serie-item,
+  .exercise-card,
+  .day-card,
+  .card {
     overflow: visible !important;
+    max-width: 100% !important;
   }
   
-  /* ✅ S'assurer que les barres de progression sont visibles */
+  /* ✅ Force les barres à rester dans leur conteneur */
+  .serie-item > *,
+  .exercise-card > *,
+  .series-container > * {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+  
+  /* ✅ S'assure que les barres de progression ne dépassent pas */
   .progress-bar,
-  .progress-fill {
-    overflow: visible !important;
+  .progress-fill,
+  .serie-progress,
+  [class*="progress"],
+  [class*="bar"] {
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow: hidden !important;
+  }
+  
+  /* ✅ Corrige le pseudo-élément ::after des séries complétées */
+  .serie-item.completed::after {
+    max-width: 6px !important;
+    right: 0 !important;
+    overflow: hidden !important;
+  }
+  
+  /* ✅ Container général avec overflow control */
+  #workout-container,
+  #homeRoot,
+  .workout-section {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
   }
   
   .workout-actions {
@@ -43,4 +75,18 @@
     width: 100%;
     font-size: 1.2rem;
   }
+}
+
+/* ✅ CORRECTION GLOBALE pour tous les écrans */
+* {
+  box-sizing: border-box !important;
+}
+
+/* Empêche le débordement horizontal sur tous les conteneurs */
+body,
+main,
+section,
+article,
+div {
+  overflow-x: clip;
 }
