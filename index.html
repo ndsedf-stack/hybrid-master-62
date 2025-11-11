@@ -2,11 +2,25 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <!-- ✅ Viewport optimisé pour iPhone 15 Pro Max -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  
+  <!-- ✅ PWA & iOS optimisations -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Hybrid Master 61" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  
+  <!-- ✅ Theme color (adaptatif dark/light) -->
+  <meta name="theme-color" content="#1a1a2e" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+  
   <title>💪 Hybrid Master 61</title>
+  
   <!-- ✅ Favicon neutre -->
   <link rel="icon" href="data:," />
-  <!-- CSS - ordre conservé -->
+  
+  <!-- CSS - ordre conservé + nouveau fichier iPhone 15 -->
   <link rel="stylesheet" href="styles/01-reset.css" />
   <link rel="stylesheet" href="styles/02-variables.css" />
   <link rel="stylesheet" href="styles/03-base.css" />
@@ -20,6 +34,8 @@
   <link rel="stylesheet" href="styles/09-statistics.css" />
   <link rel="stylesheet" href="styles/98-theme-switcher.css" />
   <link rel="stylesheet" href="styles/99-theme-modern.css" />
+  <!-- ✅ NOUVEAU : Fix iPhone 15 Pro Max -->
+  <link rel="stylesheet" href="styles/10-iphone15-fix.css" />
 </head>
 <body>
   <!-- Header avec design moderne -->
@@ -31,7 +47,7 @@
       </div>
     </div>
   </header>
-
+  
   <!-- Main Container -->
   <main class="app-container container main-content">
     <!-- Section Home (semaines/jours) -->
@@ -56,7 +72,7 @@
       </button>
     </nav>
   </main>
-
+  
   <!-- ✅ Initialisation -->
   <script type="module" src="scripts/app.js"></script>
 </body>
