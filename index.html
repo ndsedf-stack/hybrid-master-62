@@ -56,8 +56,34 @@
     <!-- Container des exercices -->
     <div id="workout-container" class="workout-section" aria-live="polite" aria-busy="false"></div>
     
-    <!-- Widget Timer (sera injecté par timer-manager.js) -->
-    <div id="timer-widget" class="timer-container"></div>
+    <!-- ✅ Widget Timer complet -->
+    <div id="timer-widget" class="timer-container">
+      <div class="timer-header">
+        <div class="timer-info">
+          <p id="timer-exercise-name" class="timer-exercise-name">Exercice</p>
+          <p id="timer-set-number" class="timer-set-number">Set 1/4</p>
+        </div>
+        <button id="timer-close" class="timer-close-btn">×</button>
+      </div>
+
+      <div class="timer-display">
+        <div class="timer-circle">
+          <svg>
+            <circle class="timer-progress-bg" cx="80" cy="80" r="70"></circle>
+            <circle class="timer-progress-circle" cx="80" cy="80" r="70"></circle>
+          </svg>
+          <div id="timer-time" class="timer-time">0:00</div>
+        </div>
+      </div>
+
+      <div class="timer-controls">
+        <button id="timer-pause">Pause</button>
+        <button id="timer-minus-15">-15s</button>
+        <button id="timer-plus-15">+15s</button>
+        <button id="timer-reset">Reset</button>
+        <button id="timer-skip">Skip</button>
+      </div>
+    </div>
     
     <!-- Navigation semaines (design amélioré) -->
     <nav class="bottom-nav week-navigation">
