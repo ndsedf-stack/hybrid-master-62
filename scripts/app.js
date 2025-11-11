@@ -9,41 +9,48 @@ class App {
     this.renderer = new WorkoutRenderer();
     this.timer = new TimerManager();
     this.weekNumber = 1;
-    this.dayName = 'dimanche';
-    // ✅ onDaySelected branché directement
+    this.dayName = null;
+    
     this.home = new HomeRenderer('homeRoot', (day, week) => {
       this.dayName = day;
       this.weekNumber = week;
       this.renderWorkout();
     });
+    
     this.theme = new ThemeSwitcher();
   }
 
   async init() {
     this.renderer.init();
     this.timer.init();
-    this.renderer.setTimerManager(this.timer); // ✅ utiliser le setter prévu
-
+    this.renderer.setTimerManager(this.timer);
     this.theme.init();
+    
     this.home.render(this.weekNumber, this.dayName);
-    this.renderWorkout();
+    
     this.attachEvents();
   }
 
   renderWorkout() {
+    if (!this.dayName) {
+      this.renderer.init();
+      return;
+    }
+    
     const week = ProgramData.getWeek(this.weekNumber);
     const workoutDay = ProgramData.getWorkout(this.weekNumber, this.dayName);
-
+    
     if (!workoutDay || !workoutDay.exercises || workoutDay.exercises.length === 0) {
       this.renderer.renderEmpty(this.dayName);
       return;
     }
-
+    
     workoutDay.name = this.capitalize(this.dayName);
     workoutDay.muscles = this.extractMuscles(workoutDay.exercises);
+    
     this.renderer.render(workoutDay, week);
     this.renderer.renderSupersets(this.weekNumber, this.dayName);
-
+    
     const label = document.getElementById('current-week-label');
     if (label) label.textContent = `Semaine ${this.weekNumber}`;
   }
@@ -53,18 +60,23 @@ class App {
       if (this.weekNumber > 1) {
         this.weekNumber--;
         this.home.render(this.weekNumber, this.dayName);
-        this.renderWorkout();
+        
+        if (this.dayName) {
+          this.renderWorkout();
+        }
       }
     });
-
+    
     document.getElementById('nav-next-week')?.addEventListener('click', () => {
       if (this.weekNumber < 26) {
         this.weekNumber++;
         this.home.render(this.weekNumber, this.dayName);
-        this.renderWorkout();
+        
+        if (this.dayName) {
+          this.renderWorkout();
+        }
       }
     });
-    // ✅ plus de listener global sur .serie-check ici
   }
 
   findExerciseById(id) {
