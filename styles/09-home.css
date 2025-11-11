@@ -116,7 +116,7 @@
   color: var(--primary-color);
 }
 
-/* Bouton "Voir la séance" */
+/* 🔥 Bouton "Voir la séance" - CORRIGÉ */
 .day-card button {
   margin-top: 1rem;
   width: 100%;
@@ -132,6 +132,12 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
+  /* ✅ CORRECTIONS CENTRAGE */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  line-height: 1 !important;
 }
 
 .day-card button:hover {
