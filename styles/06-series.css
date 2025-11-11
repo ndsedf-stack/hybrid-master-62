@@ -110,12 +110,12 @@
   white-space: nowrap;
 }
 
-/* Checkbox moderne */
+/* Checkbox moderne (corrigée et réduite) */
 .serie-check {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
-  border-radius: 10px;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 8px;
   border: 2px solid rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.05);
   display: flex;
@@ -124,6 +124,7 @@
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
+  margin-left: auto; /* pousse la case à droite */
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -144,7 +145,7 @@
 }
 
 .check-icon {
-  font-size: 1.25rem;
+  font-size: 1.1rem; /* ajusté au nouveau bouton */
   color: white;
   font-weight: bold;
   opacity: 0;
@@ -202,13 +203,13 @@
   }
   
   .serie-check {
-    width: 36px;
-    height: 36px;
+    width: 30px;
+    height: 30px;
     border-radius: 8px;
   }
   
   .check-icon {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
   
   .rest-time {
@@ -233,8 +234,8 @@
   }
   
   .serie-check {
-    width: 34px;
-    height: 34px;
+    width: 28px;
+    height: 28px;
   }
   
   .serie-rest {
