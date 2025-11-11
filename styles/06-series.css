@@ -255,3 +255,27 @@
     font-size: 0.7rem;
   }
 }
+/* Empêche le débordement visuel à droite */
+.serie-item {
+  overflow: hidden; /* coupe ce qui dépasse du cadre arrondi */
+  padding-right: calc(0.75rem + 6px); /* réserve de l’espace pour le ruban vert */
+}
+
+/* Le ruban vert reste derrière le contenu */
+.serie-item.completed::after {
+  z-index: 0;
+}
+
+/* La case à cocher reste bien visible au-dessus */
+.serie-check {
+  z-index: 1;
+  box-sizing: border-box; /* évite que la bordure agrandisse le bouton */
+  margin-right: 0;         /* pas de marge inutile à droite */
+}
+
+/* Si tu vois encore un petit décalage, tu peux ajuster finement */
+.serie-check {
+  /* Active une seule ligne si nécessaire */
+  /* margin-right: -1px; */
+  /* transform: translateX(0.5px); */
+}
