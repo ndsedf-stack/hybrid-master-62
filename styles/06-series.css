@@ -8,7 +8,7 @@
   margin-top: 1rem;
 }
 
-/* Carte de série moderne */
+/* Carte de série compacte */
 .serie-item {
   display: flex;
   align-items: center;
@@ -41,7 +41,7 @@
   position: absolute;
   top: 0;
   right: 0;
-  width: 8px;
+  width: 6px; /* ruban vert discret */
   height: 100%;
   border-radius: 0 12px 12px 0;
   background: linear-gradient(180deg, #10B981 0%, #059669 100%);
@@ -50,16 +50,16 @@
 
 /* Numéro de série */
 .serie-number {
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
-  border-radius: 10px;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 8px;
   background: rgba(255, 140, 66, 0.15);
   color: #ff8c42;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 700;
   flex-shrink: 0;
   transition: all 0.3s ease;
@@ -91,7 +91,7 @@
 }
 
 .serie-weight {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: #ff8c42;
 }
@@ -114,12 +114,12 @@
 }
 
 .rest-icon {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: #3b82f6;
 }
 
 .rest-time {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: #3b82f6;
   white-space: nowrap;
@@ -160,7 +160,7 @@
 }
 
 .check-icon {
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: white;
   font-weight: bold;
   opacity: 0;
@@ -199,36 +199,34 @@
   }
   
   .serie-number {
-    width: 32px;
-    height: 32px;
-    font-size: 0.9rem;
-    border-radius: 8px;
+    width: 28px;
+    height: 28px;
+    font-size: 0.85rem;
   }
   
   .serie-reps {
-    font-size: 0.875rem;
+    font-size: 0.85rem;
   }
   
   .serie-weight {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
   
   .serie-check {
-    width: 26px;
-    height: 26px;
-    border-radius: 6px;
+    width: 24px;
+    height: 24px;
   }
   
   .check-icon {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
   
   .rest-time {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
   }
   
   .serie-rest {
-    padding: 0.2rem 0.4rem;
+    padding: 0.2rem 0.35rem;
   }
 }
 
@@ -239,21 +237,21 @@
   }
   
   .serie-number {
-    width: 28px;
-    height: 28px;
-    font-size: 0.85rem;
+    width: 26px;
+    height: 26px;
+    font-size: 0.8rem;
   }
   
   .serie-check {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
   }
   
   .serie-rest {
-    padding: 0.2rem 0.35rem;
+    padding: 0.2rem 0.3rem;
   }
   
   .rest-icon {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
   }
 }
