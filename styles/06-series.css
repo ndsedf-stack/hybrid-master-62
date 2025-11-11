@@ -14,7 +14,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.5rem 0.75rem;
-  padding-right: calc(0.75rem + 6px); /* réserve de l’espace pour le ruban vert */
+  padding-right: calc(0.75rem + 6px);
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
@@ -22,7 +22,7 @@
   position: relative;
   backdrop-filter: blur(10px);
   animation: serieAppear 0.3s ease-out backwards;
-  overflow: hidden; /* coupe ce qui dépasse du cadre arrondi */
+  overflow: visible;
 }
 
 .serie-item:hover {
@@ -35,6 +35,7 @@
   border-color: rgba(16, 185, 129, 0.4);
   box-shadow: none;
   position: relative;
+  overflow: visible;
 }
 
 /* Accent vert fin à droite */
