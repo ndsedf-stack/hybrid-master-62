@@ -22,7 +22,7 @@ class App {
   async init() {
     this.renderer.init();
     this.timer.init();
-    this.renderer.timerManager = this.timer;
+    this.renderer.setTimerManager(this.timer); // ✅ utiliser le setter prévu
 
     this.theme.init();
     this.home.render(this.weekNumber, this.dayName);
@@ -65,23 +65,29 @@ class App {
       }
     });
 
-    // ✅ plus besoin d’écouter homeRoot ici, car HomeRenderer gère les clics via callback
+    // ✅ déclenche uniquement quand on clique sur la petite case .serie-check
     document.addEventListener('click', (e) => {
       const btn = e.target.closest('.serie-check');
       if (!btn) return;
 
       const exerciseId = btn.dataset.exerciseId;
-      const setNumber = parseInt(btn.dataset.setNumber);
+      const setNumber = parseInt(btn.dataset.setNumber, 10);
       const serieItem = btn.closest('.serie-item');
       if (serieItem) serieItem.classList.add('completed');
 
-      btn.querySelector('.check-icon').textContent = '✓';
+      // met visuellement la coche
+      const iconEl = btn.querySelector('.check-icon');
+      if (iconEl) iconEl.textContent = '✓';
       btn.disabled = true;
 
       const exercise = this.findExerciseById(exerciseId);
       if (exercise) {
         const restTime = exercise.rest || 90;
-        this.timer.start(restTime, exercise.name, setNumber);
+        const totalSets = typeof exercise.sets === 'number'
+          ? exercise.sets
+          : Array.isArray(exercise.sets) ? exercise.sets.length : 0;
+
+        this.timer.start(restTime, exercise.name || exerciseId, setNumber, totalSets);
       }
     });
   }
