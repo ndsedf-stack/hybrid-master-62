@@ -2,7 +2,7 @@
 // HYBRID MASTER 61 - APP PRINCIPAL FINAL CORRIGÉ
 // ==================================================================
 
-console.log('🚀 app.js chargé - Version FINALE CORRIGÉE');
+console.log('🚀 app.js chargé - Version FINALE COMPLÈTE');
 
 // ==================================================================
 // IMPORTS
@@ -11,7 +11,7 @@ import programData from './program-data.js';
 import { NavigationUI } from './ui/navigation-ui.js';
 import { HomeRenderer } from './modules/home-renderer.js';
 import { WorkoutRenderer } from './ui/workout-renderer.js';
-import { TimerManager } from './ui/timer-manager.js';
+import TimerManager from './modules/timer-manager.js';
 
 // ==================================================================
 // CLASSE PRINCIPALE
@@ -22,7 +22,7 @@ class HybridMasterApp {
         
         this.programData = programData;
         this.currentWeek = 1;
-        this.currentView = 'home'; // 🔥 CORRECTION : Démarrer sur HOME
+        this.currentView = 'home'; // 🔥 Démarrer sur HOME
         
         // Initialiser les composants UI
         this.navigationUI = new NavigationUI(
@@ -36,11 +36,12 @@ class HybridMasterApp {
         
         this.workoutRenderer = new WorkoutRenderer(
             document.getElementById('app'),
-            () => this.handleBackToHome() // 🔥 NOUVEAU : Callback retour
+            () => this.handleBackToHome() // 🔥 Callback retour
         );
         
         // Initialiser le timer
         this.timerManager = new TimerManager();
+        this.timerManager.init(); // 🔥 IMPORTANT : Initialiser le timer
         this.workoutRenderer.setTimerManager(this.timerManager);
         
         console.log('✅ Composants UI initialisés');
@@ -65,7 +66,7 @@ class HybridMasterApp {
             return;
         }
         
-        // 🔥 CORRECTION : Afficher HOME au démarrage
+        // 🔥 Afficher HOME au démarrage
         this.showHome();
     }
     
