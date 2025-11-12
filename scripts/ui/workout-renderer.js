@@ -1,222 +1,238 @@
-/**
- * WORKOUT RENDERER - Affichage des séances d'entraînement
- */
-export default class WorkoutRenderer {
-    constructor() {
-        this.currentWorkout = null;
-        this.timerManager = null;
-        this.onBackHome = null;
-        console.log('✅ WorkoutRenderer initialisé');
-    }
+// ==================================================================
+// WORKOUT RENDERER - Affichage des séances AVEC TIMER
+// ==================================================================
 
-    /**
-     * Définit le gestionnaire de timer
-     */
+export class WorkoutRenderer {
+    constructor(container, onBack) {
+        this.container = container;
+        this.onBack = onBack; // 🔥 NOUVEAU : Callback pour retour HOME
+        this.timerManager = null;
+        console.log('🏋️ WorkoutRenderer initialisé');
+    }
+    
     setTimerManager(timerManager) {
         this.timerManager = timerManager;
         console.log('✅ TimerManager connecté au WorkoutRenderer');
     }
-
-    /**
-     * Définit le callback de retour à l'accueil
-     */
-    setBackCallback(callback) {
-        this.onBackHome = callback;
-    }
-
-    /**
-     * Affiche une séance d'entraînement
-     */
-    renderWorkout(container, dayData, week, day) {
-        console.log('🎨 Rendu de la séance...', dayData);
-
+    
+    render(dayData, weekNumber) {
+        console.log(`🎨 Rendu séance : ${dayData.day}, Semaine ${weekNumber}`);
+        
         if (!dayData || !dayData.exercises) {
-            container.innerHTML = '<p class="error">❌ Aucun exercice trouvé</p>';
+            console.error('❌ Données séance invalides');
             return;
         }
-
-        this.currentWorkout = dayData;
-
-        // En-tête
-        const location = dayData.location || 'Salle';
-        const workoutName = dayData.name || 'Séance';
-        const duration = dayData.duration || 0;
-        const totalSets = dayData.totalSets || 0;
-
-        const headerHTML = `
-            <div class="workout-header">
-                <button class="btn-back" id="btn-back-home">← Retour</button>
-                <h2 class="workout-title">${location.toUpperCase()}</h2>
-                <p class="workout-subtitle">Semaine ${week} ${this.capitalize(day)}</p>
-                <p class="workout-stats">
-                    ${dayData.exercises.length} exercices ${totalSets} séries
-                </p>
-            </div>
-        `;
-
-        // Exercices
-        const exercisesHTML = dayData.exercises.map((exercise, index) => {
-            return this.renderExercise(exercise, index + 1);
-        }).join('');
-
-        container.innerHTML = `
-            <div class="workout-container">
-                ${headerHTML}
-                <div class="exercises-list">
-                    ${exercisesHTML}
+        
+        const { day, location, exercises } = dayData;
+        
+        this.container.innerHTML = `
+            <div class="workout-view">
+                <!-- 🔥 NOUVEAU : Bouton retour -->
+                <button id="back-to-home-btn" class="back-button">
+                    ← Retour
+                </button>
+                
+                <div class="workout-header">
+                    <div class="workout-title">
+                        <span class="workout-day">${day}</span>
+                        <span class="workout-location">${location}</span>
+                    </div>
+                    <div class="workout-week">Semaine ${weekNumber}</div>
+                </div>
+                
+                <div class="exercises-container">
+                    ${exercises.map((exercise, index) => this.renderExercise(exercise, index, weekNumber)).join('')}
                 </div>
             </div>
         `;
-
-        // Attacher les event listeners
-        this.attachEventListeners(container);
+        
+        // 🔥 NOUVEAU : Attacher event listener au bouton retour
+        const backBtn = document.getElementById('back-to-home-btn');
+        if (backBtn && this.onBack) {
+            backBtn.addEventListener('click', () => {
+                console.log('🏠 Clic bouton retour');
+                this.onBack();
+            });
+        }
+        
+        // Attacher les event listeners pour les checkboxes
+        this.attachCheckboxListeners(weekNumber);
     }
-
-    /**
-     * Affiche un exercice
-     */
-    renderExercise(exercise, exerciseNumber) {
-        const sets = typeof exercise.sets === 'number' ? exercise.sets : 1;
-        const reps = exercise.reps || '';
-        const weight = exercise.weight || 0;
-        const rest = exercise.rest || 60;
-        const notes = exercise.notes || '';
-
-        // Générer les séries
-        const setsHTML = Array.from({ length: sets }, (_, i) => {
-            const setNumber = i + 1;
-            return `
-                <div class="set-row" data-exercise-id="${exercise.id}" data-set="${setNumber}">
-                    <div class="set-number">
-                        <div class="set-badge-circle">${setNumber}</div>
+    
+    renderExercise(exercise, index, weekNumber) {
+        const storageKey = `workout_${weekNumber}_${exercise.name}`;
+        const savedState = this.loadExerciseState(storageKey);
+        
+        return `
+            <div class="exercise-card" data-exercise="${exercise.name}">
+                <div class="exercise-header">
+                    <h3 class="exercise-name">${exercise.name}</h3>
+                    ${exercise.variation ? `<span class="exercise-variation">${exercise.variation}</span>` : ''}
+                </div>
+                
+                ${exercise.notes ? `
+                    <div class="exercise-notes">
+                        <span class="notes-icon">💡</span>
+                        ${exercise.notes}
                     </div>
-                    <div class="set-details">
-                        <span class="set-reps">${reps} reps</span>
-                        <span class="set-weight">${weight}kg</span>
+                ` : ''}
+                
+                <div class="exercise-params">
+                    <div class="param">
+                        <span class="param-label">Séries</span>
+                        <span class="param-value">${exercise.sets}</span>
                     </div>
-                    <label class="set-checkbox-wrapper">
+                    <div class="param">
+                        <span class="param-label">Reps</span>
+                        <span class="param-value">${exercise.reps}</span>
+                    </div>
+                    ${exercise.rest ? `
+                        <div class="param">
+                            <span class="param-label">Repos</span>
+                            <span class="param-value">${exercise.rest}s</span>
+                        </div>
+                    ` : ''}
+                    ${exercise.tempo ? `
+                        <div class="param">
+                            <span class="param-label">Tempo</span>
+                            <span class="param-value">${exercise.tempo}</span>
+                        </div>
+                    ` : ''}
+                    ${exercise.load ? `
+                        <div class="param">
+                            <span class="param-label">Charge</span>
+                            <span class="param-value">${exercise.load}</span>
+                        </div>
+                    ` : ''}
+                </div>
+                
+                <div class="series-tracker" data-exercise="${exercise.name}">
+                    ${this.renderSeriesCheckboxes(exercise.sets, savedState)}
+                </div>
+            </div>
+        `;
+    }
+    
+    renderSeriesCheckboxes(totalSets, savedState = {}) {
+        const setCount = parseInt(totalSets) || 4;
+        let checkboxes = '<div class="series-list">';
+        
+        for (let i = 1; i <= setCount; i++) {
+            const isChecked = savedState[`set_${i}`] || false;
+            checkboxes += `
+                <div class="series-item ${isChecked ? 'completed' : ''}">
+                    <label class="series-checkbox">
                         <input type="checkbox" 
-                               class="set-checkbox-input"
-                               data-exercise-id="${exercise.id}" 
-                               data-set="${setNumber}"
-                               data-rest="${rest}"
-                               data-exercise-name="${exercise.name}"
-                               data-total-sets="${sets}">
-                        <span class="set-checkmark">✓</span>
+                               data-set="${i}" 
+                               data-total="${setCount}"
+                               ${isChecked ? 'checked' : ''} />
+                        <span class="checkbox-custom">
+                            <span class="check-icon">✓</span>
+                        </span>
+                        <span class="series-label">Série ${i}</span>
                     </label>
                 </div>
             `;
-        }).join('');
-
-        return `
-            <div class="exercise-card" data-exercise-id="${exercise.id}">
-                <div class="exercise-header">
-                    <h3 class="exercise-name">${exercise.name}</h3>
-                    <span class="exercise-number">#${exerciseNumber}</span>
-                </div>
-                
-                <div class="exercise-details">
-                    <div class="detail-item">
-                        <span class="detail-label">Séries</span>
-                        <span class="detail-value">${sets}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Répétitions</span>
-                        <span class="detail-value">${reps}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Poids</span>
-                        <span class="detail-value">${weight}kg</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Repos</span>
-                        <span class="detail-value">${rest}s</span>
-                    </div>
-                </div>
-
-                ${notes ? `
-                    <div class="exercise-notes">
-                        <span class="notes-icon">💡</span>
-                        <p>${notes}</p>
-                    </div>
-                ` : ''}
-
-                <div class="sets-container">
-                    ${setsHTML}
-                </div>
-            </div>
-        `;
-    }
-
-    /**
-     * Attache les event listeners
-     */
-    attachEventListeners(container) {
-        // Bouton retour
-        const backBtn = container.querySelector('#btn-back-home');
-        if (backBtn) {
-            backBtn.addEventListener('click', () => {
-                if (this.onBackHome) {
-                    this.onBackHome();
-                }
-            });
         }
-
-        const checkboxes = container.querySelectorAll('.set-checkbox input[type="checkbox"]');
+        
+        checkboxes += '</div>';
+        return checkboxes;
+    }
+    
+    attachCheckboxListeners(weekNumber) {
+        const checkboxes = this.container.querySelectorAll('.series-item input[type="checkbox"]');
         
         checkboxes.forEach(checkbox => {
             checkbox.addEventListener('change', (e) => {
-                if (e.target.checked) {
-                    this.handleSetCompleted(e.target);
-                }
+                this.handleSetComplete(e.target, weekNumber);
             });
         });
-
-        console.log(`✅ ${checkboxes.length} checkboxes attachées`);
     }
-
-    /**
-     * Gère la complétion d'une série
-     */
-    handleSetCompleted(checkbox) {
-        const exerciseName = checkbox.dataset.exerciseName;
-        const setNumber = checkbox.dataset.set;
-        const totalSets = checkbox.dataset.totalSets;
-        const restTime = parseInt(checkbox.dataset.rest) || 60;
-
-        console.log(`✅ Série ${setNumber}/${totalSets} complétée pour ${exerciseName}`);
-
-        // Marquer visuellement comme complété
-        const setRow = checkbox.closest('.set-row');
-        if (setRow) {
-            setRow.classList.add('completed');
+    
+    handleSetComplete(checkbox, weekNumber) {
+        const exerciseCard = checkbox.closest('.exercise-card');
+        const exerciseName = exerciseCard.dataset.exercise;
+        const setNumber = parseInt(checkbox.dataset.set);
+        const totalSets = parseInt(checkbox.dataset.total);
+        const seriesItem = checkbox.closest('.series-item');
+        
+        console.log(`✅ Série ${setNumber}/${totalSets} - ${exerciseName}`);
+        
+        // Animation visuelle
+        if (checkbox.checked) {
+            seriesItem.classList.add('completed');
+            
+            // 🔥 TIMER AUTOMATIQUE : Récupérer le temps de repos du programme
+            const restTime = this.getRestTimeForExercise(exerciseName);
+            
+            // Démarrer le timer si pas la dernière série
+            if (this.timerManager && setNumber < totalSets) {
+                console.log(`⏱️ Démarrage timer : ${restTime}s pour ${exerciseName}`);
+                this.timerManager.start(
+                    restTime,
+                    exerciseName,
+                    setNumber + 1,
+                    totalSets,
+                    () => {
+                        console.log('🔔 Timer terminé !');
+                        // Animation ou son de fin (optionnel)
+                    }
+                );
+            }
+        } else {
+            seriesItem.classList.remove('completed');
         }
-
-        // Démarrer le timer si disponible
-        if (this.timerManager && parseInt(setNumber) < parseInt(totalSets)) {
-            console.log(`⏱️ Démarrage timer: ${restTime}s`);
-            this.timerManager.start(
-                restTime,
-                exerciseName,
-                parseInt(setNumber) + 1,
-                totalSets,
-                () => {
-                    console.log('⏰ Repos terminé !');
-                    // Optionnel : jouer un son ou afficher une notification
-                }
-            );
-        } else if (parseInt(setNumber) === parseInt(totalSets)) {
-            console.log('🎉 Exercice terminé !');
+        
+        // Sauvegarder l'état
+        this.saveExerciseState(exerciseName, setNumber, checkbox.checked, weekNumber);
+    }
+    
+    // 🔥 NOUVEAU : Récupérer le temps de repos selon l'exercise
+    getRestTimeForExercise(exerciseName) {
+        // Chercher l'exercice dans les données du DOM
+        const exerciseCard = this.container.querySelector(`[data-exercise="${exerciseName}"]`);
+        if (!exerciseCard) return 120; // Valeur par défaut
+        
+        const restParam = exerciseCard.querySelector('.param-label');
+        if (!restParam) return 120;
+        
+        // Extraire le temps de repos depuis le HTML
+        const params = exerciseCard.querySelectorAll('.param');
+        for (const param of params) {
+            const label = param.querySelector('.param-label');
+            if (label && label.textContent.includes('Repos')) {
+                const value = param.querySelector('.param-value').textContent;
+                const seconds = parseInt(value.replace('s', ''));
+                return isNaN(seconds) ? 120 : seconds;
+            }
+        }
+        
+        return 120; // Valeur par défaut
+    }
+    
+    // ==================================================================
+    // SAUVEGARDE D'ÉTAT
+    // ==================================================================
+    
+    saveExerciseState(exerciseName, setNumber, isChecked, weekNumber) {
+        const storageKey = `workout_${weekNumber}_${exerciseName}`;
+        const state = this.loadExerciseState(storageKey);
+        state[`set_${setNumber}`] = isChecked;
+        
+        try {
+            localStorage.setItem(storageKey, JSON.stringify(state));
+        } catch (error) {
+            console.warn('⚠️ Erreur sauvegarde localStorage:', error);
         }
     }
-
-    /**
-     * Capitalise la première lettre
-     */
-    capitalize(str) {
-        if (!str) return '';
-        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    
+    loadExerciseState(storageKey) {
+        try {
+            const saved = localStorage.getItem(storageKey);
+            return saved ? JSON.parse(saved) : {};
+        } catch (error) {
+            console.warn('⚠️ Erreur lecture localStorage:', error);
+            return {};
+        }
     }
 }
-
-console.log('✅ WorkoutRenderer module chargé');
