@@ -96,20 +96,30 @@ class HybridMasterApp {
     getWorkout(week) {
         console.log(`📖 Récupération données semaine ${week}`);
         
-        if (!programData || !programData.weeks) {
+        if (!programData) {
             console.error('❌ programData invalide !');
             return null;
         }
 
-        const weekData = programData.weeks.find(w => w.week === week);
-        
-        if (!weekData) {
-            console.error(`❌ Semaine ${week} introuvable !`);
+        try {
+            // ✅ Utiliser la méthode getWeek() au lieu de programData.weeks
+            const weekData = programData.getWeek(week);
+            console.log('✅ Données récupérées:', weekData);
+            
+            // Transformer les données pour correspondre au format attendu
+            return {
+                week: weekData.weekNumber,
+                days: [
+                    { day: 'Dimanche', ...weekData.dimanche },
+                    { day: 'Mardi', ...weekData.mardi },
+                    { day: 'Vendredi', ...weekData.vendredi },
+                    { day: 'Maison', ...weekData.maison }
+                ]
+            };
+        } catch (error) {
+            console.error(`❌ Erreur récupération semaine ${week}:`, error);
             return null;
         }
-
-        console.log('✅ Données récupérées:', weekData);
-        return weekData;
     }
 
     /**
