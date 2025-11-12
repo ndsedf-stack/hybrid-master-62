@@ -9,31 +9,45 @@ class App {
     this.renderer = new WorkoutRenderer();
     this.timer = new TimerManager();
     this.weekNumber = 1;
-    this.dayName = null;
+    this.dayName = null; // ✅ Pas de jour présélectionné
     
+    // ✅ CORRECTION CRITIQUE : Attacher le timer AVANT d'initialiser le renderer
+    this.renderer.setTimerManager(this.timer);
+    
+    // ✅ onDaySelected branché directement
     this.home = new HomeRenderer('homeRoot', (day, week) => {
       this.dayName = day;
       this.weekNumber = week;
       this.renderWorkout();
     });
-    
     this.theme = new ThemeSwitcher();
   }
 
   async init() {
-    this.renderer.init();
+    console.log('🚀 Initialisation de l\'app...');
+    
+    // ✅ ORDRE CORRECT : Timer d'abord !
     this.timer.init();
-    this.renderer.setTimerManager(this.timer);
+    this.renderer.init();
     this.theme.init();
     
+    console.log('✅ Timer initialisé:', !!this.timer);
+    console.log('✅ Renderer initialisé avec timer:', !!this.renderer.timerManager);
+    
     this.home.render(this.weekNumber, this.dayName);
+    
+    // ✅ Ne pas afficher les exercices au démarrage
+    if (this.dayName) {
+      this.renderWorkout();
+    }
     
     this.attachEvents();
   }
 
   renderWorkout() {
+    // ✅ Vérification si un jour est sélectionné
     if (!this.dayName) {
-      this.renderer.init();
+      this.renderer.renderEmpty('Sélectionnez un jour');
       return;
     }
     
@@ -60,7 +74,6 @@ class App {
       if (this.weekNumber > 1) {
         this.weekNumber--;
         this.home.render(this.weekNumber, this.dayName);
-        
         if (this.dayName) {
           this.renderWorkout();
         }
@@ -71,7 +84,6 @@ class App {
       if (this.weekNumber < 26) {
         this.weekNumber++;
         this.home.render(this.weekNumber, this.dayName);
-        
         if (this.dayName) {
           this.renderWorkout();
         }
@@ -98,6 +110,7 @@ class App {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('📄 DOM chargé, démarrage de l\'app...');
   const app = new App();
   app.init();
 });
