@@ -42,8 +42,8 @@
 
   <!-- Main Content -->
   <main class="app-container container main-content">
-    <!-- Container principal pour app.js -->
-    <div id="app"></div>
+    <!-- Container principal pour app.js - CHANGÉ DE id="app" À id="content" -->
+    <div id="content"></div>
 
     <!-- Widget Timer -->
     <div id="timer-widget" class="timer-container">
@@ -77,13 +77,13 @@
 
     <!-- Navigation semaines -->
     <nav class="bottom-nav week-navigation">
-      <button class="nav-btn nav-btn-prev" id="nav-prev-week" aria-label="Semaine précédente">
+      <button class="nav-btn nav-btn-prev" id="nav-prev" aria-label="Semaine précédente">
         <span class="nav-icon">←</span>
       </button>
       <div class="week-info">
         <span id="current-week-label" class="week-label">Semaine 1</span>
       </div>
-      <button class="nav-btn nav-btn-next" id="nav-next-week" aria-label="Semaine suivante">
+      <button class="nav-btn nav-btn-next" id="nav-next" aria-label="Semaine suivante">
         <span class="nav-icon">→</span>
       </button>
     </nav>
