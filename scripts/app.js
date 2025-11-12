@@ -3,7 +3,7 @@
  */
 
 // ✅ IMPORTS CORRIGÉS selon la structure réelle
-import { PROGRAM_DATA } from './program-data.js';  // Dans scripts/
+import { PROGRAM_DATA } from './scripts/program-data.js';  // Dans scripts/
 import WorkoutRenderer from './ui/workout-renderer.js';  // Dans scripts/ui/
 import TimerManager from './modules/timer-manager.js';  // Dans scripts/modules/
 import { NavigationUI } from './ui/navigation-ui.js';  // Dans scripts/ui/
