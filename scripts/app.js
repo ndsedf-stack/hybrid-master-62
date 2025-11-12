@@ -1,5 +1,5 @@
 // scripts/app.js
-// Version TEST SANS TIMER
+// Version FINALE AVEC TIMER
 console.log('🚀 app.js chargé !');
 
 // ====================================================================
@@ -9,6 +9,135 @@ import programData from './program-data.js';
 import { NavigationUI } from './ui/navigation-ui.js';
 import WorkoutRenderer from './ui/workout-renderer.js';
 import { HomeRenderer } from './modules/home-renderer.js';
+
+// ====================================================================
+// TIMER MANAGER SIMPLE (inline pour éviter les imports)
+// ====================================================================
+class SimpleTimer {
+    constructor() {
+        this.isRunning = false;
+        this.timeLeft = 0;
+        this.interval = null;
+        this.widget = null;
+        this.onComplete = null;
+    }
+
+    init() {
+        this.widget = document.getElementById('timer-widget');
+        const closeBtn = document.getElementById('timer-close');
+        const pauseBtn = document.getElementById('timer-pause');
+        const skipBtn = document.getElementById('timer-skip');
+        const minus15Btn = document.getElementById('timer-minus-15');
+        const plus15Btn = document.getElementById('timer-plus-15');
+        const resetBtn = document.getElementById('timer-reset');
+
+        if (closeBtn) closeBtn.addEventListener('click', () => this.hide());
+        if (pauseBtn) pauseBtn.addEventListener('click', () => this.toggle());
+        if (skipBtn) skipBtn.addEventListener('click', () => this.skip());
+        if (minus15Btn) minus15Btn.addEventListener('click', () => this.adjust(-15));
+        if (plus15Btn) plus15Btn.addEventListener('click', () => this.adjust(15));
+        if (resetBtn) resetBtn.addEventListener('click', () => this.reset());
+
+        console.log('✅ Timer initialisé');
+    }
+
+    start(seconds, exerciseName, setNumber, totalSets, onComplete) {
+        this.stop();
+        this.timeLeft = seconds;
+        this.onComplete = onComplete;
+        this.isRunning = true;
+
+        // Mettre à jour l'interface
+        if (this.widget) {
+            document.getElementById('timer-exercise-name').textContent = exerciseName || 'Exercice';
+            document.getElementById('timer-set-number').textContent = `Set ${setNumber}/${totalSets}`;
+            this.widget.classList.add('active');
+        }
+
+        this.updateDisplay();
+
+        this.interval = setInterval(() => {
+            this.timeLeft--;
+            this.updateDisplay();
+
+            if (this.timeLeft <= 0) {
+                this.complete();
+            }
+        }, 1000);
+
+        console.log(`⏱️ Timer démarré: ${seconds}s pour ${exerciseName}`);
+    }
+
+    stop() {
+        if (this.interval) {
+            clearInterval(this.interval);
+            this.interval = null;
+        }
+        this.isRunning = false;
+    }
+
+    toggle() {
+        if (this.isRunning) {
+            this.stop();
+            document.getElementById('timer-pause').textContent = 'Reprendre';
+        } else {
+            this.isRunning = true;
+            this.interval = setInterval(() => {
+                this.timeLeft--;
+                this.updateDisplay();
+                if (this.timeLeft <= 0) {
+                    this.complete();
+                }
+            }, 1000);
+            document.getElementById('timer-pause').textContent = 'Pause';
+        }
+    }
+
+    adjust(seconds) {
+        this.timeLeft += seconds;
+        if (this.timeLeft < 0) this.timeLeft = 0;
+        this.updateDisplay();
+    }
+
+    reset() {
+        this.timeLeft = 90; // Temps par défaut
+        this.updateDisplay();
+    }
+
+    skip() {
+        this.complete();
+    }
+
+    complete() {
+        this.stop();
+        if (this.onComplete) {
+            this.onComplete();
+        }
+        // Son de notification (optionnel)
+        console.log('⏰ Timer terminé !');
+    }
+
+    hide() {
+        this.stop();
+        if (this.widget) {
+            this.widget.classList.remove('active');
+        }
+    }
+
+    updateDisplay() {
+        const minutes = Math.floor(this.timeLeft / 60);
+        const seconds = this.timeLeft % 60;
+        const display = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        
+        const timeElement = document.getElementById('timer-time');
+        if (timeElement) {
+            timeElement.textContent = display;
+        }
+
+        // Mettre à jour le cercle de progression (optionnel)
+        // À implémenter si nécessaire
+    }
+}
 
 // ====================================================================
 // APPLICATION PRINCIPALE
@@ -21,6 +150,7 @@ class HybridMasterApp {
         this.navigation = null;
         this.workoutRenderer = null;
         this.home = null;
+        this.timer = null;
         
         // État
         this.currentWeek = 1;
@@ -34,8 +164,14 @@ class HybridMasterApp {
         console.log('🔧 Initialisation modules...');
         
         try {
-            // Initialisation des renderers
+            // Timer
+            this.timer = new SimpleTimer();
+            this.timer.init();
+            console.log('✅ Timer initialisé');
+
+            // Workout Renderer
             this.workoutRenderer = new WorkoutRenderer();
+            this.workoutRenderer.setTimerManager(this.timer);
             console.log('✅ Workout renderer initialisé');
             
             // Navigation
@@ -45,7 +181,7 @@ class HybridMasterApp {
             console.log('✅ Navigation initialisée');
             
             // Home
-            this.home = new HomeRenderer('app', (week, day) => this.handleDayClick(week, day));
+            this.home = new HomeRenderer('app', this.handleDayClick.bind(this));
             console.log('✅ Home renderer initialisé');
             
             // Affichage initial
@@ -172,6 +308,7 @@ class HybridMasterApp {
     handleWeekChange(week) {
         console.log(`📅 Changement semaine: ${week}`);
         this.currentWeek = week;
+        this.navigation.goToWeek(week);
         this.showHome();
     }
 }
