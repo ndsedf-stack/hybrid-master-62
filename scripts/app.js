@@ -55,12 +55,19 @@ class HybridMasterApp {
         
         // Vérifier les données
         try {
+            // 🔥 TEST : Afficher l'objet programData complet
+            console.log('🔍 programData:', this.programData);
+            console.log('🔍 Type de programData:', typeof this.programData);
+            console.log('🔍 programData.getWeek existe?', typeof this.programData.getWeek);
+            
             const weekData = this.programData.getWeek(this.currentWeek);
             console.log('🔍 weekData reçu:', weekData);
+            console.log('🔍 Type de weekData:', typeof weekData);
             
             // 🔥 CORRECTION : getWeek() peut retourner directement un objet { week, days }
             // OU juste un tableau de jours
             if (!weekData) {
+                console.error('⚠️ weekData est null ou undefined !');
                 throw new Error('Données semaine introuvables');
             }
             
@@ -73,12 +80,14 @@ class HybridMasterApp {
                 console.log('✅ Format: tableau de jours direct');
             } 
             else {
+                console.error('⚠️ Format inconnu:', weekData);
                 throw new Error('Format de données semaine invalide');
             }
             
             console.log('✅ Données programme chargées');
         } catch (error) {
             console.error('❌ Erreur chargement données:', error);
+            console.error('❌ Stack trace:', error.stack);
             this.showError('Impossible de charger les données du programme');
             return;
         }
@@ -122,11 +131,25 @@ class HybridMasterApp {
         
         try {
             const weekData = this.programData.getWeek(this.currentWeek);
-            if (!weekData || !weekData.days) {
+            console.log('🔍 showHome - weekData:', weekData);
+            
+            if (!weekData) {
                 throw new Error(`Données semaine ${this.currentWeek} introuvables`);
             }
             
-            this.homeRenderer.render(weekData.days, this.currentWeek);
+            // 🔥 CORRECTION : Gérer les 2 formats possibles
+            let daysArray;
+            if (weekData.days && Array.isArray(weekData.days)) {
+                daysArray = weekData.days;
+            } else if (Array.isArray(weekData)) {
+                daysArray = weekData;
+            } else {
+                throw new Error('Format de données invalide');
+            }
+            
+            console.log('🔍 daysArray:', daysArray);
+            
+            this.homeRenderer.render(daysArray, this.currentWeek);
             this.navigationUI.updateWeekDisplay(this.currentWeek);
             
             console.log('✅ HOME affiché avec succès');
@@ -142,13 +165,27 @@ class HybridMasterApp {
         
         try {
             const weekData = this.programData.getWeek(this.currentWeek);
-            if (!weekData || !weekData.days) {
+            console.log('🔍 showWorkout - weekData:', weekData);
+            
+            if (!weekData) {
                 throw new Error(`Données semaine ${this.currentWeek} introuvables`);
             }
             
-            const dayData = weekData.days.find(d => 
+            // 🔥 CORRECTION : Gérer les 2 formats possibles
+            let daysArray;
+            if (weekData.days && Array.isArray(weekData.days)) {
+                daysArray = weekData.days;
+            } else if (Array.isArray(weekData)) {
+                daysArray = weekData;
+            } else {
+                throw new Error('Format de données invalide');
+            }
+            
+            const dayData = daysArray.find(d => 
                 d.day.toLowerCase() === day.toLowerCase()
             );
+            
+            console.log('🔍 dayData trouvé:', dayData);
             
             if (!dayData) {
                 throw new Error(`Jour ${day} introuvable dans semaine ${this.currentWeek}`);
