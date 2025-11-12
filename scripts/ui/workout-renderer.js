@@ -1,225 +1,218 @@
-import ProgramData from '../program-data.js';
+/**
+ * WORKOUT RENDERER - Affichage des séances d'entraînement
+ */
 
 export default class WorkoutRenderer {
   constructor() {
-    this.container = document.getElementById('workout-container');
     this.timerManager = null;
+    this.currentWorkout = null;
   }
 
   init() {
-    if (!this.container) return;
-    this.container.innerHTML = '';
+    console.log('✅ WorkoutRenderer initialisé');
   }
 
   setTimerManager(timerManager) {
     this.timerManager = timerManager;
+    console.log('✅ TimerManager connecté au renderer');
   }
 
-  render(workout, weekData) {
-    if (!this.container || !workout) return;
-
-    const workoutHTML = `
-      <div class="workout-header">
-        <h2 class="workout-title">${workout.name}</h2>
-        ${workout.muscles ? `<p class="workout-muscles">${workout.muscles.join(', ')}</p>` : ''}
-        <div class="workout-meta">
-          <span class="workout-duration">⏱️ ${workout.duration || '60'} min</span>
-          <span class="workout-sets">💪 ${workout.totalSets || workout.exercises?.length || 0} séries</span>
-          ${weekData?.technique ? `<span class="workout-technique">🎯 ${weekData.technique}</span>` : ''}
-          ${weekData?.rpeTarget ? `<span class="workout-rpe">📊 RPE ${weekData.rpeTarget}</span>` : ''}
-        </div>
-      </div>
-      <div class="exercises-list"></div>
-    `;
-
-    this.container.innerHTML = workoutHTML;
-    const exercisesList = this.container.querySelector('.exercises-list');
-
-    if (!workout.exercises || workout.exercises.length === 0) {
-      exercisesList.innerHTML = '<p class="no-exercises">Aucun exercice pour cette séance</p>';
+  renderWorkout(container, dayData, week, day) {
+    if (!container) {
+      console.error('❌ Container invalide');
       return;
     }
 
-    workout.exercises.forEach((exercise, index) => {
-      const exerciseCard = this.createExerciseCard(exercise, index);
-      exercisesList.appendChild(exerciseCard);
-    });
+    this.currentWorkout = { week, day, data: dayData };
+
+    // Générer le HTML
+    const html = `
+      <div class="workout-header">
+        <h2 class="workout-title">${dayData.location.toUpperCase()}</h2>
+        <div class="workout-meta">
+          <span class="workout-week">Semaine ${week}</span>
+          <span class="workout-day">${day.charAt(0).toUpperCase() + day.slice(1)}</span>
+        </div>
+      </div>
+      
+      <div class="workout-content">
+        ${dayData.exercises.map((exercise, index) => this.createExerciseCard(exercise, index)).join('')}
+      </div>
+    `;
+
+    container.innerHTML = html;
+
+    // ✅ ATTACHER LES EVENT LISTENERS APRÈS L'INSERTION DU HTML
+    this.attachEventListeners(container, dayData);
   }
 
   createExerciseCard(exercise, index) {
-    const card = document.createElement('div');
-    card.className = 'exercise-card';
-    card.dataset.exerciseId = exercise.id;
-
-    const headerHTML = `
-      <div class="exercise-header">
-        <div class="exercise-info">
+    const hasRest = exercise.rest && exercise.rest > 0;
+    
+    return `
+      <div class="exercise-card" data-exercise-index="${index}">
+        <div class="exercise-header">
           <h3 class="exercise-name">${exercise.name}</h3>
-          ${exercise.muscle ? `<span class="exercise-muscle">${Array.isArray(exercise.muscle) ? exercise.muscle.join(', ') : exercise.muscle}</span>` : ''}
+          <span class="exercise-number">#${index + 1}</span>
         </div>
-        ${exercise.isSuperset ? `<span class="superset-badge">🔗 Superset</span>` : ''}
-      </div>
-    `;
+        
+        <div class="exercise-details">
+          <div class="detail-item">
+            <span class="detail-label">Séries</span>
+            <span class="detail-value">${exercise.sets}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Répétitions</span>
+            <span class="detail-value">${exercise.reps}</span>
+          </div>
+          ${exercise.weight ? `
+            <div class="detail-item">
+              <span class="detail-label">Poids</span>
+              <span class="detail-value">${exercise.weight}kg</span>
+            </div>
+          ` : ''}
+          ${hasRest ? `
+            <div class="detail-item">
+              <span class="detail-label">Repos</span>
+              <span class="detail-value">${exercise.rest}s</span>
+            </div>
+          ` : ''}
+        </div>
 
-    const detailsHTML = `
-      <div class="exercise-details">
-        <div class="exercise-param">
-          <span class="param-label">Séries</span>
-          <span class="param-value">${exercise.sets}</span>
-        </div>
-        <div class="exercise-param">
-          <span class="param-label">Reps</span>
-          <span class="param-value">${exercise.reps}</span>
-        </div>
-        <div class="exercise-param">
-          <span class="param-label">Poids</span>
-          <span class="param-value">${exercise.weight} kg</span>
-        </div>
-        <div class="exercise-param">
-          <span class="param-label">Repos</span>
-          <span class="param-value">${exercise.rest}s</span>
-        </div>
-        ${exercise.tempo ? `
-          <div class="exercise-param">
-            <span class="param-label">Tempo</span>
-            <span class="param-value">${exercise.tempo}</span>
+        ${exercise.notes ? `
+          <div class="exercise-notes">
+            <span class="notes-icon">💡</span>
+            <span>${exercise.notes}</span>
           </div>
         ` : ''}
-        ${exercise.rpe ? `
-          <div class="exercise-param">
-            <span class="param-label">RPE</span>
-            <span class="param-value">${exercise.rpe}</span>
-          </div>
-        ` : ''}
+
+        <div class="series-section">
+          ${this.createSeriesSection(exercise, index)}
+        </div>
       </div>
     `;
-
-    const notesHTML = exercise.notes ? `
-      <div class="exercise-notes">
-        <span class="notes-icon">💡</span>
-        <p>${exercise.notes}</p>
-      </div>
-    ` : '';
-
-    const seriesHTML = this.createSeriesSection(exercise);
-
-    card.innerHTML = headerHTML + detailsHTML + notesHTML + seriesHTML;
-
-    return card;
   }
 
-  createSeriesSection(exercise) {
-    const seriesContainer = document.createElement('div');
-    seriesContainer.className = 'series-container';
-
-    const numberOfSets = typeof exercise.sets === 'number' ? exercise.sets : 1;
-
-    for (let i = 0; i < numberOfSets; i++) {
-      const serieItem = document.createElement('div');
-      serieItem.className = 'serie-item';
-      serieItem.dataset.setNumber = i + 1;
-
-      const repsDisplay = typeof exercise.reps === 'string' ? exercise.reps : `${exercise.reps}`;
-      const defaultRest = exercise.rest || 90;
-
-      serieItem.innerHTML = `
-        <div class="serie-number">${i + 1}</div>
-        <div class="serie-info">
-          <div class="serie-reps">${repsDisplay} reps</div>
-          <div class="serie-weight">${exercise.weight} kg</div>
+  createSeriesSection(exercise, exerciseIndex) {
+    const series = [];
+    for (let i = 0; i < exercise.sets; i++) {
+      series.push(`
+        <div class="serie-item" data-exercise-index="${exerciseIndex}" data-set-index="${i}">
+          <span class="serie-number">Série ${i + 1}</span>
+          <div class="serie-info">
+            <span class="serie-detail">${exercise.reps} reps</span>
+            ${exercise.weight ? `<span class="serie-detail">${exercise.weight}kg</span>` : ''}
+          </div>
+          <button type="button" 
+                  class="serie-check" 
+                  data-exercise-index="${exerciseIndex}"
+                  data-set-index="${i}"
+                  data-rest-time="${exercise.rest || 0}"
+                  data-exercise-name="${exercise.name}"
+                  aria-label="Valider la série ${i + 1}">
+            <span class="check-icon">✓</span>
+          </button>
         </div>
-        <div class="serie-rest">
-          <span class="rest-icon">⏱️</span>
-          <span class="rest-time">${defaultRest}s</span>
-        </div>
-        <button type="button" class="serie-check" data-exercise-id="${exercise.id}" data-set-number="${i + 1}" aria-label="Marquer série ${i + 1} comme complétée">
-          <span class="check-icon">✓</span>
-        </button>
-      `;
+      `);
+    }
+    return series.join('');
+  }
 
-      const checkButton = serieItem.querySelector('.serie-check');
-      checkButton.addEventListener('click', (e) => {
+  /**
+   * ✅ FONCTION CRITIQUE : Attache les event listeners APRÈS l'insertion HTML
+   */
+  attachEventListeners(container, dayData) {
+    console.log('🔗 Attachement des event listeners...');
+    
+    // Récupérer TOUS les boutons .serie-check
+    const buttons = container.querySelectorAll('.serie-check');
+    console.log(`📍 ${buttons.length} boutons trouvés`);
+
+    buttons.forEach((button, index) => {
+      button.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        this.handleSetCompletion(e.currentTarget, exercise, defaultRest);
-      });
-
-      seriesContainer.appendChild(serieItem);
-    }
-
-    return seriesContainer.outerHTML;
-  }
-
-  handleSetCompletion(button, exercise, restTime) {
-    const serieItem = button.closest('.serie-item');
-    const isCompleted = button.classList.contains('checked');
-
-    if (!isCompleted) {
-      button.classList.add('checked');
-      serieItem.classList.add('completed');
-      
-      if (this.timerManager) {
-        this.timerManager.start(restTime, exercise.name, button.dataset.setNumber);
-      }
-    } else {
-      button.classList.remove('checked');
-      serieItem.classList.remove('completed');
-      
-      if (this.timerManager) {
-        this.timerManager.stop();
-      }
-    }
-  }
-
-  renderSupersets(weekNumber, dayName) {
-    const workout = ProgramData.getWorkout(weekNumber, dayName);
-    if (!workout || !workout.exercises) return;
-
-    const supersets = this.findSupersets(workout.exercises);
-    
-    supersets.forEach(superset => {
-      const card1 = this.container.querySelector(`[data-exercise-id="${superset.exercise1.id}"]`);
-      const card2 = this.container.querySelector(`[data-exercise-id="${superset.exercise2.id}"]`);
-      
-      if (card1 && card2) {
-        card1.classList.add('superset-first');
-        card2.classList.add('superset-second');
-      }
-    });
-  }
-
-  findSupersets(exercises) {
-    const supersets = [];
-    const processed = new Set();
-
-    exercises.forEach(exercise => {
-      if (exercise.isSuperset && !processed.has(exercise.id)) {
-        const partner = exercises.find(ex => 
-          ex.supersetWith === exercise.name || 
-          exercise.supersetWith === ex.name
-        );
         
-        if (partner) {
-          supersets.push({
-            exercise1: exercise,
-            exercise2: partner
-          });
-          processed.add(exercise.id);
-          processed.add(partner.id);
+        console.log(`✅ Clic sur bouton série ${index + 1}`);
+        this.handleSetCompletion(button, dayData);
+      });
+    });
+
+    console.log('✅ Event listeners attachés');
+  }
+
+  /**
+   * Gère la validation d'une série
+   */
+  handleSetCompletion(button, dayData) {
+    console.log('🎯 handleSetCompletion appelé');
+    
+    // Vérifier que le timer est connecté
+    if (!this.timerManager) {
+      console.error('❌ TimerManager est null !');
+      alert('⚠️ Timer non initialisé. Rechargez la page.');
+      return;
+    }
+
+    // Récupérer les données du bouton
+    const exerciseIndex = parseInt(button.dataset.exerciseIndex);
+    const setIndex = parseInt(button.dataset.setIndex);
+    const restTime = parseInt(button.dataset.restTime) || 0;
+    const exerciseName = button.dataset.exerciseName;
+
+    console.log(`📊 Données:`, { exerciseIndex, setIndex, restTime, exerciseName });
+
+    // Marquer comme complété
+    const serieItem = button.closest('.serie-item');
+    if (serieItem) {
+      serieItem.classList.add('completed');
+      button.classList.add('checked');
+      button.disabled = true;
+    }
+
+    // Démarrer le timer si repos > 0
+    if (restTime > 0) {
+      console.log(`⏱️ Démarrage du timer: ${restTime}s pour ${exerciseName}`);
+      this.timerManager.start(restTime, exerciseName, setIndex + 1);
+    } else {
+      console.log('ℹ️ Pas de repos pour cet exercice');
+    }
+
+    // Sauvegarder la progression
+    this.saveProgress(exerciseIndex, setIndex);
+  }
+
+  /**
+   * Sauvegarde la progression
+   */
+  saveProgress(exerciseIndex, setIndex) {
+    if (!this.currentWorkout) return;
+
+    const key = `workout_${this.currentWorkout.week}_${this.currentWorkout.day}_${exerciseIndex}_${setIndex}`;
+    localStorage.setItem(key, 'completed');
+    console.log(`💾 Progression sauvegardée: ${key}`);
+  }
+
+  /**
+   * Charge la progression sauvegardée
+   */
+  loadProgress(container) {
+    if (!this.currentWorkout) return;
+
+    const buttons = container.querySelectorAll('.serie-check');
+    buttons.forEach(button => {
+      const exerciseIndex = button.dataset.exerciseIndex;
+      const setIndex = button.dataset.setIndex;
+      const key = `workout_${this.currentWorkout.week}_${this.currentWorkout.day}_${exerciseIndex}_${setIndex}`;
+      
+      if (localStorage.getItem(key) === 'completed') {
+        const serieItem = button.closest('.serie-item');
+        if (serieItem) {
+          serieItem.classList.add('completed');
+          button.classList.add('checked');
+          button.disabled = true;
         }
       }
     });
-
-    return supersets;
-  }
-
-  renderEmpty(dayName) {
-    if (!this.container) return;
-    this.container.innerHTML = `
-      <div class="empty-workout">
-        <h2>Aucune séance programmée</h2>
-        <p>Pas d'entraînement prévu pour ${dayName}</p>
-      </div>
-    `;
   }
 }
