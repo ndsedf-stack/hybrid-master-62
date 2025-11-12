@@ -159,7 +159,7 @@ class HybridMasterApp {
 
       // Afficher la séance avec le WorkoutRenderer
       console.log('🎨 Rendu de la séance...');
-      this.workoutRenderer.render(container, workout, week, day); // ← CHANGÉ
+      this.workoutRenderer.renderWorkout(container, workout, week, day); // ← CORRIGÉ
       console.log('✅ Séance affichée');
 
     } catch (error) {
