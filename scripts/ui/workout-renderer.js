@@ -1,11 +1,12 @@
 // ==================================================================
 // WORKOUT RENDERER - Affichage des séances AVEC TIMER
+// Compatible avec program-data.js
 // ==================================================================
 
 export class WorkoutRenderer {
     constructor(container, onBack) {
         this.container = container;
-        this.onBack = onBack; // 🔥 NOUVEAU : Callback pour retour HOME
+        this.onBack = onBack;
         this.timerManager = null;
         console.log('🏋️ WorkoutRenderer initialisé');
     }
@@ -27,7 +28,7 @@ export class WorkoutRenderer {
         
         this.container.innerHTML = `
             <div class="workout-view">
-                <!-- 🔥 NOUVEAU : Bouton retour -->
+                <!-- Bouton retour -->
                 <button id="back-to-home-btn" class="back-button">
                     ← Retour
                 </button>
@@ -46,7 +47,7 @@ export class WorkoutRenderer {
             </div>
         `;
         
-        // 🔥 NOUVEAU : Attacher event listener au bouton retour
+        // Attacher event listener au bouton retour
         const backBtn = document.getElementById('back-to-home-btn');
         if (backBtn && this.onBack) {
             backBtn.addEventListener('click', () => {
@@ -98,10 +99,16 @@ export class WorkoutRenderer {
                             <span class="param-value">${exercise.tempo}</span>
                         </div>
                     ` : ''}
-                    ${exercise.load ? `
+                    ${exercise.weight ? `
                         <div class="param">
                             <span class="param-label">Charge</span>
-                            <span class="param-value">${exercise.load}</span>
+                            <span class="param-value">${exercise.weight}kg</span>
+                        </div>
+                    ` : ''}
+                    ${exercise.rpe ? `
+                        <div class="param">
+                            <span class="param-label">RPE</span>
+                            <span class="param-value">${exercise.rpe}</span>
                         </div>
                     ` : ''}
                 </div>
@@ -162,8 +169,8 @@ export class WorkoutRenderer {
         if (checkbox.checked) {
             seriesItem.classList.add('completed');
             
-            // 🔥 TIMER AUTOMATIQUE : Récupérer le temps de repos du programme
-            const restTime = this.getRestTimeForExercise(exerciseName);
+            // Timer automatique : Récupérer le temps de repos du programme
+            const restTime = this.getRestTimeForExercise(exerciseCard);
             
             // Démarrer le timer si pas la dernière série
             if (this.timerManager && setNumber < totalSets) {
@@ -175,7 +182,6 @@ export class WorkoutRenderer {
                     totalSets,
                     () => {
                         console.log('🔔 Timer terminé !');
-                        // Animation ou son de fin (optionnel)
                     }
                 );
             }
@@ -187,16 +193,8 @@ export class WorkoutRenderer {
         this.saveExerciseState(exerciseName, setNumber, checkbox.checked, weekNumber);
     }
     
-    // 🔥 NOUVEAU : Récupérer le temps de repos selon l'exercise
-    getRestTimeForExercise(exerciseName) {
-        // Chercher l'exercice dans les données du DOM
-        const exerciseCard = this.container.querySelector(`[data-exercise="${exerciseName}"]`);
-        if (!exerciseCard) return 120; // Valeur par défaut
-        
-        const restParam = exerciseCard.querySelector('.param-label');
-        if (!restParam) return 120;
-        
-        // Extraire le temps de repos depuis le HTML
+    // Récupérer le temps de repos depuis le DOM
+    getRestTimeForExercise(exerciseCard) {
         const params = exerciseCard.querySelectorAll('.param');
         for (const param of params) {
             const label = param.querySelector('.param-label');
@@ -206,7 +204,6 @@ export class WorkoutRenderer {
                 return isNaN(seconds) ? 120 : seconds;
             }
         }
-        
         return 120; // Valeur par défaut
     }
     
