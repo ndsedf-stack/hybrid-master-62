@@ -3,12 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
-  
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Hybrid Master 61" />
   <meta name="mobile-web-app-capable" content="yes" />
-  
   <meta name="theme-color" content="#1a1a2e" media="(prefers-color-scheme: dark)" />
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
   
@@ -16,7 +14,7 @@
   
   <link rel="icon" href="data:," />
   
-  <!-- Styles CSS -->
+  <!-- CSS -->
   <link rel="stylesheet" href="styles/01-reset.css" />
   <link rel="stylesheet" href="styles/02-variables.css" />
   <link rel="stylesheet" href="styles/03-base.css" />
@@ -28,10 +26,10 @@
   <link rel="stylesheet" href="styles/08-responsive.css" />
   <link rel="stylesheet" href="styles/09-home.css" />
   <link rel="stylesheet" href="styles/09-statistics.css" />
-  <link rel="stylesheet" href="styles/10-iphone15-fix.css" />
-  <link rel="stylesheet" href="styles/11-improvements.css" />
   <link rel="stylesheet" href="styles/98-theme-switcher.css" />
   <link rel="stylesheet" href="styles/99-theme-modern.css" />
+  <link rel="stylesheet" href="styles/10-iphone15-fix.css" />
+  <link rel="stylesheet" href="styles/11-improvements.css" />
 </head>
 <body>
   <!-- Header -->
@@ -41,70 +39,43 @@
       <div class="header-actions"></div>
     </div>
   </header>
-  
-  <!-- Container Principal -->
+
+  <!-- Main Content -->
   <main class="app-container container main-content">
-    <!-- Zone d'affichage principale (HOME ou WORKOUT) -->
+    <!-- Container principal pour app.js -->
     <div id="app"></div>
-    
-    <!-- ========================================
-         WIDGET TIMER
-         ======================================== -->
-    <div id="timer-widget" class="timer-container" style="display: none;">
-      <!-- En-tête du timer -->
+
+    <!-- Widget Timer -->
+    <div id="timer-widget" class="timer-container">
       <div class="timer-header">
         <div class="timer-info">
           <p id="timer-exercise-name" class="timer-exercise-name">Exercice</p>
-          <p id="timer-set-number" class="timer-set-number">Série 1/4</p>
+          <p id="timer-set-number" class="timer-set-number">Set 1/4</p>
         </div>
-        <button id="timer-close" class="timer-close-btn" aria-label="Fermer le timer">×</button>
+        <button id="timer-close" class="timer-close-btn">×</button>
       </div>
       
-      <!-- Affichage du timer circulaire -->
       <div class="timer-display">
         <div class="timer-circle">
           <svg width="160" height="160" viewBox="0 0 160 160">
-            <!-- Cercle de fond -->
-            <circle 
-              class="timer-progress-bg" 
-              cx="80" 
-              cy="80" 
-              r="70"
-              fill="none"
-              stroke="rgba(255, 255, 255, 0.1)"
-              stroke-width="8"
-            ></circle>
-            <!-- Cercle de progression -->
-            <circle 
-              class="timer-progress-circle" 
-              cx="80" 
-              cy="80" 
-              r="70"
-              fill="none"
-              stroke="#10b981"
-              stroke-width="8"
-              stroke-linecap="round"
-              transform="rotate(-90 80 80)"
-            ></circle>
+            <circle class="timer-progress-bg" cx="80" cy="80" r="70"></circle>
+            <circle class="timer-progress-circle" cx="80" cy="80" r="70" 
+                    transform="rotate(-90 80 80)"></circle>
           </svg>
-          <!-- Temps restant -->
           <div id="timer-time" class="timer-time">0:00</div>
         </div>
       </div>
       
-      <!-- Contrôles du timer -->
       <div class="timer-controls">
-        <button id="timer-pause" class="timer-btn">Pause</button>
-        <button id="timer-minus-15" class="timer-btn">-15s</button>
-        <button id="timer-plus-15" class="timer-btn">+15s</button>
-        <button id="timer-reset" class="timer-btn">Reset</button>
-        <button id="timer-skip" class="timer-btn">Skip</button>
+        <button id="timer-pause">Pause</button>
+        <button id="timer-minus-15">-15s</button>
+        <button id="timer-plus-15">+15s</button>
+        <button id="timer-reset">Reset</button>
+        <button id="timer-skip">Skip</button>
       </div>
     </div>
-    
-    <!-- ========================================
-         NAVIGATION SEMAINES
-         ======================================== -->
+
+    <!-- Navigation semaines -->
     <nav class="bottom-nav week-navigation">
       <button class="nav-btn nav-btn-prev" id="nav-prev-week" aria-label="Semaine précédente">
         <span class="nav-icon">←</span>
@@ -117,8 +88,8 @@
       </button>
     </nav>
   </main>
-  
-  <!-- Script principal -->
+
+  <!-- JavaScript -->
   <script type="module" src="scripts/app.js"></script>
 </body>
 </html>
