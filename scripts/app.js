@@ -67,23 +67,27 @@ class HybridMasterApp {
     }
 
     try {
-      // Récupérer les données de la semaine
+      // Récupérer les infos générales de la semaine
       const weekData = this.programData.getWeek(this.currentWeek);
       console.log('📊 Données semaine:', weekData);
       
-      // Liste des jours attendus
-      const jours = ['dimanche', 'mardi', 'vendredi', 'maison'];
+      // Construire les jours directement avec getWorkout()
+      const jours = [
+        { key: 'dimanche', location: 'Maison' },
+        { key: 'mardi', location: 'Salle' },
+        { key: 'vendredi', location: 'Salle' },
+        { key: 'maison', location: 'Maison' }
+      ];
 
-      // Formatter les données pour le home renderer
       const formattedData = {
         week: this.currentWeek,
         days: jours
-          .map(jour => {
-            const data = weekData[jour];
+          .map(j => {
+            const data = this.programData.getWorkout(this.currentWeek, j.key);
             if (!data || !data.exercises) return null;
-            return { ...data, day: jour, location: data.location || 'Salle' };
+            return { ...data, day: j.key, location: j.location };
           })
-          .filter(Boolean) // retire les jours invalides
+          .filter(Boolean)
       };
 
       console.log('📋 Données formatées:', formattedData);
