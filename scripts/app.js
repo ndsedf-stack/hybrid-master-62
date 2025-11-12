@@ -66,30 +66,39 @@ class HybridMasterApp {
       return;
     }
 
-    // Récupérer les données de la première semaine
-    const firstWeekData = this.programData.getWeek(this.currentWeek);
-    
-    // Formatter les données pour le home renderer
-    const formattedData = {
-      week: this.currentWeek,
-      days: [
-        { ...firstWeekData.dimanche, day: 'dimanche', location: 'Maison' },
-        { ...firstWeekData.mardi, day: 'mardi', location: 'Salle' },
-        { ...firstWeekData.vendredi, day: 'vendredi', location: 'Salle' },
-        { ...firstWeekData.maison, day: 'maison', location: 'Maison' }
-      ]
-    };
+    try {
+      // Récupérer les données de la première semaine
+      const firstWeekData = this.programData.getWeek(this.currentWeek);
+      console.log('📊 Données semaine:', firstWeekData);
+      
+      // Formatter les données pour le home renderer
+      const formattedData = {
+        week: this.currentWeek,
+        days: [
+          { ...firstWeekData.dimanche, day: 'dimanche', location: 'Maison' },
+          { ...firstWeekData.mardi, day: 'mardi', location: 'Salle' },
+          { ...firstWeekData.vendredi, day: 'vendredi', location: 'Salle' },
+          { ...firstWeekData.maison, day: 'maison', location: 'Maison' }
+        ]
+      };
 
-    // Afficher la page d'accueil
-    this.home.render(container, formattedData);
+      console.log('📋 Données formatées:', formattedData);
 
-    // Mettre à jour le label de semaine dans la navigation
-    const weekLabel = document.getElementById('current-week-label');
-    if (weekLabel) {
-      weekLabel.textContent = `Semaine ${this.currentWeek}`;
+      // Afficher la page d'accueil
+      this.home.render(container, formattedData);
+      console.log('✅ Home.render() appelé');
+
+      // Mettre à jour le label de semaine dans la navigation
+      const weekLabel = document.getElementById('current-week-label');
+      if (weekLabel) {
+        weekLabel.textContent = `Semaine ${this.currentWeek}`;
+      }
+
+      this.currentDay = null;
+    } catch (error) {
+      console.error('❌ Erreur showHome:', error);
+      container.innerHTML = `<div style="padding: 20px; color: red;">Erreur: ${error.message}</div>`;
     }
-
-    this.currentDay = null;
   }
 
   handleDaySelection(dayData) {
