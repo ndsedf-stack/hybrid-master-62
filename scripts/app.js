@@ -83,9 +83,9 @@ class HybridMasterApp {
         week: this.currentWeek,
         days: jours
           .map(j => {
-            const data = this.programData.getWorkout(this.currentWeek, j.key);
-            if (!data || !data.exercises) return null;
-            return { ...data, day: j.key, location: j.location };
+            const workout = this.programData.getWorkout(this.currentWeek, j.key);
+            if (!workout || !workout.exercises) return null;
+            return { ...workout, day: j.key, location: j.location };
           })
           .filter(Boolean)
       };
