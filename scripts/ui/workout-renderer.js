@@ -5,6 +5,7 @@ export default class WorkoutRenderer {
     constructor() {
         this.currentWorkout = null;
         this.timerManager = null;
+        this.onBackHome = null;
         console.log('✅ WorkoutRenderer initialisé');
     }
 
@@ -14,6 +15,13 @@ export default class WorkoutRenderer {
     setTimerManager(timerManager) {
         this.timerManager = timerManager;
         console.log('✅ TimerManager connecté au WorkoutRenderer');
+    }
+
+    /**
+     * Définit le callback de retour à l'accueil
+     */
+    setBackCallback(callback) {
+        this.onBackHome = callback;
     }
 
     /**
@@ -37,6 +45,7 @@ export default class WorkoutRenderer {
 
         const headerHTML = `
             <div class="workout-header">
+                <button class="btn-back" id="btn-back-home">← Retour</button>
                 <h2 class="workout-title">${location.toUpperCase()}</h2>
                 <p class="workout-subtitle">Semaine ${week} ${this.capitalize(day)}</p>
                 <p class="workout-stats">
@@ -79,20 +88,21 @@ export default class WorkoutRenderer {
             return `
                 <div class="set-row" data-exercise-id="${exercise.id}" data-set="${setNumber}">
                     <div class="set-number">
-                        <span class="set-badge">Série ${setNumber}</span>
+                        <div class="set-badge-circle">${setNumber}</div>
                     </div>
-                    <div class="set-info">
+                    <div class="set-details">
                         <span class="set-reps">${reps} reps</span>
                         <span class="set-weight">${weight}kg</span>
                     </div>
-                    <label class="set-checkbox">
+                    <label class="set-checkbox-wrapper">
                         <input type="checkbox" 
+                               class="set-checkbox-input"
                                data-exercise-id="${exercise.id}" 
                                data-set="${setNumber}"
                                data-rest="${rest}"
                                data-exercise-name="${exercise.name}"
                                data-total-sets="${sets}">
-                        <span class="checkmark">✓</span>
+                        <span class="set-checkmark">✓</span>
                     </label>
                 </div>
             `;
@@ -142,6 +152,16 @@ export default class WorkoutRenderer {
      * Attache les event listeners
      */
     attachEventListeners(container) {
+        // Bouton retour
+        const backBtn = container.querySelector('#btn-back-home');
+        if (backBtn) {
+            backBtn.addEventListener('click', () => {
+                if (this.onBackHome) {
+                    this.onBackHome();
+                }
+            });
+        }
+
         const checkboxes = container.querySelectorAll('.set-checkbox input[type="checkbox"]');
         
         checkboxes.forEach(checkbox => {
