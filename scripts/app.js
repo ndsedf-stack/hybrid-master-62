@@ -71,14 +71,19 @@ class HybridMasterApp {
       const weekData = this.programData.getWeek(this.currentWeek);
       console.log('📊 Données semaine:', weekData);
       
+      // Liste des jours attendus
+      const jours = ['dimanche', 'mardi', 'vendredi', 'maison'];
+
       // Formatter les données pour le home renderer
       const formattedData = {
         week: this.currentWeek,
-        days: weekData.days.map(d => ({
-          ...d,
-          day: d.day,
-          location: d.location || 'Salle'
-        }))
+        days: jours
+          .map(jour => {
+            const data = weekData[jour];
+            if (!data || !data.exercises) return null;
+            return { ...data, day: jour, location: data.location || 'Salle' };
+          })
+          .filter(Boolean) // retire les jours invalides
       };
 
       console.log('📋 Données formatées:', formattedData);
