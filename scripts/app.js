@@ -53,47 +53,20 @@ class HybridMasterApp {
     init() {
         console.log('🎬 Démarrage application');
         
-        // Vérifier les données
         try {
-            // 🔥 TEST : Afficher l'objet programData complet
-            console.log('🔍 programData:', this.programData);
-            console.log('🔍 Type de programData:', typeof this.programData);
-            console.log('🔍 programData.getWeek existe?', typeof this.programData.getWeek);
-            
             const weekData = this.programData.getWeek(this.currentWeek);
-            console.log('🔍 weekData reçu:', weekData);
-            console.log('🔍 Type de weekData:', typeof weekData);
+            console.log('✅ weekData reçu:', weekData);
             
-            // 🔥 CORRECTION : getWeek() peut retourner directement un objet { week, days }
-            // OU juste un tableau de jours
             if (!weekData) {
-                console.error('⚠️ weekData est null ou undefined !');
-                throw new Error('Données semaine introuvables');
-            }
-            
-            // Si weekData a une propriété 'days', c'est ok
-            if (weekData.days && Array.isArray(weekData.days)) {
-                console.log('✅ Format: { week, days }');
-            } 
-            // Sinon, si weekData est directement un tableau, c'est ok aussi
-            else if (Array.isArray(weekData)) {
-                console.log('✅ Format: tableau de jours direct');
-            } 
-            else {
-                console.error('⚠️ Format inconnu:', weekData);
-                throw new Error('Format de données semaine invalide');
+                throw new Error('getWeek() a retourné undefined');
             }
             
             console.log('✅ Données programme chargées');
+            this.showHome();
         } catch (error) {
             console.error('❌ Erreur chargement données:', error);
-            console.error('❌ Stack trace:', error.stack);
             this.showError('Impossible de charger les données du programme');
-            return;
         }
-        
-        // 🔥 Afficher HOME au démarrage
-        this.showHome();
     }
     
     // ==================================================================
@@ -137,17 +110,39 @@ class HybridMasterApp {
                 throw new Error(`Données semaine ${this.currentWeek} introuvables`);
             }
             
-            // 🔥 CORRECTION : Gérer les 2 formats possibles
-            let daysArray;
-            if (weekData.days && Array.isArray(weekData.days)) {
-                daysArray = weekData.days;
-            } else if (Array.isArray(weekData)) {
-                daysArray = weekData;
-            } else {
-                throw new Error('Format de données invalide');
-            }
+            // 🔥 CONVERSION : weekData a la structure {dimanche: {...}, mardi: {...}, vendredi: {...}, maison: {...}}
+            const daysArray = [
+                { 
+                    day: "Dimanche", 
+                    location: weekData.dimanche.name, 
+                    exercises: weekData.dimanche.exercises,
+                    duration: weekData.dimanche.duration,
+                    totalSets: weekData.dimanche.totalSets
+                },
+                { 
+                    day: "Mardi", 
+                    location: weekData.mardi.name, 
+                    exercises: weekData.mardi.exercises,
+                    duration: weekData.mardi.duration,
+                    totalSets: weekData.mardi.totalSets
+                },
+                { 
+                    day: "Vendredi", 
+                    location: weekData.vendredi.name, 
+                    exercises: weekData.vendredi.exercises,
+                    duration: weekData.vendredi.duration,
+                    totalSets: weekData.vendredi.totalSets
+                },
+                { 
+                    day: "Maison", 
+                    location: weekData.maison.name, 
+                    exercises: weekData.maison.exercises,
+                    duration: weekData.maison.duration,
+                    totalSets: weekData.maison.totalSets
+                }
+            ];
             
-            console.log('🔍 daysArray:', daysArray);
+            console.log('✅ daysArray créé:', daysArray);
             
             this.homeRenderer.render(daysArray, this.currentWeek);
             this.navigationUI.updateWeekDisplay(this.currentWeek);
@@ -171,15 +166,37 @@ class HybridMasterApp {
                 throw new Error(`Données semaine ${this.currentWeek} introuvables`);
             }
             
-            // 🔥 CORRECTION : Gérer les 2 formats possibles
-            let daysArray;
-            if (weekData.days && Array.isArray(weekData.days)) {
-                daysArray = weekData.days;
-            } else if (Array.isArray(weekData)) {
-                daysArray = weekData;
-            } else {
-                throw new Error('Format de données invalide');
-            }
+            // 🔥 CONVERSION : Construire daysArray depuis weekData
+            const daysArray = [
+                { 
+                    day: "Dimanche", 
+                    location: weekData.dimanche.name, 
+                    exercises: weekData.dimanche.exercises,
+                    duration: weekData.dimanche.duration,
+                    totalSets: weekData.dimanche.totalSets
+                },
+                { 
+                    day: "Mardi", 
+                    location: weekData.mardi.name, 
+                    exercises: weekData.mardi.exercises,
+                    duration: weekData.mardi.duration,
+                    totalSets: weekData.mardi.totalSets
+                },
+                { 
+                    day: "Vendredi", 
+                    location: weekData.vendredi.name, 
+                    exercises: weekData.vendredi.exercises,
+                    duration: weekData.vendredi.duration,
+                    totalSets: weekData.vendredi.totalSets
+                },
+                { 
+                    day: "Maison", 
+                    location: weekData.maison.name, 
+                    exercises: weekData.maison.exercises,
+                    duration: weekData.maison.duration,
+                    totalSets: weekData.maison.totalSets
+                }
+            ];
             
             const dayData = daysArray.find(d => 
                 d.day.toLowerCase() === day.toLowerCase()
