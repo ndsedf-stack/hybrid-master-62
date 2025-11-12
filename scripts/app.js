@@ -110,8 +110,16 @@ class HybridMasterApp {
     // Afficher la page d'accueil
     this.home.render(container, formattedData);
     
-    // Mettre à jour la navigation
-    this.navigation.updateWeekDisplay(this.currentWeek);
+    // Mettre à jour la navigation (si la méthode existe)
+    if (this.navigation && typeof this.navigation.updateWeekDisplay === 'function') {
+      this.navigation.updateWeekDisplay(this.currentWeek);
+    } else {
+      // Mettre à jour manuellement le label de semaine
+      const weekLabel = document.getElementById('current-week-label');
+      if (weekLabel) {
+        weekLabel.textContent = `Semaine ${this.currentWeek}`;
+      }
+    }
     this.currentDay = null;
   }
   
