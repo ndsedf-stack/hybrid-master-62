@@ -4,7 +4,7 @@
 // ====================================================================
 // IMPORTS
 // ====================================================================
-import programData from './program-data.js'; // ← CHANGÉ : default export
+import programData from './program-data.js';
 import WorkoutRenderer from './ui/workout-renderer.js';
 import TimerManager from './modules/timer-manager.js';
 import { NavigationUI } from './ui/navigation-ui.js';
@@ -18,13 +18,11 @@ class HybridMasterApp {
   constructor() {
     console.log('🚀 Initialisation de l\'application...');
     
-    // Récupérer les données du programme
-    this.programData = programData; // ← Instance de ProgramData
+    this.programData = programData;
     
-    // Initialiser les modules
     this.timer = new TimerManager();
     this.renderer = new WorkoutRenderer();
-    this.renderer.setTimerManager(this.timer); // ✅ CONNEXION IMMÉDIATE
+    this.renderer.setTimerManager(this.timer);
     
     this.navigation = new NavigationUI(
       (week, day) => this.loadWorkout(week, day),
@@ -38,37 +36,28 @@ class HybridMasterApp {
       (dayData) => this.handleDaySelection(dayData)
     );
     
-    // État actuel
     this.currentWeek = 1;
     this.currentDay = null;
     
     console.log('✅ Modules initialisés');
   }
   
-  // ====================================================================
-  // INITIALISATION
-  // ====================================================================
   async init() {
     console.log('🔧 Initialisation des composants...');
     
     try {
-      // Initialiser le timer
       this.timer.init();
       console.log('✅ Timer initialisé');
       
-      // Initialiser le renderer
       this.renderer.init();
       console.log('✅ Renderer initialisé');
       
-      // Initialiser la navigation
       this.navigation.init();
       console.log('✅ Navigation initialisée');
       
-      // Initialiser le thème
       this.theme.init();
       console.log('✅ Thème initialisé');
       
-      // Afficher l'accueil
       this.showHome();
       console.log('✅ Page d\'accueil affichée');
       
@@ -77,9 +66,6 @@ class HybridMasterApp {
     }
   }
   
-  // ====================================================================
-  // AFFICHAGE PAGE D'ACCUEIL
-  // ====================================================================
   showHome() {
     console.log('🏠 Affichage de la page d\'accueil...');
     
@@ -89,10 +75,8 @@ class HybridMasterApp {
       return;
     }
     
-    // Préparer les données pour le home renderer
     const weekData = this.programData.getWeek(this.currentWeek);
     
-    // Convertir la structure pour le renderer
     const formattedData = {
       weeks: [{
         week: this.currentWeek,
@@ -107,40 +91,26 @@ class HybridMasterApp {
     
     console.log('📊 Données formatées:', formattedData);
     
-    // Afficher la page d'accueil
     this.home.render(container, formattedData);
     
-    // Mettre à jour la navigation (si la méthode existe)
-    if (this.navigation && typeof this.navigation.updateWeekDisplay === 'function') {
-      this.navigation.updateWeekDisplay(this.currentWeek);
-    } else {
-      // Mettre à jour manuellement le label de semaine
-      const weekLabel = document.getElementById('current-week-label');
-      if (weekLabel) {
-        weekLabel.textContent = `Semaine ${this.currentWeek}`;
-      }
+    // ✅ CORRECTION : Vérifier si la méthode existe
+    const weekLabel = document.getElementById('current-week-label');
+    if (weekLabel) {
+      weekLabel.textContent = `Semaine ${this.currentWeek}`;
     }
+    
     this.currentDay = null;
   }
   
-  // ====================================================================
-  // SÉLECTION D'UN JOUR
-  // ====================================================================
   handleDaySelection(dayData) {
     console.log('📅 Jour sélectionné:', dayData);
-    
-    // Charger la séance
     this.loadWorkout(this.currentWeek, dayData.day);
   }
   
-  // ====================================================================
-  // CHARGER UNE SÉANCE
-  // ====================================================================
   loadWorkout(week, day) {
     console.log(`💪 Chargement séance: Semaine ${week}, ${day}`);
     
     try {
-      // Récupérer les données de la séance
       const workout = this.programData.getWorkout(week, day);
       
       if (!workout) {
@@ -148,7 +118,6 @@ class HybridMasterApp {
         return;
       }
       
-      // Préparer les données pour le renderer
       const dayData = {
         day: day,
         location: this.getLocation(day),
@@ -160,23 +129,23 @@ class HybridMasterApp {
       
       console.log('📋 Données séance:', dayData);
       
-      // Afficher la séance
       const container = document.getElementById('app');
       this.renderer.render(container, dayData);
       
-      // Mettre à jour l'état
       this.currentWeek = week;
       this.currentDay = day;
-      this.navigation.updateWeekDisplay(week);
+      
+      // ✅ CORRECTION : Mettre à jour manuellement
+      const weekLabel = document.getElementById('current-week-label');
+      if (weekLabel) {
+        weekLabel.textContent = `Semaine ${week}`;
+      }
       
     } catch (error) {
       console.error('❌ Erreur chargement séance:', error);
     }
   }
   
-  // ====================================================================
-  // HELPER : Déterminer la location
-  // ====================================================================
   getLocation(day) {
     if (day === 'dimanche' || day === 'maison') {
       return 'Maison';
@@ -184,9 +153,6 @@ class HybridMasterApp {
     return 'Salle';
   }
   
-  // ====================================================================
-  // NAVIGATION SEMAINES
-  // ====================================================================
   nextWeek() {
     if (this.currentWeek < 26) {
       this.currentWeek++;
@@ -210,25 +176,17 @@ class HybridMasterApp {
   }
 }
 
-// ====================================================================
-// INITIALISATION APPLICATION
-// ====================================================================
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('📱 DOM chargé, démarrage application...');
   
   try {
-    // Créer l'instance de l'application
     window.app = new HybridMasterApp();
-    
-    // Initialiser
     await window.app.init();
-    
     console.log('✅ Application démarrée avec succès !');
     
   } catch (error) {
     console.error('❌ Erreur fatale:', error);
     
-    // Afficher un message d'erreur à l'utilisateur
     const container = document.getElementById('app');
     if (container) {
       container.innerHTML = `
