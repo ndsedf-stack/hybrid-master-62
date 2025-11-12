@@ -1,357 +1,155 @@
-/* ========================================
-   HOME - Page d'accueil moderne
-======================================== */
+/* ====================================================================
+   HOME PAGE - SÉLECTION DES JOURS
+   ==================================================================== */
 
-/* Grille des jours de la semaine */
+.home-container {
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.home-title {
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-primary, #fff);
+}
+
+.home-subtitle {
+  font-size: 1rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: var(--color-text-secondary, #aaa);
+}
+
 .home-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 1rem;
-  margin-top: 1.5rem;
-  padding: 0.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 6rem; /* Espace pour la navigation */
 }
 
-/* Card de jour moderne */
+/* ====================================================================
+   DAY CARDS
+   ==================================================================== */
+
 .day-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
-  backdrop-filter: blur(10px);
-  padding: 1.5rem 1.25rem;
-  border-radius: 16px;
-  color: var(--text-primary);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  text-align: center;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--color-card-bg, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
+  border-radius: 1rem;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  cursor: pointer;
-}
-
-/* Effet de brillance au hover */
-.day-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  transition: left 0.5s ease;
-}
-
-.day-card:hover::before {
-  left: 100%;
 }
 
 .day-card:hover {
-  transform: translateY(-4px) scale(1.02);
-  border-color: rgba(255, 140, 66, 0.4);
-  box-shadow: 0 8px 24px rgba(255, 140, 66, 0.2), 0 0 0 1px rgba(255, 140, 66, 0.1);
+  transform: translateY(-4px);
+  border-color: var(--color-primary, #00d4ff);
+  box-shadow: 0 8px 24px rgba(0, 212, 255, 0.2);
 }
 
-/* Jour avec entraînement */
-.day-card.has-workout {
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%);
-  border-color: rgba(255, 140, 66, 0.3);
-}
-
-/* Jour actif */
-.day-card.active {
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.2) 0%, rgba(59, 130, 246, 0.15) 100%);
-  border-color: var(--primary-color);
-  box-shadow: 0 8px 24px rgba(255, 140, 66, 0.3), 0 0 0 2px rgba(255, 140, 66, 0.2);
+.day-card:active {
   transform: translateY(-2px);
 }
 
-/* Titre du jour */
-.day-card h4 {
-  margin: 0 0 0.75rem 0;
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--primary-color);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  line-height: 1.2;
-}
-
-.day-card.active h4 {
-  color: #FFB366;
-}
-
-/* Emoji/Icône du jour */
-.day-icon {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-  display: block;
-  animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-}
-
-/* Informations du jour */
-.day-card p {
-  margin: 0.4rem 0;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  line-height: 1.4;
-}
-
-.day-card p strong {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-/* Badge du nombre d'exercices */
-.exercise-count {
-  display: inline-block;
-  margin-top: 0.5rem;
-  padding: 0.25rem 0.75rem;
-  background: rgba(255, 140, 66, 0.15);
-  border: 1px solid rgba(255, 140, 66, 0.3);
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--primary-color);
-}
-
-/* 🔥 Bouton "Voir la séance" - CORRIGÉ */
-.day-card button {
-  margin-top: 1rem;
-  width: 100%;
-  background: var(--gradient-primary);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.25rem;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 700;
-  transition: all 0.25s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
-  /* ✅ CORRECTIONS CENTRAGE */
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  text-align: center !important;
-  line-height: 1 !important;
-}
-
-.day-card button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(255, 140, 66, 0.4);
-}
-
-.day-card button:active {
-  transform: translateY(0);
-}
-
-.day-card button.active {
-  background: var(--gradient-success);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-}
-
-/* Navigation entre jours (alternative) */
-.day-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 1rem 0;
-  justify-content: center;
-}
-
-.day-button {
-  padding: 0.625rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-primary);
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  font-size: 0.875rem;
-  font-weight: 600;
-  backdrop-filter: blur(10px);
-}
-
-.day-button:hover {
-  background: var(--gradient-primary);
-  border-color: transparent;
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
-}
-
-.day-button.active {
-  background: var(--gradient-accent);
-  border-color: transparent;
-  color: white;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-}
-
-/* Message "Aucune séance" */
-.empty-workout {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
-  backdrop-filter: blur(10px);
-  color: var(--text-primary);
-  padding: 3rem 2rem;
-  border-radius: 20px;
+.day-card-icon {
+  font-size: 3rem;
   text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  margin-top: 2rem;
-  animation: fadeIn 0.5s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.empty-icon {
-  font-size: 4rem;
   margin-bottom: 1rem;
-  animation: pulse 2s ease-in-out infinite;
 }
 
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.1); opacity: 0.8; }
-}
-
-.empty-workout h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 0.75rem;
-  color: var(--primary-color);
-  letter-spacing: -0.02em;
-}
-
-.empty-workout p {
-  font-size: 1rem;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  margin: 0.5rem 0;
-}
-
-.empty-hint {
-  margin-top: 1rem;
-  padding: 0.75rem 1.5rem;
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 12px;
-  display: inline-block;
-  font-weight: 600;
-  color: var(--accent-color);
-}
-
-/* Section titre de la semaine */
-.week-header {
-  margin-bottom: 1.5rem;
-  padding: 1.5rem;
-  background: linear-gradient(135deg, rgba(255, 140, 66, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
-  border: 1px solid rgba(255, 140, 66, 0.2);
-  border-radius: 16px;
+.day-card-info {
   text-align: center;
+  margin-bottom: 1rem;
 }
 
-.week-header h2 {
-  margin: 0;
+.day-card-meta {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #aaa);
+  margin-bottom: 0.5rem;
+}
+
+.day-card-title {
   font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: -0.02em;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-primary, #fff);
 }
 
-.week-info {
-  margin-top: 0.5rem;
-  font-size: 0.95rem;
-  color: var(--text-secondary);
+.day-card-location {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #aaa);
+  margin-bottom: 1rem;
 }
 
-/* Responsive - Tablettes */
+.day-card-exercises {
+  font-size: 0.875rem;
+  color: var(--color-text-primary, #fff);
+  line-height: 1.6;
+  white-space: pre-line;
+  text-align: left;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.day-card-button {
+  width: 100%;
+  padding: 1rem;
+  background: var(--color-primary, #00d4ff);
+  color: var(--color-bg-primary, #1a1a2e);
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.day-card-button:hover {
+  background: var(--color-primary-hover, #00b8e6);
+  transform: scale(1.02);
+}
+
+.day-card-button:active {
+  transform: scale(0.98);
+}
+
+/* ====================================================================
+   RESPONSIVE
+   ==================================================================== */
+
 @media (max-width: 768px) {
   .home-grid {
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 0.75rem;
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
   
-  .day-card {
-    padding: 1.25rem 1rem;
-  }
-  
-  .day-card h4 {
-    font-size: 1rem;
-  }
-  
-  .day-icon {
-    font-size: 1.75rem;
-  }
-}
-
-/* Responsive - Mobiles */
-@media (max-width: 430px) {
-  .home-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.625rem;
-    padding: 0.25rem;
-  }
-  
-  .day-card {
-    padding: 1rem 0.75rem;
-  }
-  
-  .day-card h4 {
-    font-size: 0.95rem;
-  }
-  
-  .day-card p {
-    font-size: 0.8rem;
-  }
-  
-  .day-card button {
-    padding: 0.625rem 1rem;
-    font-size: 0.8rem;
-  }
-  
-  .day-icon {
+  .home-title {
     font-size: 1.5rem;
   }
   
-  .exercise-count {
-    font-size: 0.75rem;
-    padding: 0.2rem 0.6rem;
-  }
-  
-  .empty-workout {
-    padding: 2rem 1.5rem;
-  }
-  
-  .empty-icon {
-    font-size: 3rem;
-  }
-  
-  .empty-workout h2 {
-    font-size: 1.25rem;
-  }
-  
-  .week-header {
+  .day-card {
     padding: 1rem;
   }
   
-  .week-header h2 {
-    font-size: 1.4rem;
+  .day-card-title {
+    font-size: 1.5rem;
   }
 }
 
-/* Petits mobiles */
-@media (max-width: 375px) {
-  .home-grid {
-    grid-template-columns: 1fr;
+@media (max-width: 480px) {
+  .home-container {
+    padding: 0.5rem;
   }
   
-  .day-card {
-    padding: 1.25rem 1rem;
+  .home-grid {
+    gap: 0.75rem;
   }
 }
