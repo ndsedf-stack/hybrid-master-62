@@ -1,209 +1,202 @@
 /**
  * WORKOUT RENDERER - Affichage des séances d'entraînement
  */
-
 export default class WorkoutRenderer {
-  constructor() {
-    this.currentWorkout = null;
-    console.log('✅ WorkoutRenderer initialisé');
-  }
-
-  renderWorkout(container, dayData, week, day) {
-    console.log('🎨 Rendu de la séance...');
-    console.log('📊 Données reçues:', dayData);
-    
-    if (!container) {
-      console.error('❌ Container invalide');
-      return;
+    constructor() {
+        this.currentWorkout = null;
+        this.timerManager = null;
+        console.log('✅ WorkoutRenderer initialisé');
     }
 
-    if (!dayData || !dayData.exercises) {
-      console.error('❌ Données de séance invalides');
-      container.innerHTML = '<p>Erreur : Aucun exercice trouvé</p>';
-      return;
+    /**
+     * Définit le gestionnaire de timer
+     */
+    setTimerManager(timerManager) {
+        this.timerManager = timerManager;
+        console.log('✅ TimerManager connecté au WorkoutRenderer');
     }
 
-    this.currentWorkout = { week, day, data: dayData };
+    /**
+     * Affiche une séance d'entraînement
+     */
+    renderWorkout(container, dayData, week, day) {
+        console.log('🎨 Rendu de la séance...', dayData);
 
-    // Récupérer le nom et la location de manière sûre
-    const workoutName = dayData.name || dayData.day || day || 'Séance';
-    const location = dayData.location || 'Salle';
+        if (!dayData || !dayData.exercises) {
+            container.innerHTML = '<p class="error">❌ Aucun exercice trouvé</p>';
+            return;
+        }
 
-    // Générer le HTML
-    const html = `
-      <div class="workout-container">
-        <div class="workout-header">
-          <h2 class="workout-title">${location.toUpperCase()}</h2>
-          <div class="workout-meta">
-            <span class="workout-week">Semaine ${week}</span>
-            <span class="workout-day">${this.capitalize(day)}</span>
-          </div>
-          <div class="workout-stats">
-            <span>${dayData.exercises.length} exercices</span>
-            <span>${dayData.totalSets || this.countTotalSets(dayData.exercises)} séries</span>
-          </div>
-        </div>
-        
-        <div class="workout-content">
-          ${dayData.exercises.map((exercise, index) => this.createExerciseCard(exercise, index)).join('')}
-        </div>
-      </div>
-    `;
+        this.currentWorkout = dayData;
 
-    container.innerHTML = html;
+        // En-tête
+        const location = dayData.location || 'Salle';
+        const workoutName = dayData.name || 'Séance';
+        const duration = dayData.duration || 0;
+        const totalSets = dayData.totalSets || 0;
 
-    // ✅ ATTACHER LES EVENT LISTENERS APRÈS L'INSERTION DU HTML
-    this.attachEventListeners(container);
-    
-    console.log('✅ Séance affichée avec succès');
-  }
-
-  countTotalSets(exercises) {
-    return exercises.reduce((sum, ex) => sum + (ex.sets || 0), 0);
-  }
-
-  createExerciseCard(exercise, index) {
-    const hasRest = exercise.rest && exercise.rest > 0;
-    
-    return `
-      <div class="exercise-card" data-exercise-index="${index}">
-        <div class="exercise-header">
-          <h3 class="exercise-name">${exercise.name}</h3>
-          <span class="exercise-number">#${index + 1}</span>
-        </div>
-        
-        <div class="exercise-details">
-          <div class="detail-item">
-            <span class="detail-label">Séries</span>
-            <span class="detail-value">${exercise.sets}</span>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Répétitions</span>
-            <span class="detail-value">${exercise.reps}</span>
-          </div>
-          ${exercise.weight ? `
-            <div class="detail-item">
-              <span class="detail-label">Poids</span>
-              <span class="detail-value">${exercise.weight}kg</span>
+        const headerHTML = `
+            <div class="workout-header">
+                <h2 class="workout-title">${location.toUpperCase()}</h2>
+                <p class="workout-subtitle">Semaine ${week} ${this.capitalize(day)}</p>
+                <p class="workout-stats">
+                    ${dayData.exercises.length} exercices ${totalSets} séries
+                </p>
             </div>
-          ` : ''}
-          ${hasRest ? `
-            <div class="detail-item">
-              <span class="detail-label">Repos</span>
-              <span class="detail-value">${exercise.rest}s</span>
+        `;
+
+        // Exercices
+        const exercisesHTML = dayData.exercises.map((exercise, index) => {
+            return this.renderExercise(exercise, index + 1);
+        }).join('');
+
+        container.innerHTML = `
+            <div class="workout-container">
+                ${headerHTML}
+                <div class="exercises-list">
+                    ${exercisesHTML}
+                </div>
             </div>
-          ` : ''}
-        </div>
+        `;
 
-        ${exercise.notes ? `
-          <div class="exercise-notes">
-            <span class="notes-icon">💡</span>
-            <span>${exercise.notes}</span>
-          </div>
-        ` : ''}
-
-        <div class="series-section">
-          ${this.createSeriesSection(exercise, index)}
-        </div>
-      </div>
-    `;
-  }
-
-  createSeriesSection(exercise, exerciseIndex) {
-    const series = [];
-    for (let i = 0; i < exercise.sets; i++) {
-      series.push(`
-        <div class="serie-item" data-exercise-index="${exerciseIndex}" data-set-index="${i}">
-          <span class="serie-number">Série ${i + 1}</span>
-          <div class="serie-info">
-            <span class="serie-detail">${exercise.reps} reps</span>
-            ${exercise.weight ? `<span class="serie-detail">${exercise.weight}kg</span>` : ''}
-          </div>
-          <button type="button" 
-                  class="serie-check" 
-                  data-exercise-index="${exerciseIndex}"
-                  data-set-index="${i}"
-                  data-rest-time="${exercise.rest || 0}"
-                  data-exercise-name="${exercise.name}"
-                  aria-label="Valider la série ${i + 1}">
-            <span class="check-icon">✓</span>
-          </button>
-        </div>
-      `);
+        // Attacher les event listeners
+        this.attachEventListeners(container);
     }
-    return series.join('');
-  }
 
-  /**
-   * ✅ FONCTION CRITIQUE : Attache les event listeners APRÈS l'insertion HTML
-   */
-  attachEventListeners(container) {
-    console.log('🔗 Attachement des event listeners...');
-    
-    // Récupérer TOUS les boutons .serie-check
-    const buttons = container.querySelectorAll('.serie-check');
-    console.log(`📍 ${buttons.length} boutons trouvés`);
+    /**
+     * Affiche un exercice
+     */
+    renderExercise(exercise, exerciseNumber) {
+        const sets = typeof exercise.sets === 'number' ? exercise.sets : 1;
+        const reps = exercise.reps || '';
+        const weight = exercise.weight || 0;
+        const rest = exercise.rest || 60;
+        const notes = exercise.notes || '';
 
-    buttons.forEach((button) => {
-      button.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+        // Générer les séries
+        const setsHTML = Array.from({ length: sets }, (_, i) => {
+            const setNumber = i + 1;
+            return `
+                <div class="set-row" data-exercise-id="${exercise.id}" data-set="${setNumber}">
+                    <div class="set-number">
+                        <span class="set-badge">Série ${setNumber}</span>
+                    </div>
+                    <div class="set-info">
+                        <span class="set-reps">${reps} reps</span>
+                        <span class="set-weight">${weight}kg</span>
+                    </div>
+                    <label class="set-checkbox">
+                        <input type="checkbox" 
+                               data-exercise-id="${exercise.id}" 
+                               data-set="${setNumber}"
+                               data-rest="${rest}"
+                               data-exercise-name="${exercise.name}"
+                               data-total-sets="${sets}">
+                        <span class="checkmark">✓</span>
+                    </label>
+                </div>
+            `;
+        }).join('');
+
+        return `
+            <div class="exercise-card" data-exercise-id="${exercise.id}">
+                <div class="exercise-header">
+                    <h3 class="exercise-name">${exercise.name}</h3>
+                    <span class="exercise-number">#${exerciseNumber}</span>
+                </div>
+                
+                <div class="exercise-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Séries</span>
+                        <span class="detail-value">${sets}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Répétitions</span>
+                        <span class="detail-value">${reps}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Poids</span>
+                        <span class="detail-value">${weight}kg</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Repos</span>
+                        <span class="detail-value">${rest}s</span>
+                    </div>
+                </div>
+
+                ${notes ? `
+                    <div class="exercise-notes">
+                        <span class="notes-icon">💡</span>
+                        <p>${notes}</p>
+                    </div>
+                ` : ''}
+
+                <div class="sets-container">
+                    ${setsHTML}
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * Attache les event listeners
+     */
+    attachEventListeners(container) {
+        const checkboxes = container.querySelectorAll('.set-checkbox input[type="checkbox"]');
         
-        console.log('✅ Clic sur bouton série');
-        this.handleSetCompletion(button);
-      });
-    });
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    this.handleSetCompleted(e.target);
+                }
+            });
+        });
 
-    console.log('✅ Event listeners attachés');
-  }
-
-  /**
-   * Gère la validation d'une série
-   */
-  handleSetCompletion(button) {
-    console.log('🎯 handleSetCompletion appelé');
-    
-    // Récupérer les données du bouton
-    const exerciseIndex = parseInt(button.dataset.exerciseIndex);
-    const setIndex = parseInt(button.dataset.setIndex);
-    const restTime = parseInt(button.dataset.restTime) || 0;
-    const exerciseName = button.dataset.exerciseName;
-
-    console.log(`📊 Série validée: ${exerciseName} - Set ${setIndex + 1}`);
-
-    // Marquer comme complété
-    const serieItem = button.closest('.serie-item');
-    if (serieItem) {
-      serieItem.classList.add('completed');
-      button.classList.add('checked');
-      button.disabled = true;
+        console.log(`✅ ${checkboxes.length} checkboxes attachées`);
     }
 
-    // TODO: Démarrer le timer si repos > 0
-    if (restTime > 0) {
-      console.log(`⏱️ Timer à implémenter: ${restTime}s pour ${exerciseName}`);
+    /**
+     * Gère la complétion d'une série
+     */
+    handleSetCompleted(checkbox) {
+        const exerciseName = checkbox.dataset.exerciseName;
+        const setNumber = checkbox.dataset.set;
+        const totalSets = checkbox.dataset.totalSets;
+        const restTime = parseInt(checkbox.dataset.rest) || 60;
+
+        console.log(`✅ Série ${setNumber}/${totalSets} complétée pour ${exerciseName}`);
+
+        // Marquer visuellement comme complété
+        const setRow = checkbox.closest('.set-row');
+        if (setRow) {
+            setRow.classList.add('completed');
+        }
+
+        // Démarrer le timer si disponible
+        if (this.timerManager && parseInt(setNumber) < parseInt(totalSets)) {
+            console.log(`⏱️ Démarrage timer: ${restTime}s`);
+            this.timerManager.start(
+                restTime,
+                exerciseName,
+                parseInt(setNumber) + 1,
+                totalSets,
+                () => {
+                    console.log('⏰ Repos terminé !');
+                    // Optionnel : jouer un son ou afficher une notification
+                }
+            );
+        } else if (parseInt(setNumber) === parseInt(totalSets)) {
+            console.log('🎉 Exercice terminé !');
+        }
     }
 
-    // Sauvegarder la progression
-    this.saveProgress(exerciseIndex, setIndex);
-  }
-
-  /**
-   * Sauvegarde la progression
-   */
-  saveProgress(exerciseIndex, setIndex) {
-    if (!this.currentWorkout) return;
-
-    const key = `workout_${this.currentWorkout.week}_${this.currentWorkout.day}_${exerciseIndex}_${setIndex}`;
-    localStorage.setItem(key, 'completed');
-    console.log(`💾 Progression sauvegardée: ${key}`);
-  }
-
-  /**
-   * Capitalise la première lettre
-   */
-  capitalize(str) {
-    if (!str) return '';
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
+    /**
+     * Capitalise la première lettre
+     */
+    capitalize(str) {
+        if (!str) return '';
+        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    }
 }
+
+console.log('✅ WorkoutRenderer module chargé');
