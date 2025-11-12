@@ -1,339 +1,178 @@
-// scripts/app.js
-// Version FINALE AVEC TIMER
-console.log('🚀 app.js chargé !');
+// ==================================================================
+// HYBRID MASTER 61 - APP PRINCIPAL FINAL CORRIGÉ
+// ==================================================================
 
-// ====================================================================
+console.log('🚀 app.js chargé - Version FINALE CORRIGÉE');
+
+// ==================================================================
 // IMPORTS
-// ====================================================================
+// ==================================================================
 import programData from './program-data.js';
 import { NavigationUI } from './ui/navigation-ui.js';
-import WorkoutRenderer from './ui/workout-renderer.js';
 import { HomeRenderer } from './modules/home-renderer.js';
+import { WorkoutRenderer } from './ui/workout-renderer.js';
+import { TimerManager } from './ui/timer-manager.js';
 
-// ====================================================================
-// TIMER MANAGER SIMPLE (inline pour éviter les imports)
-// ====================================================================
-class SimpleTimer {
-    constructor() {
-        this.isRunning = false;
-        this.timeLeft = 0;
-        this.interval = null;
-        this.widget = null;
-        this.onComplete = null;
-    }
-
-    init() {
-        this.widget = document.getElementById('timer-widget');
-        const closeBtn = document.getElementById('timer-close');
-        const pauseBtn = document.getElementById('timer-pause');
-        const skipBtn = document.getElementById('timer-skip');
-        const minus15Btn = document.getElementById('timer-minus-15');
-        const plus15Btn = document.getElementById('timer-plus-15');
-        const resetBtn = document.getElementById('timer-reset');
-
-        if (closeBtn) closeBtn.addEventListener('click', () => this.hide());
-        if (pauseBtn) pauseBtn.addEventListener('click', () => this.toggle());
-        if (skipBtn) skipBtn.addEventListener('click', () => this.skip());
-        if (minus15Btn) minus15Btn.addEventListener('click', () => this.adjust(-15));
-        if (plus15Btn) plus15Btn.addEventListener('click', () => this.adjust(15));
-        if (resetBtn) resetBtn.addEventListener('click', () => this.reset());
-
-        console.log('✅ Timer initialisé');
-    }
-
-    start(seconds, exerciseName, setNumber, totalSets, onComplete) {
-        this.stop();
-        this.timeLeft = seconds;
-        this.onComplete = onComplete;
-        this.isRunning = true;
-
-        // Mettre à jour l'interface
-        if (this.widget) {
-            document.getElementById('timer-exercise-name').textContent = exerciseName || 'Exercice';
-            document.getElementById('timer-set-number').textContent = `Set ${setNumber}/${totalSets}`;
-            this.widget.classList.add('active');
-        }
-
-        this.updateDisplay();
-
-        this.interval = setInterval(() => {
-            this.timeLeft--;
-            this.updateDisplay();
-
-            if (this.timeLeft <= 0) {
-                this.complete();
-            }
-        }, 1000);
-
-        console.log(`⏱️ Timer démarré: ${seconds}s pour ${exerciseName}`);
-    }
-
-    stop() {
-        if (this.interval) {
-            clearInterval(this.interval);
-            this.interval = null;
-        }
-        this.isRunning = false;
-    }
-
-    toggle() {
-        if (this.isRunning) {
-            this.stop();
-            document.getElementById('timer-pause').textContent = 'Reprendre';
-        } else {
-            this.isRunning = true;
-            this.interval = setInterval(() => {
-                this.timeLeft--;
-                this.updateDisplay();
-                if (this.timeLeft <= 0) {
-                    this.complete();
-                }
-            }, 1000);
-            document.getElementById('timer-pause').textContent = 'Pause';
-        }
-    }
-
-    adjust(seconds) {
-        this.timeLeft += seconds;
-        if (this.timeLeft < 0) this.timeLeft = 0;
-        this.updateDisplay();
-    }
-
-    reset() {
-        this.timeLeft = 90; // Temps par défaut
-        this.updateDisplay();
-    }
-
-    skip() {
-        this.complete();
-    }
-
-    complete() {
-        this.stop();
-        if (this.onComplete) {
-            this.onComplete();
-        }
-        // Son de notification (optionnel)
-        console.log('⏰ Timer terminé !');
-    }
-
-    hide() {
-        this.stop();
-        if (this.widget) {
-            this.widget.classList.remove('active');
-        }
-    }
-
-    updateDisplay() {
-        const minutes = Math.floor(this.timeLeft / 60);
-        const seconds = this.timeLeft % 60;
-        const display = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        
-        const timeElement = document.getElementById('timer-time');
-        if (timeElement) {
-            timeElement.textContent = display;
-        }
-
-        // Mettre à jour le cercle de progression (optionnel)
-        // À implémenter si nécessaire
-    }
-}
-
-// ====================================================================
-// APPLICATION PRINCIPALE
-// ====================================================================
+// ==================================================================
+// CLASSE PRINCIPALE
+// ==================================================================
 class HybridMasterApp {
     constructor() {
-        console.log('🚀 Construction HybridMasterApp...');
+        console.log('🏗️ Initialisation HybridMasterApp');
         
-        // Modules
-        this.navigation = null;
-        this.workoutRenderer = null;
-        this.home = null;
-        this.timer = null;
-        
-        // État
+        this.programData = programData;
         this.currentWeek = 1;
-        this.currentDay = null;
-    }
-
-    /**
-     * Initialise l'application
-     */
-    async init() {
-        console.log('🔧 Initialisation modules...');
+        this.currentView = 'home'; // 🔥 CORRECTION : Démarrer sur HOME
         
+        // Initialiser les composants UI
+        this.navigationUI = new NavigationUI(
+            (week) => this.handleWeekChange(week)
+        );
+        
+        this.homeRenderer = new HomeRenderer(
+            document.getElementById('app'),
+            (week, day) => this.handleDaySelected(week, day)
+        );
+        
+        this.workoutRenderer = new WorkoutRenderer(
+            document.getElementById('app'),
+            () => this.handleBackToHome() // 🔥 NOUVEAU : Callback retour
+        );
+        
+        // Initialiser le timer
+        this.timerManager = new TimerManager();
+        this.workoutRenderer.setTimerManager(this.timerManager);
+        
+        console.log('✅ Composants UI initialisés');
+        
+        // Démarrer l'application
+        this.init();
+    }
+    
+    init() {
+        console.log('🎬 Démarrage application');
+        
+        // Vérifier les données
         try {
-            // Timer
-            this.timer = new SimpleTimer();
-            this.timer.init();
-            console.log('✅ Timer initialisé');
-
-            // Workout Renderer
-            this.workoutRenderer = new WorkoutRenderer();
-            this.workoutRenderer.setTimerManager(this.timer);
-            this.workoutRenderer.setBackCallback(() => this.showHome());
-            console.log('✅ Workout renderer initialisé');
-            
-            // Navigation
-            this.navigation = new NavigationUI();
-            this.navigation.onWeekChange = (week) => this.handleWeekChange(week);
-            this.navigation.init();
-            console.log('✅ Navigation initialisée');
-            
-            // Home
-            this.home = new HomeRenderer('app', this.handleDayClick.bind(this));
-            console.log('✅ Home renderer initialisé');
-            
-            // Affichage initial
-            this.showHome();
-            
-            console.log('✅ Application démarrée avec succès !');
+            const weekData = this.programData.getWeek(this.currentWeek);
+            if (!weekData || !weekData.days) {
+                throw new Error('Données semaine invalides');
+            }
+            console.log('✅ Données programme chargées');
         } catch (error) {
-            console.error('❌ Erreur initialisation:', error);
+            console.error('❌ Erreur chargement données:', error);
+            this.showError('Impossible de charger les données du programme');
+            return;
         }
-    }
-
-    /**
-     * Affiche la page d'accueil
-     */
-    showHome() {
-        console.log('🏠 Affichage page d\'accueil');
-        const container = document.getElementById('app');
         
-        if (!container) {
-            console.error('❌ Container #app introuvable !');
-            return;
-        }
-
-        // Données de la semaine actuelle
-        const weekData = this.getWorkout(this.currentWeek);
-        console.log('📊 Données semaine:', weekData);
-
-        if (!weekData) {
-            container.innerHTML = '<p class="error">❌ Données introuvables</p>';
-            return;
-        }
-
-        // Formater les données pour HomeRenderer
-        const formattedData = {
-            week: this.currentWeek,
-            days: weekData.days || []
-        };
-        console.log('📋 Données formatées:', formattedData);
-
-        // Render
-        this.home.render(container, formattedData);
-        console.log('✅ Page d\'accueil affichée');
-    }
-
-    /**
-     * Récupère les données d'une semaine
-     */
-    getWorkout(week) {
-        console.log(`📖 Récupération données semaine ${week}`);
-        
-        if (!programData) {
-            console.error('❌ programData invalide !');
-            return null;
-        }
-
-        try {
-            // ✅ Utiliser la méthode getWeek() au lieu de programData.weeks
-            const weekData = programData.getWeek(week);
-            console.log('✅ Données récupérées:', weekData);
-            
-            // Transformer les données pour correspondre au format attendu
-            return {
-                week: weekData.weekNumber,
-                days: [
-                    { day: 'Dimanche', ...weekData.dimanche },
-                    { day: 'Mardi', ...weekData.mardi },
-                    { day: 'Vendredi', ...weekData.vendredi },
-                    { day: 'Maison', ...weekData.maison }
-                ]
-            };
-        } catch (error) {
-            console.error(`❌ Erreur récupération semaine ${week}:`, error);
-            return null;
-        }
-    }
-
-    /**
-     * Gère le clic sur une carte de jour
-     */
-    handleDayClick(week, day) {
-        console.log(`🎯 Clic sur ${day} (semaine ${week})`);
-        this.currentWeek = week;
-        this.currentDay = day;
-        this.showWorkout(week, day);
-    }
-
-    /**
-     * Affiche une séance d'entraînement
-     */
-    showWorkout(week, day) {
-        console.log(`🏋️ Affichage séance: semaine ${week}, ${day}`);
-        const container = document.getElementById('app');
-        
-        if (!container) {
-            console.error('❌ Container #app introuvable !');
-            return;
-        }
-
-        const weekData = this.getWorkout(week);
-        if (!weekData) {
-            container.innerHTML = '<p class="error">❌ Données introuvables</p>';
-            return;
-        }
-
-        // Trouver le jour
-        const dayData = weekData.days.find(d => d.day.toLowerCase() === day.toLowerCase());
-        
-        if (!dayData) {
-            console.error(`❌ Jour ${day} introuvable !`);
-            container.innerHTML = '<p class="error">❌ Jour introuvable</p>';
-            return;
-        }
-
-        console.log('📋 Données du jour:', dayData);
-
-        // Render workout
-        this.workoutRenderer.renderWorkout(container, dayData, week, day);
-        console.log('✅ Séance affichée');
-    }
-
-    /**
-     * Gère le changement de semaine
-     */
-    handleWeekChange(week) {
-        console.log(`📅 Changement semaine: ${week}`);
-        this.currentWeek = week;
-        this.navigation.goToWeek(week);
+        // 🔥 CORRECTION : Afficher HOME au démarrage
         this.showHome();
+    }
+    
+    // ==================================================================
+    // NAVIGATION
+    // ==================================================================
+    
+    handleWeekChange(newWeek) {
+        console.log(`🔄 Changement semaine : ${this.currentWeek} → ${newWeek}`);
+        this.currentWeek = newWeek;
+        
+        // Rafraîchir la vue actuelle
+        if (this.currentView === 'home') {
+            this.showHome();
+        }
+    }
+    
+    handleDaySelected(week, day) {
+        console.log(`📅 Jour sélectionné : Semaine ${week}, ${day}`);
+        this.currentWeek = week;
+        this.showWorkout(day);
+    }
+    
+    handleBackToHome() {
+        console.log('🏠 Retour à l\'accueil');
+        this.showHome();
+    }
+    
+    // ==================================================================
+    // AFFICHAGE DES VUES
+    // ==================================================================
+    
+    showHome() {
+        console.log('🏠 Affichage HOME');
+        this.currentView = 'home';
+        
+        try {
+            const weekData = this.programData.getWeek(this.currentWeek);
+            if (!weekData || !weekData.days) {
+                throw new Error(`Données semaine ${this.currentWeek} introuvables`);
+            }
+            
+            this.homeRenderer.render(weekData.days, this.currentWeek);
+            this.navigationUI.updateWeekDisplay(this.currentWeek);
+            
+            console.log('✅ HOME affiché avec succès');
+        } catch (error) {
+            console.error('❌ Erreur affichage HOME:', error);
+            this.showError('Impossible d\'afficher la page d\'accueil');
+        }
+    }
+    
+    showWorkout(day) {
+        console.log(`💪 Affichage séance : ${day}`);
+        this.currentView = 'workout';
+        
+        try {
+            const weekData = this.programData.getWeek(this.currentWeek);
+            if (!weekData || !weekData.days) {
+                throw new Error(`Données semaine ${this.currentWeek} introuvables`);
+            }
+            
+            const dayData = weekData.days.find(d => 
+                d.day.toLowerCase() === day.toLowerCase()
+            );
+            
+            if (!dayData) {
+                throw new Error(`Jour ${day} introuvable dans semaine ${this.currentWeek}`);
+            }
+            
+            this.workoutRenderer.render(dayData, this.currentWeek);
+            console.log('✅ Séance affichée avec succès');
+        } catch (error) {
+            console.error('❌ Erreur affichage séance:', error);
+            this.showError(`Impossible d'afficher la séance ${day}`);
+        }
+    }
+    
+    showError(message) {
+        console.error('💥 Erreur application:', message);
+        const appContainer = document.getElementById('app');
+        if (appContainer) {
+            appContainer.innerHTML = `
+                <div style="padding: 2rem; text-align: center;">
+                    <h2 style="color: #ef4444; margin-bottom: 1rem;">⚠️ Erreur</h2>
+                    <p style="color: #94a3b8; margin-bottom: 2rem;">${message}</p>
+                    <button onclick="location.reload()" 
+                            style="padding: 0.75rem 1.5rem; background: #3b82f6; color: white; border: none; border-radius: 0.5rem; cursor: pointer;">
+                        🔄 Recharger la page
+                    </button>
+                </div>
+            `;
+        }
     }
 }
 
-// ====================================================================
-// DÉMARRAGE
-// ====================================================================
-document.addEventListener('DOMContentLoaded', async () => {
-    console.log('📱 DOM ready');
-    
+// ==================================================================
+// DÉMARRAGE APPLICATION
+// ==================================================================
+window.addEventListener('DOMContentLoaded', () => {
+    console.log('📱 DOM chargé, démarrage app...');
     try {
-        const app = new HybridMasterApp();
-        console.log('✅ HybridMasterApp créé');
-        
-        await app.init();
+        window.app = new HybridMasterApp();
+        console.log('✅ Application démarrée avec succès');
     } catch (error) {
-        console.error('❌ Erreur fatale:', error);
-        document.getElementById('app').innerHTML = `
-            <div style="padding: 20px; color: #ff4444;">
-                <h2>❌ Erreur de chargement</h2>
-                <p>${error.message}</p>
-            </div>
-        `;
+        console.error('💥 Erreur fatale au démarrage:', error);
     }
 });
 
-console.log('✅ app.js chargé complètement');
+export default HybridMasterApp;
