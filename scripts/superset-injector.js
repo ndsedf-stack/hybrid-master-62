@@ -1,40 +1,36 @@
 // ==================================================================
-// SUPERSET INJECTOR - VERSION CORRIGÉE (SANS BOUCLE INFINIE)
+// SUPERSET INJECTOR - VERSION SANS OBSERVER (UNE SEULE EXÉCUTION)
 // ==================================================================
 
 console.log('🔥 Superset Injector chargé');
 
-let isProcessing = false;
-let processedExercises = new Set();
+let hasRun = false;
 
 function enhanceSupersets() {
-    // Éviter les appels multiples simultanés
-    if (isProcessing) {
-        console.log('⏸️ Traitement déjà en cours, ignoré');
+    // Exécuter UNE SEULE FOIS
+    if (hasRun) {
+        console.log('⏸️ Déjà exécuté, ignoré');
         return;
     }
     
-    isProcessing = true;
+    hasRun = true;
     console.log('🎨 Détection des supersets...');
     
     const exercises = document.querySelectorAll('.exercise-block-modern');
     console.log(`📊 ${exercises.length} exercices trouvés`);
     
     if (exercises.length === 0) {
-        isProcessing = false;
+        console.log('⚠️ Aucun exercice trouvé');
+        hasRun = false; // Permettre de réessayer plus tard
         return;
     }
     
     let supersetCount = 0;
+    const processedIndices = new Set();
     
     exercises.forEach((exercise, index) => {
-        // Vérifier si déjà traité
-        const exerciseName = exercise.querySelector('h3')?.textContent || '';
-        const exerciseId = `${exerciseName}-${index}`;
-        
-        if (processedExercises.has(exerciseId)) {
-            return; // Déjà traité, on saute
-        }
+        // Si déjà traité comme second exercice, on saute
+        if (processedIndices.has(index)) return;
         
         const nextExercise = exercises[index + 1];
         if (!nextExercise) return;
@@ -43,14 +39,15 @@ function enhanceSupersets() {
         const nextRest = nextExercise.querySelector('.exercise-rest')?.textContent || '';
         
         // Détecter si c'est un superset (repos = 0s)
-        if (currentRest.includes('0s') && index < exercises.length - 1) {
+        if (currentRest.includes('0s')) {
+            const exerciseName = exercise.querySelector('h3')?.textContent || '';
             const nextName = nextExercise.querySelector('h3')?.textContent || '';
             
             console.log(`✅ Superset détecté: ${exerciseName} + ${nextName}`);
             
-            // Marquer comme traité
-            processedExercises.add(exerciseId);
-            processedExercises.add(`${nextName}-${index + 1}`);
+            // Marquer les indices comme traités
+            processedIndices.add(index);
+            processedIndices.add(index + 1);
             
             // Ajouter les classes superset
             exercise.classList.add('is-superset-first');
@@ -101,48 +98,41 @@ function enhanceSupersets() {
     });
     
     console.log(`✅ ${supersetCount} supersets créés`);
-    isProcessing = false;
+    console.log('✅ Traitement terminé - Pas de boucle !');
 }
 
-// Observer pour détecter les changements de DOM (une seule fois)
-let observer = null;
-
-function startObserver() {
-    if (observer) return; // Déjà créé
-    
-    observer = new MutationObserver((mutations) => {
-        const hasExerciseChanges = mutations.some(mutation => 
-            Array.from(mutation.addedNodes).some(node => 
-                node.classList && node.classList.contains('exercise-block-modern')
-            )
-        );
-        
-        if (hasExerciseChanges) {
-            console.log('🔄 Nouveaux exercices détectés');
-            setTimeout(enhanceSupersets, 100); // Petit délai pour éviter les appels multiples
-        }
-    });
-    
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
-}
-
-// Initialisation au chargement
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(() => {
+// Attendre que les exercices soient chargés, puis exécuter UNE fois
+function waitForExercisesAndEnhance() {
+    const checkInterval = setInterval(() => {
+        const exercises = document.querySelectorAll('.exercise-block-modern');
+        if (exercises.length > 0) {
+            clearInterval(checkInterval);
+            console.log('🎯 Exercices détectés, lancement du traitement...');
             enhanceSupersets();
-            startObserver();
-        }, 500);
-    });
-} else {
+        }
+    }, 200);
+    
+    // Timeout après 5 secondes
     setTimeout(() => {
-        enhanceSupersets();
-        startObserver();
-    }, 500);
+        clearInterval(checkInterval);
+        if (!hasRun) {
+            console.log('⏱️ Timeout - Lancement forcé');
+            enhanceSupersets();
+        }
+    }, 5000);
 }
 
-// Exposer la fonction pour debug manuel
-window.enhanceSupersets = enhanceSupersets;
+// Initialisation
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', waitForExercisesAndEnhance);
+} else {
+    waitForExercisesAndEnhance();
+}
+
+// Exposer pour forcer manuellement si besoin
+window.enhanceSupersets = () => {
+    hasRun = false;
+    enhanceSupersets();
+};
+
+console.log('✅ Script initialisé - En attente des exercices...');
