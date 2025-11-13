@@ -1,155 +1,220 @@
-/* ====================================================================
-   HOME PAGE - SÉLECTION DES JOURS
-   ==================================================================== */
+/* ============================================
+   HOME - CARTES D'ENTRAÎNEMENT (Design moderne)
+   ============================================ */
 
+/* Container principal */
 .home-container {
-  padding: 1rem;
-  max-width: 1200px;
+  padding: 1.5rem;
+  max-width: 800px;
   margin: 0 auto;
 }
 
-.home-title {
-  font-size: 2rem;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 0.5rem;
-  color: var(--color-text-primary, #fff);
-}
-
-.home-subtitle {
-  font-size: 1rem;
-  text-align: center;
-  margin-bottom: 2rem;
-  color: var(--color-text-secondary, #aaa);
-}
-
-.home-grid {
+/* Grille des cartes */
+.workout-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: 1fr;
   gap: 1.5rem;
   margin-bottom: 6rem; /* Espace pour la navigation */
 }
 
-/* ====================================================================
-   DAY CARDS
-   ==================================================================== */
+@media (min-width: 768px) {
+  .workout-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 
-.day-card {
-  background: var(--color-card-bg, rgba(255, 255, 255, 0.05));
-  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
-  border-radius: 1rem;
-  padding: 1.5rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
+/* Carte individuelle */
+.workout-card {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-radius: 1.25rem;
+  padding: 1.75rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
 }
 
-.day-card:hover {
+.workout-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #10b981, #06b6d4, #8b5cf6);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.workout-card:hover {
   transform: translateY(-4px);
-  border-color: var(--color-primary, #00d4ff);
-  box-shadow: 0 8px 24px rgba(0, 212, 255, 0.2);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
-.day-card:active {
-  transform: translateY(-2px);
+.workout-card:hover::before {
+  opacity: 1;
 }
 
-.day-card-icon {
-  font-size: 3rem;
-  text-align: center;
-  margin-bottom: 1rem;
-}
-
-.day-card-info {
-  text-align: center;
-  margin-bottom: 1rem;
-}
-
-.day-card-meta {
+/* Badge du bloc */
+.card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
   font-size: 0.875rem;
-  color: var(--color-text-secondary, #aaa);
-  margin-bottom: 0.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
-.day-card-title {
+/* Jour de la semaine */
+.card-day {
   font-size: 1.75rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-  color: var(--color-text-primary, #fff);
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 0.75rem 0;
+  letter-spacing: -0.02em;
 }
 
-.day-card-location {
+/* Titre du workout */
+.card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.4;
+  min-height: 3rem;
+}
+
+/* Stats du workout */
+.card-stats {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.card-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #94a3b8;
+  font-size: 0.9375rem;
+}
+
+.card-stat-icon {
+  font-size: 1.25rem;
+  opacity: 0.8;
+}
+
+.card-stat-value {
+  font-weight: 600;
+  color: #e2e8f0;
+  font-size: 1rem;
+}
+
+.card-stat-label {
   font-size: 0.875rem;
-  color: var(--color-text-secondary, #aaa);
-  margin-bottom: 1rem;
+  opacity: 0.7;
 }
 
-.day-card-exercises {
-  font-size: 0.875rem;
-  color: var(--color-text-primary, #fff);
-  line-height: 1.6;
-  white-space: pre-line;
-  text-align: left;
-  padding: 1rem;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.day-card-button {
+/* Bouton Commencer */
+.card-button {
   width: 100%;
   padding: 1rem;
-  background: var(--color-primary, #00d4ff);
-  color: var(--color-bg-primary, #1a1a2e);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #fff;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 0.875rem;
   font-size: 1rem;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
-.day-card-button:hover {
-  background: var(--color-primary-hover, #00b8e6);
-  transform: scale(1.02);
+.card-button:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
 }
 
-.day-card-button:active {
-  transform: scale(0.98);
+.card-button:active {
+  transform: translateY(0);
 }
 
-/* ====================================================================
-   RESPONSIVE
-   ==================================================================== */
+.card-button-icon {
+  font-size: 1.125rem;
+}
 
-@media (max-width: 768px) {
-  .home-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  
-  .home-title {
-    font-size: 1.5rem;
-  }
-  
-  .day-card {
+/* Responsive mobile */
+@media (max-width: 767px) {
+  .home-container {
     padding: 1rem;
   }
   
-  .day-card-title {
+  .workout-card {
+    padding: 1.5rem;
+  }
+  
+  .card-day {
     font-size: 1.5rem;
+  }
+  
+  .card-title {
+    font-size: 1rem;
+    min-height: auto;
+  }
+  
+  .card-stats {
+    gap: 1rem;
+  }
+  
+  .card-stat {
+    font-size: 0.875rem;
   }
 }
 
-@media (max-width: 480px) {
-  .home-container {
-    padding: 0.5rem;
+/* Dark mode amélioré */
+@media (prefers-color-scheme: dark) {
+  .workout-card {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  }
+}
+
+/* Light mode */
+@media (prefers-color-scheme: light) {
+  .workout-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-color: rgba(0, 0, 0, 0.1);
   }
   
-  .home-grid {
-    gap: 0.75rem;
+  .workout-card:hover {
+    border-color: rgba(0, 0, 0, 0.2);
+  }
+  
+  .card-day {
+    color: #0f172a;
+  }
+  
+  .card-title {
+    color: #475569;
+  }
+  
+  .card-stat {
+    color: #64748b;
+  }
+  
+  .card-stat-value {
+    color: #1e293b;
   }
 }
