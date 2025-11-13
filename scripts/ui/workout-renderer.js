@@ -1,6 +1,5 @@
 // ==================================================================
-// WORKOUT RENDERER - Affichage des séances AVEC TIMER
-// Compatible avec program-data.js
+// WORKOUT RENDERER - VERSION PREMIUM DESIGN
 // ==================================================================
 export class WorkoutRenderer {
     constructor(container, onBack) {
@@ -23,26 +22,29 @@ export class WorkoutRenderer {
             return;
         }
 
-        const { day, name, location, exercises } = dayData;
+        const { day, name, location, exercises, block, technique } = dayData;
 
         this.container.innerHTML = `
             <div class="workout-view">
-                <!-- Bouton retour -->
-                <button id="back-to-home-btn" class="back-button">
-                    ← Retour
-                </button>
-
-                <div class="workout-header">
-                    <div class="workout-title">
-                        <span class="workout-day">${day || 'Séance'}</span>
-                        <span class="workout-name">${name || 'Entraînement'}</span>
-                        <span class="workout-location">${location || ''}</span>
+                <!-- Header avec titre et semaine -->
+                <div class="workout-header-modern">
+                    <button id="back-to-home-btn" class="back-button-modern">
+                        ← Retour
+                    </button>
+                    <div class="workout-info">
+                        <h1 class="workout-day-title">${day || 'Séance'}</h1>
+                        <p class="workout-subtitle">${name || location || 'Entraînement'}</p>
+                        <div class="workout-meta">
+                            <span class="meta-block">BLOCK ${block || 1}</span>
+                            <span class="meta-separator">•</span>
+                            <span class="meta-tempo">${technique || 'Tempo 3-1-2'}</span>
+                        </div>
                     </div>
-                    <div class="workout-week">Semaine ${weekNumber}</div>
                 </div>
 
-                <div class="exercises-container">
-                    ${exercises.map((exercise, index) => this.renderExercise(exercise, index, weekNumber)).join('')}
+                <!-- Liste des exercices -->
+                <div class="exercises-list-modern">
+                    ${exercises.map((exercise, index) => this.renderExerciseModern(exercise, index, weekNumber)).join('')}
                 </div>
             </div>
         `;
@@ -60,117 +62,126 @@ export class WorkoutRenderer {
         this.attachCheckboxListeners(weekNumber);
     }
 
-    renderExercise(exercise, index, weekNumber) {
+    renderExerciseModern(exercise, index, weekNumber) {
         const storageKey = `workout_${weekNumber}_${exercise.name}`;
         const savedState = this.loadExerciseState(storageKey);
 
         return `
-            <div class="exercise-card" data-exercise="${exercise.name}">
-                <div class="exercise-header">
-                    <h3 class="exercise-name">${exercise.name}</h3>
-                    ${exercise.variation ? `<span class="exercise-variation">${exercise.variation}</span>` : ''}
+            <div class="exercise-block-modern" data-exercise="${exercise.name}">
+                <!-- Titre de l'exercice -->
+                <div class="exercise-title-modern">
+                    <h2>${exercise.name}</h2>
+                    ${exercise.variation ? `<span class="variation-badge">${exercise.variation}</span>` : ''}
                 </div>
 
+                <!-- Notes (si présentes) -->
                 ${exercise.notes ? `
-                    <div class="exercise-notes">
+                    <div class="exercise-notes-modern">
                         <span class="notes-icon">💡</span>
-                        ${exercise.notes}
+                        <p>${exercise.notes}</p>
                     </div>
                 ` : ''}
 
-                <div class="exercise-params">
-                    <div class="param">
-                        <span class="param-label">Séries</span>
-                        <span class="param-value">${exercise.sets}</span>
+                <!-- Infos de l'exercice (en ligne) -->
+                <div class="exercise-specs-modern">
+                    <div class="spec-item">
+                        <span class="spec-label">Séries:</span>
+                        <span class="spec-value">${exercise.sets}</span>
                     </div>
-                    <div class="param">
-                        <span class="param-label">Reps</span>
-                        <span class="param-value">${exercise.reps}</span>
+                    <div class="spec-item">
+                        <span class="spec-label">Reps:</span>
+                        <span class="spec-value">${exercise.reps}</span>
                     </div>
-                    ${exercise.rest ? `
-                        <div class="param">
-                            <span class="param-label">Repos</span>
-                            <span class="param-value">${exercise.rest}s</span>
+                    ${exercise.weight ? `
+                        <div class="spec-item">
+                            <span class="spec-label">Poids:</span>
+                            <span class="spec-value">${exercise.weight}kg</span>
                         </div>
                     ` : ''}
                     ${exercise.tempo ? `
-                        <div class="param">
-                            <span class="param-label">Tempo</span>
-                            <span class="param-value">${exercise.tempo}</span>
-                        </div>
-                    ` : ''}
-                    ${exercise.weight ? `
-                        <div class="param">
-                            <span class="param-label">Charge</span>
-                            <span class="param-value">${exercise.weight}kg</span>
+                        <div class="spec-item">
+                            <span class="spec-label">Tempo:</span>
+                            <span class="spec-value">${exercise.tempo}</span>
                         </div>
                     ` : ''}
                     ${exercise.rpe ? `
-                        <div class="param">
-                            <span class="param-label">RPE</span>
-                            <span class="param-value">${exercise.rpe}</span>
+                        <div class="spec-item">
+                            <span class="spec-label">RPE:</span>
+                            <span class="spec-value">${exercise.rpe}</span>
                         </div>
                     ` : ''}
                 </div>
 
-                <div class="series-tracker" data-exercise="${exercise.name}">
-                    ${this.renderSeriesCheckboxes(exercise.sets, savedState)}
+                <!-- Grille de séries (style moderne) -->
+                <div class="series-grid-modern" data-exercise="${exercise.name}">
+                    ${this.renderSeriesGridModern(exercise, savedState, weekNumber)}
                 </div>
             </div>
         `;
     }
 
-    renderSeriesCheckboxes(totalSets, savedState = {}) {
-        const setCount = parseInt(totalSets) || 4;
-        let checkboxes = '<div class="series-list">';
+    renderSeriesGridModern(exercise, savedState = {}, weekNumber) {
+        const setCount = parseInt(exercise.sets) || 4;
+        const reps = exercise.reps || '10';
+        const weight = exercise.weight || '';
+        const rest = exercise.rest || 120;
+        
+        let html = '';
 
         for (let i = 1; i <= setCount; i++) {
             const isChecked = savedState[`set_${i}`] || false;
-            checkboxes += `
-                <div class="series-item ${isChecked ? 'completed' : ''}">
-                    <label class="series-checkbox">
+            html += `
+                <div class="series-card-modern ${isChecked ? 'completed' : ''}" data-set="${i}">
+                    <div class="series-number">${i}</div>
+                    <div class="series-info">
+                        <div class="series-reps">${reps} reps</div>
+                        ${weight ? `<div class="series-weight">${weight}kg</div>` : ''}
+                    </div>
+                    <div class="series-timer">
+                        <svg class="timer-icon" width="20" height="20" viewBox="0 0 20 20">
+                            <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>${rest}s</span>
+                    </div>
+                    <label class="series-checkbox-modern">
                         <input type="checkbox" 
                                data-set="${i}" 
                                data-total="${setCount}"
                                ${isChecked ? 'checked' : ''} />
-                        <span class="checkbox-custom">
-                            <span class="check-icon">✓</span>
-                        </span>
-                        <span class="series-label">Série ${i}</span>
+                        <span class="checkbox-checkmark">✓</span>
                     </label>
                 </div>
             `;
         }
 
-        checkboxes += '</div>';
-        return checkboxes;
+        return html;
     }
 
     attachCheckboxListeners(weekNumber) {
-        const checkboxes = this.container.querySelectorAll('.series-item input[type="checkbox"]');
+        const checkboxes = this.container.querySelectorAll('.series-checkbox-modern input[type="checkbox"]');
 
         checkboxes.forEach(checkbox => {
             checkbox.addEventListener('change', (e) => {
-                this.handleSetComplete(e.target, weekNumber);
+                this.handleSetCompleteModern(e.target, weekNumber);
             });
         });
     }
 
-    handleSetComplete(checkbox, weekNumber) {
-        const exerciseCard = checkbox.closest('.exercise-card');
-        const exerciseName = exerciseCard.dataset.exercise;
+    handleSetCompleteModern(checkbox, weekNumber) {
+        const seriesCard = checkbox.closest('.series-card-modern');
+        const exerciseBlock = checkbox.closest('.exercise-block-modern');
+        const exerciseName = exerciseBlock.dataset.exercise;
         const setNumber = parseInt(checkbox.dataset.set);
         const totalSets = parseInt(checkbox.dataset.total);
-        const seriesItem = checkbox.closest('.series-item');
 
         console.log(`✅ Série ${setNumber}/${totalSets} - ${exerciseName}`);
 
         // Animation visuelle
         if (checkbox.checked) {
-            seriesItem.classList.add('completed');
+            seriesCard.classList.add('completed');
 
-            // Timer automatique : Récupérer le temps de repos du programme
-            const restTime = this.getRestTimeForExercise(exerciseCard);
+            // Timer automatique
+            const restTime = this.getRestTimeForExercise(exerciseBlock);
 
             // Démarrer le timer si pas la dernière série
             if (this.timerManager && setNumber < totalSets) {
@@ -183,30 +194,21 @@ export class WorkoutRenderer {
                 );
             }
         } else {
-            seriesItem.classList.remove('completed');
+            seriesCard.classList.remove('completed');
         }
 
         // Sauvegarder l'état
         this.saveExerciseState(exerciseName, setNumber, checkbox.checked, weekNumber);
     }
 
-    // Récupérer le temps de repos depuis le DOM
-    getRestTimeForExercise(exerciseCard) {
-        const params = exerciseCard.querySelectorAll('.param');
-        for (const param of params) {
-            const label = param.querySelector('.param-label');
-            if (label && label.textContent.includes('Repos')) {
-                const value = param.querySelector('.param-value').textContent;
-                const seconds = parseInt(value.replace('s', ''));
-                return isNaN(seconds) ? 120 : seconds;
-            }
+    getRestTimeForExercise(exerciseBlock) {
+        const timerElement = exerciseBlock.querySelector('.series-timer span');
+        if (timerElement) {
+            const seconds = parseInt(timerElement.textContent.replace('s', ''));
+            return isNaN(seconds) ? 120 : seconds;
         }
-        return 120; // Valeur par défaut
+        return 120;
     }
-
-    // ==================================================================
-    // SAUVEGARDE D'ÉTAT
-    // ==================================================================
 
     saveExerciseState(exerciseName, setNumber, isChecked, weekNumber) {
         const storageKey = `workout_${weekNumber}_${exerciseName}`;
