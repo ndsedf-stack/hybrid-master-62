@@ -1,5 +1,5 @@
 // ==================================================================
-// WORKOUT RENDERER - VERSION ORIGINALE (CARTES ORANGE)
+// WORKOUT RENDERER - VERSION AVEC SUPERSETS ULTRA PREMIUM
 // ==================================================================
 export class WorkoutRenderer {
     constructor(container, onBack) {
@@ -44,7 +44,7 @@ export class WorkoutRenderer {
 
                 <!-- Liste des exercices -->
                 <div class="exercises-list-modern">
-                    ${exercises.map((exercise, index) => this.renderExerciseModern(exercise, index, weekNumber)).join('')}
+                    ${this.renderExercisesList(exercises, weekNumber)}
                 </div>
             </div>
         `;
@@ -58,8 +58,157 @@ export class WorkoutRenderer {
             });
         }
 
-        // Attacher les event listeners pour les checkboxes
+        // Attacher les event listeners
         this.attachCheckboxListeners(weekNumber);
+        this.attachSupersetListeners(weekNumber);
+    }
+
+    // 🎯 NOUVELLE FONCTION : Détecte et groupe les supersets
+    renderExercisesList(exercises, weekNumber) {
+        let html = '';
+        const processedIndices = new Set();
+
+        exercises.forEach((exercise, index) => {
+            // Si déjà traité dans un superset, skip
+            if (processedIndices.has(index)) return;
+
+            // Vérifier si c'est un superset
+            if (exercise.isSuperset && exercise.supersetWith) {
+                // Trouver le partenaire
+                const partnerIndex = exercises.findIndex(
+                    (ex, idx) => idx > index && ex.name === exercise.supersetWith
+                );
+
+                if (partnerIndex !== -1) {
+                    // Générer HTML superset
+                    html += this.renderSuperset(
+                        exercise,
+                        exercises[partnerIndex],
+                        exercise.rest || 90,
+                        weekNumber
+                    );
+                    processedIndices.add(index);
+                    processedIndices.add(partnerIndex);
+                } else {
+                    // Si partenaire pas trouvé, afficher normalement
+                    html += this.renderExerciseModern(exercise, index, weekNumber);
+                    processedIndices.add(index);
+                }
+            } else {
+                // Exercice normal
+                html += this.renderExerciseModern(exercise, index, weekNumber);
+                processedIndices.add(index);
+            }
+        });
+
+        return html;
+    }
+
+    // 🔥 NOUVELLE FONCTION : Générer HTML Superset Ultra Premium
+    renderSuperset(exercise1, exercise2, restTime, weekNumber) {
+        return `
+            <div class="superset-container">
+                <div class="exercise-block-modern" data-superset="true" data-rest="${restTime}">
+                    
+                    <!-- Exercice 1 du superset -->
+                    <div class="superset-exercise" data-superset-order="1" data-exercise="${exercise1.name}">
+                        <div class="exercise-title-modern">
+                            <h2>${exercise1.name}</h2>
+                            ${exercise1.variation ? `<span class="variation-badge">${exercise1.variation}</span>` : ''}
+                        </div>
+
+                        ${exercise1.notes ? `
+                            <div class="exercise-notes-modern">
+                                <span class="notes-icon">💡</span>
+                                <p>${exercise1.notes}</p>
+                            </div>
+                        ` : ''}
+
+                        <div class="exercise-specs-modern">
+                            <div class="spec-item">
+                                <span class="spec-label">Séries:</span>
+                                <span class="spec-value">${exercise1.sets}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Reps:</span>
+                                <span class="spec-value">${exercise1.reps}</span>
+                            </div>
+                            ${exercise1.weight ? `
+                                <div class="spec-item">
+                                    <span class="spec-label">Poids:</span>
+                                    <span class="spec-value">${exercise1.weight}kg</span>
+                                </div>
+                            ` : ''}
+                            ${exercise1.tempo ? `
+                                <div class="spec-item">
+                                    <span class="spec-label">Tempo:</span>
+                                    <span class="spec-value">${exercise1.tempo}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <div class="series-grid-modern" data-exercise="${exercise1.name}">
+                            ${this.renderSeriesGridModern(exercise1, {}, weekNumber)}
+                        </div>
+                    </div>
+
+                    <!-- Diviseur + -->
+                    <div class="superset-divider">
+                        <div class="superset-plus">+</div>
+                    </div>
+
+                    <!-- Exercice 2 du superset -->
+                    <div class="superset-exercise" data-superset-order="2" data-exercise="${exercise2.name}">
+                        <div class="exercise-title-modern">
+                            <h2>${exercise2.name}</h2>
+                            ${exercise2.variation ? `<span class="variation-badge">${exercise2.variation}</span>` : ''}
+                        </div>
+
+                        ${exercise2.notes ? `
+                            <div class="exercise-notes-modern">
+                                <span class="notes-icon">💡</span>
+                                <p>${exercise2.notes}</p>
+                            </div>
+                        ` : ''}
+
+                        <div class="exercise-specs-modern">
+                            <div class="spec-item">
+                                <span class="spec-label">Séries:</span>
+                                <span class="spec-value">${exercise2.sets}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Reps:</span>
+                                <span class="spec-value">${exercise2.reps}</span>
+                            </div>
+                            ${exercise2.weight ? `
+                                <div class="spec-item">
+                                    <span class="spec-label">Poids:</span>
+                                    <span class="spec-value">${exercise2.weight}kg</span>
+                                </div>
+                            ` : ''}
+                            ${exercise2.tempo ? `
+                                <div class="spec-item">
+                                    <span class="spec-label">Tempo:</span>
+                                    <span class="spec-value">${exercise2.tempo}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <div class="series-grid-modern" data-exercise="${exercise2.name}">
+                            ${this.renderSeriesGridModern(exercise2, {}, weekNumber)}
+                        </div>
+                    </div>
+
+                    <!-- Info repos après le duo -->
+                    <div class="superset-rest-info">
+                        <div class="superset-rest-text">REPOS APRÈS LE DUO</div>
+                        <div class="superset-rest-duration">${restTime}s</div>
+                        <div class="superset-rest-subtitle">Récupération ${restTime > 75 ? 'complète' : 'modérée'}</div>
+                    </div>
+
+                </div>
+            </div>
+        `;
     }
 
     renderExerciseModern(exercise, index, weekNumber) {
@@ -167,10 +316,60 @@ export class WorkoutRenderer {
         });
     }
 
+    // 🔥 NOUVELLE FONCTION : Gestion des supersets
+    attachSupersetListeners(weekNumber) {
+        const supersetBlocks = this.container.querySelectorAll('[data-superset="true"]');
+
+        supersetBlocks.forEach(block => {
+            const ex1Grid = block.querySelector('[data-superset-order="1"] .series-grid-modern');
+            const ex2Grid = block.querySelector('[data-superset-order="2"] .series-grid-modern');
+            const restTime = parseInt(block.dataset.rest) || 90;
+
+            if (!ex1Grid || !ex2Grid) return;
+
+            // Écouter les checkboxes des 2 exercices
+            const ex1Checkboxes = ex1Grid.querySelectorAll('input[type="checkbox"]');
+            const ex2Checkboxes = ex2Grid.querySelectorAll('input[type="checkbox"]');
+
+            ex2Checkboxes.forEach((checkbox, index) => {
+                checkbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        // Vérifier que ex1 de la même série est coché
+                        const ex1Checkbox = ex1Checkboxes[index];
+                        
+                        if (!ex1Checkbox?.checked) {
+                            alert('⚠️ Faites d\'abord l\'exercice 1 de cette série !');
+                            e.target.checked = false;
+                            return;
+                        }
+
+                        // ✅ Les 2 exercices sont faits → Démarrer timer
+                        const ex1Name = block.querySelector('[data-superset-order="1"] .exercise-title-modern h2').textContent;
+                        const ex2Name = block.querySelector('[data-superset-order="2"] .exercise-title-modern h2').textContent;
+                        const setNumber = parseInt(e.target.dataset.set);
+                        const totalSets = parseInt(e.target.dataset.total);
+
+                        console.log(`✅ Superset série ${setNumber}/${totalSets} terminée !`);
+
+                        if (this.timerManager && setNumber < totalSets) {
+                            this.timerManager.start(
+                                restTime,
+                                `${ex1Name} + ${ex2Name}`,
+                                setNumber + 1,
+                                totalSets
+                            );
+                        }
+                    }
+                });
+            });
+        });
+    }
+
     handleSetCompleteModern(checkbox, weekNumber) {
         const seriesCard = checkbox.closest('.series-card-modern');
         const exerciseBlock = checkbox.closest('.exercise-block-modern');
-        const exerciseName = exerciseBlock.dataset.exercise;
+        const exerciseName = exerciseBlock.dataset.exercise || 
+                             exerciseBlock.closest('[data-exercise]')?.dataset.exercise;
         const setNumber = parseInt(checkbox.dataset.set);
         const totalSets = parseInt(checkbox.dataset.total);
 
@@ -180,18 +379,21 @@ export class WorkoutRenderer {
         if (checkbox.checked) {
             seriesCard.classList.add('completed');
 
-            // Timer automatique
-            const restTime = this.getRestTimeForExercise(exerciseBlock);
+            // Timer automatique UNIQUEMENT pour exercices normaux (pas supersets)
+            const isSuperset = exerciseBlock.hasAttribute('data-superset');
+            
+            if (!isSuperset) {
+                const restTime = this.getRestTimeForExercise(exerciseBlock);
 
-            // Démarrer le timer si pas la dernière série
-            if (this.timerManager && setNumber < totalSets) {
-                console.log(`⏱️ Démarrage timer : ${restTime}s pour ${exerciseName}`);
-                this.timerManager.start(
-                    restTime,
-                    exerciseName,
-                    setNumber + 1,
-                    totalSets
-                );
+                if (this.timerManager && setNumber < totalSets) {
+                    console.log(`⏱️ Démarrage timer : ${restTime}s pour ${exerciseName}`);
+                    this.timerManager.start(
+                        restTime,
+                        exerciseName,
+                        setNumber + 1,
+                        totalSets
+                    );
+                }
             }
         } else {
             seriesCard.classList.remove('completed');
