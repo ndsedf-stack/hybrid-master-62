@@ -5,12 +5,25 @@ export class HomeRenderer {
   }
 
   render(weekData) {
-    if (!weekData || !weekData.days) {
+    console.log('📊 weekData reçu:', weekData);
+    
+    // ✅ FIX : Accepte soit { days: [...] } soit directement [...]
+    let days;
+    
+    if (Array.isArray(weekData)) {
+      // Si weekData est directement un array
+      days = weekData;
+    } else if (weekData && weekData.days && Array.isArray(weekData.days)) {
+      // Si weekData est un objet avec une propriété days
+      days = weekData.days;
+    } else {
       console.error('❌ weekData invalide:', weekData);
-      return '<p>Erreur: données invalides</p>';
+      return '<p class="error-message">Erreur: données invalides</p>';
     }
 
-    const cardsHTML = weekData.days
+    console.log('✅ Jours trouvés:', days.length);
+
+    const cardsHTML = days
       .map(day => this.renderCard(day))
       .join('');
 
@@ -25,7 +38,7 @@ export class HomeRenderer {
     const duration = day.duration || 60;
     const exerciseCount = day.exercises ? day.exercises.length : 0;
     
-    // FIX du calcul des séries (AVANT c'était NaN)
+    // ✅ Calcul robuste des séries (gère toutes les structures)
     let totalSets = 0;
     if (day.exercises && Array.isArray(day.exercises)) {
       totalSets = day.exercises.reduce((sum, ex) => {
@@ -41,7 +54,7 @@ export class HomeRenderer {
     return `
       <div class="workout-card" data-day="${day.day}">
         <div class="card-badge">
-          ${day.block || 'Bloc 1'} ${day.tempo || 'Tempo 3-1-2'}
+          ${day.block || 'Bloc 1'} • ${day.tempo || 'Tempo 3-1-2'}
         </div>
         
         <h3 class="card-day">${day.day || 'Jour'}</h3>
