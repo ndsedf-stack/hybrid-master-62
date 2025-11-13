@@ -4,7 +4,7 @@
 
 import programData from './program-data.js';
 import { HomeRenderer } from './modules/home-renderer.js';
-import { WorkoutRenderer } from './ui/workout-renderer-NEW.js';
+import { WorkoutRenderer } from './ui/workout-renderer.js';
 import TimerManager from './modules/timer-manager.js';
 
 class HybridMasterApp {
