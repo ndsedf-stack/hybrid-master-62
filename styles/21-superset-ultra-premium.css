@@ -1,0 +1,440 @@
+/* ═══════════════════════════════════════════════════════════
+   🎨 SUPERSET ULTRA PREMIUM - Apple Fitness Style
+   Fichier: styles/21-superset-ultra-premium.css
+   ═══════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════
+   📦 CONTAINER PRINCIPAL
+   ═══════════════════════════════════════════════════════════ */
+
+.superset-container {
+  position: relative;
+  margin: 20px 0;
+  animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🏷️ BADGE SUPERSET FLOTTANT
+   ═══════════════════════════════════════════════════════════ */
+
+.superset-badge {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #FF9F0A, #FF6961);
+  color: #000000;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 6px 20px;
+  border-radius: 20px;
+  letter-spacing: 1px;
+  box-shadow: 
+    0 4px 16px rgba(255, 159, 10, 0.4),
+    0 0 40px rgba(255, 159, 10, 0.2);
+  z-index: 10;
+  animation: badgePulse 2s infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% {
+    box-shadow: 
+      0 4px 16px rgba(255, 159, 10, 0.4),
+      0 0 40px rgba(255, 159, 10, 0.2);
+  }
+  50% {
+    box-shadow: 
+      0 4px 20px rgba(255, 159, 10, 0.6),
+      0 0 60px rgba(255, 159, 10, 0.4);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   💎 CARTE SUPERSET - Glassmorphism + Bordure Animée
+   ═══════════════════════════════════════════════════════════ */
+
+.superset-card {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 159, 10, 0.08) 0%,
+    rgba(255, 69, 58, 0.08) 100%
+  );
+  backdrop-filter: blur(40px) saturate(180%);
+  border-radius: 28px;
+  padding: 32px 24px 24px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  overflow: hidden;
+}
+
+/* Bordure animée gradient */
+.superset-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 28px;
+  padding: 2px;
+  background: linear-gradient(135deg, #FF9F0A, #FF6961, #FF9F0A);
+  background-size: 200% 100%;
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: borderRotate 3s linear infinite;
+}
+
+@keyframes borderRotate {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 200% 50%;
+  }
+}
+
+/* Effet glow derrière la carte */
+.superset-card::after {
+  content: '';
+  position: absolute;
+  inset: -100px;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 159, 10, 0.15) 0%,
+    transparent 70%
+  );
+  filter: blur(40px);
+  z-index: -1;
+  animation: glowPulse 4s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   💪 LIGNES D'EXERCICES
+   ═══════════════════════════════════════════════════════════ */
+
+.exercise-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  background: rgba(28, 28, 30, 0.6);
+  border-radius: 20px;
+  margin: 12px 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Effet de brillance au survol */
+.exercise-row::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.6s;
+}
+
+.exercise-row:hover::before {
+  left: 100%;
+}
+
+.exercise-row:hover {
+  transform: translateX(4px);
+  background: rgba(28, 28, 30, 0.8);
+  border-color: rgba(255, 159, 10, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 40px rgba(255, 159, 10, 0.1);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ✓ CHECKBOX PREMIUM
+   ═══════════════════════════════════════════════════════════ */
+
+.exercise-checkbox {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 159, 10, 0.4);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.exercise-checkbox::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #FF9F0A, #FF6961);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.exercise-checkbox.checked {
+  border-color: #FF9F0A;
+  background: linear-gradient(135deg, #FF9F0A, #FF6961);
+  box-shadow: 
+    0 4px 16px rgba(255, 159, 10, 0.4),
+    0 0 30px rgba(255, 159, 10, 0.3);
+  animation: checkPulse 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes checkPulse {
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.exercise-checkbox.checked::after {
+  content: "✓";
+  color: #000000;
+  font-size: 22px;
+  font-weight: 800;
+  position: relative;
+  z-index: 1;
+  animation: checkAppear 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes checkAppear {
+  from {
+    opacity: 0;
+    transform: scale(0) rotate(-180deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   📝 INFO EXERCICE
+   ═══════════════════════════════════════════════════════════ */
+
+.exercise-info {
+  flex: 1;
+}
+
+.exercise-name {
+  font-size: 19px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 6px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  letter-spacing: -0.3px;
+}
+
+.exercise-details {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 500;
+}
+
+.exercise-sets {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+  white-space: nowrap;
+  background: rgba(255, 159, 10, 0.1);
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 159, 10, 0.2);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ➕ DIVISEUR AVEC SYMBOLE +
+   ═══════════════════════════════════════════════════════════ */
+
+.superset-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 0;
+  position: relative;
+}
+
+.superset-divider::before,
+.superset-divider::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 159, 10, 0.3),
+    transparent
+  );
+}
+
+.superset-plus {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255, 159, 10, 0.2), rgba(255, 69, 58, 0.2));
+  border: 3px solid #FF9F0A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: #FF9F0A;
+  box-shadow: 
+    0 4px 16px rgba(255, 159, 10, 0.3),
+    0 0 40px rgba(255, 159, 10, 0.2);
+  animation: plusRotate 6s linear infinite;
+  margin: 0 20px;
+}
+
+@keyframes plusRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ⏱️ INFO REPOS
+   ═══════════════════════════════════════════════════════════ */
+
+.rest-info {
+  text-align: center;
+  padding: 20px;
+  margin-top: 12px;
+  background: rgba(90, 200, 250, 0.08);
+  border-radius: 16px;
+  border: 1px solid rgba(90, 200, 250, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.rest-info::before {
+  content: '⏱️';
+  position: absolute;
+  left: 20px;
+  font-size: 24px;
+  opacity: 0.3;
+}
+
+.rest-info::after {
+  content: '⏱️';
+  position: absolute;
+  right: 20px;
+  font-size: 24px;
+  opacity: 0.3;
+}
+
+.rest-text {
+  font-size: 15px;
+  color: #5AC8FA;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.rest-duration {
+  font-size: 28px;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 8px 0 4px;
+  text-shadow: 0 0 20px rgba(90, 200, 250, 0.4);
+}
+
+.rest-subtitle {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 500;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   📱 RESPONSIVE - iPhone 15 Pro Max
+   ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 430px) {
+  .superset-card {
+    padding: 28px 16px 20px;
+    border-radius: 24px;
+  }
+  
+  .exercise-row {
+    gap: 16px;
+    padding: 16px;
+  }
+  
+  .exercise-name {
+    font-size: 17px;
+  }
+  
+  .exercise-checkbox {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+  }
+  
+  .superset-plus {
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🌙 DARK MODE (optionnel)
+   ═══════════════════════════════════════════════════════════ */
+
+@media (prefers-color-scheme: dark) {
+  .exercise-row {
+    background: rgba(28, 28, 30, 0.7);
+  }
+  
+  .superset-card {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 159, 10, 0.10) 0%,
+      rgba(255, 69, 58, 0.10) 100%
+    );
+  }
+}
