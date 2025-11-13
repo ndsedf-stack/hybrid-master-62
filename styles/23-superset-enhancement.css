@@ -1,0 +1,232 @@
+/* ═══════════════════════════════════════════════════════════
+   🎨 SUPERSET ENHANCEMENT - Styles Ultra Premium
+   Fichier: styles/23-superset-enhancement.css
+   ═══════════════════════════════════════════════════════════ */
+
+/* ═════════════════════════════════════════════════════════════
+   🟠 BADGE SUPERSET FLOTTANT
+   ═════════════════════════════════════════════════════════════ */
+
+.exercise-block-modern[data-superset="true"] {
+    position: relative;
+    margin-top: 24px;
+}
+
+.exercise-block-modern[data-superset="true"]::before {
+    content: 'SUPERSET';
+    position: absolute;
+    top: -12px;
+    left: 20px;
+    background: linear-gradient(135deg, #FF9F0A, #FF6961);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    z-index: 10;
+    box-shadow: 0 4px 15px rgba(255, 159, 10, 0.4);
+    animation: badgePulse 2s infinite;
+}
+
+@keyframes badgePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* ═════════════════════════════════════════════════════════════
+   🔥 BORDURE ANIMÉE SUPERSET
+   ═════════════════════════════════════════════════════════════ */
+
+.exercise-block-modern[data-superset="true"] {
+    border: 3px solid transparent;
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    position: relative;
+    overflow: hidden;
+}
+
+.exercise-block-modern[data-superset="true"]::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    background: linear-gradient(135deg, #FF9F0A, #FF6961, #FF9F0A);
+    background-size: 200% 200%;
+    border-radius: 20px;
+    z-index: -1;
+    animation: borderRotate 3s linear infinite;
+}
+
+@keyframes borderRotate {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ═════════════════════════════════════════════════════════════
+   💫 EFFET GLOW
+   ═════════════════════════════════════════════════════════════ */
+
+.exercise-block-modern[data-superset="true"] {
+    box-shadow: 
+        0 0 20px rgba(255, 159, 10, 0.2),
+        0 0 40px rgba(255, 159, 10, 0.1);
+    animation: glowPulse 4s infinite;
+}
+
+@keyframes glowPulse {
+    0%, 100% { 
+        box-shadow: 
+            0 0 20px rgba(255, 159, 10, 0.2),
+            0 0 40px rgba(255, 159, 10, 0.1);
+    }
+    50% { 
+        box-shadow: 
+            0 0 30px rgba(255, 159, 10, 0.4),
+            0 0 60px rgba(255, 159, 10, 0.2);
+    }
+}
+
+/* ═════════════════════════════════════════════════════════════
+   ➕ DIVISEUR AVEC SYMBOLE +
+   ═════════════════════════════════════════════════════════════ */
+
+.exercise-block-modern[data-superset="true"] .superset-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+    position: relative;
+}
+
+.exercise-block-modern[data-superset="true"] .superset-divider::before,
+.exercise-block-modern[data-superset="true"] .superset-divider::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(
+        to right,
+        transparent,
+        rgba(255, 159, 10, 0.3),
+        transparent
+    );
+}
+
+.exercise-block-modern[data-superset="true"] .superset-plus {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #FF9F0A, #FF6961);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    margin: 0 16px;
+    box-shadow: 
+        0 4px 20px rgba(255, 159, 10, 0.4),
+        inset 0 2px 4px rgba(255, 255, 255, 0.2);
+    animation: plusRotate 6s linear infinite;
+}
+
+@keyframes plusRotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ═════════════════════════════════════════════════════════════
+   📊 INFO REPOS SUPERSET
+   ═════════════════════════════════════════════════════════════ */
+
+.exercise-block-modern[data-superset="true"] .superset-rest-info {
+    margin-top: 20px;
+    padding: 16px 20px;
+    background: linear-gradient(
+        135deg,
+        rgba(0, 212, 255, 0.1),
+        rgba(0, 163, 204, 0.1)
+    );
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    border-radius: 16px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.exercise-block-modern[data-superset="true"] .superset-rest-text {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.exercise-block-modern[data-superset="true"] .superset-rest-duration {
+    font-size: 36px;
+    font-weight: 700;
+    color: #00D4FF;
+    margin-bottom: 4px;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+}
+
+.exercise-block-modern[data-superset="true"] .superset-rest-subtitle {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 400;
+}
+
+/* ═════════════════════════════════════════════════════════════
+   🎨 HOVER EFFECTS
+   ═════════════════════════════════════════════════════════════ */
+
+.exercise-block-modern[data-superset="true"]:hover {
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+
+.exercise-block-modern[data-superset="true"]:hover::after {
+    animation-duration: 2s;
+}
+
+/* ═════════════════════════════════════════════════════════════
+   📱 RESPONSIVE
+   ═════════════════════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+    .exercise-block-modern[data-superset="true"]::before {
+        font-size: 10px;
+        padding: 5px 12px;
+        left: 12px;
+    }
+    
+    .exercise-block-modern[data-superset="true"] .superset-plus {
+        width: 36px;
+        height: 36px;
+        font-size: 20px;
+    }
+    
+    .exercise-block-modern[data-superset="true"] .superset-rest-duration {
+        font-size: 28px;
+    }
+}
+
+/* ═════════════════════════════════════════════════════════════
+   ✨ ANIMATION D'APPARITION
+   ═════════════════════════════════════════════════════════════ */
+
+.exercise-block-modern[data-superset="true"] {
+    animation: supersetFadeIn 0.6s ease-out;
+}
+
+@keyframes supersetFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
