@@ -1,11 +1,10 @@
 // ==================================================================
-// APP.JS - VERSION STABLE SANS TIMERMANAGER
+// APP.JS - VERSION MINIMALE FONCTIONNELLE
 // ==================================================================
 
 import programData from './program-data.js';
 import { HomeRenderer } from './modules/home-renderer.js';
 import { WorkoutRenderer } from './ui/workout-renderer.js';
-import { NavigationUI } from './ui/navigation-ui.js';
 
 class HybridMasterApp {
   constructor() {
@@ -13,15 +12,14 @@ class HybridMasterApp {
     this.currentView = 'home';
     this.currentDay = null;
     
-    // Initialisation des modules UI (SANS TimerManager pour l'instant)
-    this.navigationUI = new NavigationUI();
+    // Initialisation des renderers seulement
     this.homeRenderer = new HomeRenderer('content', this.handleDaySelected.bind(this));
     this.workoutRenderer = new WorkoutRenderer(
       document.getElementById('content'),
       this.handleBackToHome.bind(this)
     );
     
-    console.log('✅ App initialisée (sans TimerManager)');
+    console.log('✅ App initialisée');
   }
 
   init() {
@@ -59,7 +57,7 @@ class HybridMasterApp {
       prevBtn.addEventListener('click', () => {
         if (this.currentWeek > 1) {
           this.currentWeek--;
-          this.navigationUI.setWeek(this.currentWeek);
+          this.updateWeekLabel();
           if (this.currentView === 'home') {
             this.showHome();
           } else if (this.currentDay) {
@@ -73,7 +71,7 @@ class HybridMasterApp {
       nextBtn.addEventListener('click', () => {
         if (this.currentWeek < 26) {
           this.currentWeek++;
-          this.navigationUI.setWeek(this.currentWeek);
+          this.updateWeekLabel();
           if (this.currentView === 'home') {
             this.showHome();
           } else if (this.currentDay) {
@@ -81,6 +79,14 @@ class HybridMasterApp {
           }
         }
       });
+    }
+  }
+
+  updateWeekLabel() {
+    // Mise à jour du label de semaine
+    const weekLabel = document.getElementById('current-week-label');
+    if (weekLabel) {
+      weekLabel.textContent = `Semaine ${this.currentWeek}`;
     }
   }
 
@@ -98,8 +104,8 @@ class HybridMasterApp {
         throw new Error(`Semaine ${this.currentWeek} introuvable`);
       }
 
-      // Mise à jour de l'affichage de la semaine
-      this.navigationUI.setWeek(this.currentWeek);
+      // Mise à jour du label de semaine
+      this.updateWeekLabel();
       
       // Préparation des données pour le HomeRenderer
       const daysArray = ['dimanche', 'mardi', 'vendredi', 'maison'].map(day => {
@@ -141,11 +147,14 @@ class HybridMasterApp {
   attachHomeEventListeners() {
     // Écouteurs pour les boutons "COMMENCER" des cartes
     const startButtons = document.querySelectorAll('.workout-card-start');
+    console.log(`🔘 ${startButtons.length} boutons COMMENCER trouvés`);
+    
     startButtons.forEach(btn => {
       btn.addEventListener('click', (e) => {
         const card = e.target.closest('.workout-card');
         const day = card?.dataset.day;
         if (day) {
+          console.log(`📅 Clic sur carte: ${day}`);
           this.handleDaySelected(day.toLowerCase());
         }
       });
@@ -171,8 +180,7 @@ class HybridMasterApp {
         throw new Error(`Workout introuvable pour ${day} semaine ${this.currentWeek}`);
       }
 
-      // Mise à jour de la navigation
-      this.navigationUI.setDay(day);
+      console.log(`✅ Workout récupéré: ${workout.name}`);
       
       // Rendu du workout avec le WorkoutRenderer
       this.workoutRenderer.render(workout, this.currentWeek);
@@ -197,7 +205,7 @@ class HybridMasterApp {
         <div class="error-message" style="padding: 20px; text-align: center;">
           <h2 style="color: #ff4444;">❌ Erreur</h2>
           <p style="color: #fff; margin: 20px 0;">${message}</p>
-          <button onclick="location.reload()" class="btn-primary" style="padding: 10px 20px; background: #ff4444; color: white; border: none; border-radius: 5px;">
+          <button onclick="location.reload()" class="btn-primary" style="padding: 10px 20px; background: #ff4444; color: white; border: none; border-radius: 5px; cursor: pointer;">
             🔄 Recharger la page
           </button>
         </div>
@@ -216,6 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Exposition globale pour le debug
     window.app = app;
+    console.log('✅ App exposée dans window.app');
   } catch (error) {
     console.error('❌ Erreur fatale:', error);
     const contentElement = document.getElementById('content');
@@ -224,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div style="padding: 20px; text-align: center;">
           <h2 style="color: #ff0000;">❌ Erreur fatale</h2>
           <p style="color: #fff;">${error.message}</p>
-          <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #ff4444; color: white; border: none; border-radius: 5px;">
+          <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #ff4444; color: white; border: none; border-radius: 5px; cursor: pointer;">
             🔄 Recharger
           </button>
         </div>
