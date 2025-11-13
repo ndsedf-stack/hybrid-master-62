@@ -1,155 +1,284 @@
 // ==================================================================
-// WORKOUT RENDERER - VERSION PREMIUM DESIGN
+// WORKOUT RENDERER - VERSION PREMIUM iOS 18 COMPATIBLE
 // ==================================================================
 export class WorkoutRenderer {
     constructor(container, onBack) {
         this.container = container;
         this.onBack = onBack;
         this.timerManager = null;
-        console.log('🏋️ WorkoutRenderer initialisé');
+        console.log('🏋️ WorkoutRenderer Premium initialisé');
     }
 
     setTimerManager(timerManager) {
         this.timerManager = timerManager;
-        console.log('✅ TimerManager connecté au WorkoutRenderer');
+        console.log('✅ TimerManager connecté');
     }
 
     render(dayData, weekNumber) {
-        console.log('🎨 Rendu séance:', dayData.day, 'Semaine', weekNumber);
+        console.log('🎨 Rendu séance:', dayData.name, 'Semaine', weekNumber);
 
         if (!dayData || !dayData.exercises) {
             console.error('❌ Données séance invalides');
             return;
         }
 
-        const { day, name, location, exercises, block, technique } = dayData;
+        const { name, exercises } = dayData;
+        const weekData = this.getWeekData(weekNumber);
 
         this.container.innerHTML = `
             <div class="workout-view">
-                <!-- Header avec titre et semaine -->
-                <div class="workout-header-modern">
-                    <button id="back-to-home-btn" class="back-button-modern">
-                        ← Retour
+                <!-- Header Premium -->
+                <div class="workout-header-premium">
+                    <button id="back-to-home-btn" class="btn-back">
+                        <span class="btn-back-icon">←</span>
                     </button>
-                    <div class="workout-info">
-                        <h1 class="workout-day-title">${day || 'Séance'}</h1>
-                        <p class="workout-subtitle">${name || location || 'Entraînement'}</p>
-                        <div class="workout-meta">
-                            <span class="meta-block">BLOCK ${block || 1}</span>
-                            <span class="meta-separator">•</span>
-                            <span class="meta-tempo">${technique || 'Tempo 3-1-2'}</span>
+                    <div class="workout-header-info">
+                        <h1 class="workout-title">${name || 'Entraînement'}</h1>
+                        <div class="workout-badges">
+                            <span class="badge badge-block">BLOC ${weekData.block}</span>
+                            <span class="badge badge-technique">${weekData.technique}</span>
+                            ${weekData.isDeload ? '<span class="badge badge-deload">DELOAD</span>' : ''}
                         </div>
                     </div>
                 </div>
 
                 <!-- Liste des exercices -->
-                <div class="exercises-list-modern">
-                    ${exercises.map((exercise, index) => this.renderExerciseModern(exercise, index, weekNumber)).join('')}
+                <div class="exercises-container">
+                    ${this.renderExercises(exercises, weekNumber, weekData)}
                 </div>
             </div>
         `;
 
-        // Attacher event listener au bouton retour
+        // Event listeners
         const backBtn = document.getElementById('back-to-home-btn');
         if (backBtn && this.onBack) {
             backBtn.addEventListener('click', () => {
-                console.log('🏠 Clic bouton retour');
+                console.log('🏠 Retour accueil');
                 this.onBack();
             });
         }
 
-        // Attacher les event listeners pour les checkboxes
-        this.attachCheckboxListeners(weekNumber);
+        // Initialiser l'interactivité (appelé après rendu)
+        this.initInteractive(weekNumber);
     }
 
-    renderExerciseModern(exercise, index, weekNumber) {
-        const storageKey = `workout_${weekNumber}_${exercise.name}`;
-        const savedState = this.loadExerciseState(storageKey);
+    getWeekData(weekNumber) {
+        // Récupérer les infos de la semaine depuis program-data
+        try {
+            const programData = window.programData || {};
+            const week = programData[`week${weekNumber}`] || {};
+            return {
+                block: week.block || 1,
+                technique: week.technique || 'Tempo 3-1-2',
+                isDeload: week.isDeload || false,
+                rpeTarget: week.rpeTarget || '7-8'
+            };
+        } catch (e) {
+            return { block: 1, technique: 'Tempo 3-1-2', isDeload: false };
+        }
+    }
+
+    renderExercises(exercises, weekNumber, weekData) {
+        if (!exercises || !Array.isArray(exercises)) return '';
+
+        // Grouper les supersets
+        const grouped = this.groupSupersets(exercises);
+        
+        return grouped.map((item, index) => {
+            if (item.isSuperset) {
+                return this.renderSuperset(item.exercises, index, weekNumber, weekData);
+            } else {
+                return this.renderExercise(item, index, weekNumber, weekData);
+            }
+        }).join('');
+    }
+
+    groupSupersets(exercises) {
+        const grouped = [];
+        const processed = new Set();
+
+        exercises.forEach((ex, i) => {
+            if (processed.has(i)) return;
+
+            if (ex.isSuperset && ex.supersetWith) {
+                // Trouver le partenaire
+                const partnerIndex = exercises.findIndex((e, idx) => 
+                    idx > i && e.name === ex.supersetWith
+                );
+
+                if (partnerIndex !== -1) {
+                    grouped.push({
+                        isSuperset: true,
+                        exercises: [ex, exercises[partnerIndex]],
+                        rest: Math.max(ex.rest || 90, exercises[partnerIndex].rest || 90)
+                    });
+                    processed.add(i);
+                    processed.add(partnerIndex);
+                } else {
+                    grouped.push(ex);
+                    processed.add(i);
+                }
+            } else if (!processed.has(i)) {
+                grouped.push(ex);
+                processed.add(i);
+            }
+        });
+
+        return grouped;
+    }
+
+    renderSuperset(exercises, index, weekNumber, weekData) {
+        const rest = Math.max(...exercises.map(e => e.rest || 90));
+        const sets = Math.max(...exercises.map(e => e.sets || 4));
 
         return `
-            <div class="exercise-block-modern" data-exercise="${exercise.name}">
-                <!-- Titre de l'exercice -->
-                <div class="exercise-title-modern">
-                    <h2>${exercise.name}</h2>
-                    ${exercise.variation ? `<span class="variation-badge">${exercise.variation}</span>` : ''}
+            <div class="superset-group" data-rest="${rest}">
+                <div class="superset-label">
+                    <span class="superset-badge">SUPERSET</span>
+                    <span class="superset-info">${exercises.length} exercices</span>
                 </div>
+                
+                <div class="superset-connector"></div>
 
-                <!-- Notes (si présentes) -->
-                ${exercise.notes ? `
-                    <div class="exercise-notes-modern">
-                        <span class="notes-icon">💡</span>
-                        <p>${exercise.notes}</p>
+                ${exercises.map((ex, i) => `
+                    <div class="exercise-card superset-item" data-exercise-id="${ex.id || ex.name}">
+                        ${this.renderExerciseContent(ex, `${index}_${i}`, weekNumber, weekData, true)}
                     </div>
-                ` : ''}
+                `).join('')}
 
-                <!-- Infos de l'exercice (en ligne) -->
-                <div class="exercise-specs-modern">
-                    <div class="spec-item">
-                        <span class="spec-label">Séries:</span>
-                        <span class="spec-value">${exercise.sets}</span>
+                <!-- Timer unique pour le superset -->
+                <div class="superset-timer-wrapper">
+                    <div class="timer-label">Repos après les 2 exercices</div>
+                    <div class="timer-circular" data-duration="${rest}" data-type="superset">
+                        <svg viewBox="0 0 120 120" class="timer-svg">
+                            <defs>
+                                <linearGradient id="gradient-superset-${index}">
+                                    <stop offset="0%" stop-color="#FF9F0A"/>
+                                    <stop offset="100%" stop-color="#FFB340"/>
+                                </linearGradient>
+                            </defs>
+                            <circle cx="60" cy="60" r="52" class="timer-bg"/>
+                            <circle cx="60" cy="60" r="52" class="timer-progress" 
+                                    stroke="url(#gradient-superset-${index})"
+                                    stroke-dasharray="326.73" 
+                                    stroke-dashoffset="0"/>
+                        </svg>
+                        <div class="timer-text">
+                            <span class="timer-value">${this.formatTime(rest)}</span>
+                        </div>
                     </div>
-                    <div class="spec-item">
-                        <span class="spec-label">Reps:</span>
-                        <span class="spec-value">${exercise.reps}</span>
-                    </div>
-                    ${exercise.weight ? `
-                        <div class="spec-item">
-                            <span class="spec-label">Poids:</span>
-                            <span class="spec-value">${exercise.weight}kg</span>
-                        </div>
-                    ` : ''}
-                    ${exercise.tempo ? `
-                        <div class="spec-item">
-                            <span class="spec-label">Tempo:</span>
-                            <span class="spec-value">${exercise.tempo}</span>
-                        </div>
-                    ` : ''}
-                    ${exercise.rpe ? `
-                        <div class="spec-item">
-                            <span class="spec-label">RPE:</span>
-                            <span class="spec-value">${exercise.rpe}</span>
-                        </div>
-                    ` : ''}
-                </div>
-
-                <!-- Grille de séries (style moderne) -->
-                <div class="series-grid-modern" data-exercise="${exercise.name}">
-                    ${this.renderSeriesGridModern(exercise, savedState, weekNumber)}
                 </div>
             </div>
         `;
     }
 
-    renderSeriesGridModern(exercise, savedState = {}, weekNumber) {
-        const setCount = parseInt(exercise.sets) || 4;
-        const reps = exercise.reps || '10';
-        const weight = exercise.weight || '';
-        const rest = exercise.rest || 120;
-        
-        let html = '';
+    renderExercise(exercise, index, weekNumber, weekData, isInSuperset = false) {
+        if (isInSuperset) return ''; // Déjà rendu dans le superset
 
+        return `
+            <div class="exercise-card" data-exercise-id="${exercise.id || exercise.name}">
+                ${this.renderExerciseContent(exercise, index, weekNumber, weekData, false)}
+            </div>
+        `;
+    }
+
+    renderExerciseContent(exercise, index, weekNumber, weekData, isInSuperset) {
+        const sets = exercise.sets || 4;
+        const reps = exercise.reps || '10';
+        const weight = exercise.weight || 0;
+        const rest = exercise.rest || 120;
+
+        return `
+            <div class="exercise-header">
+                <h3 class="exercise-name">${exercise.name}</h3>
+                ${exercise.category ? `<span class="exercise-category">${exercise.category}</span>` : ''}
+            </div>
+
+            <!-- Stats principales (modifiables) -->
+            <div class="exercise-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Poids</span>
+                    <div class="stat-value-group">
+                        <button class="stat-btn stat-minus" data-type="weight">−</button>
+                        <input type="number" class="stat-value" value="${weight}" step="2.5" data-type="weight">
+                        <button class="stat-btn stat-plus" data-type="weight">+</button>
+                        <span class="stat-unit">kg</span>
+                    </div>
+                </div>
+
+                <div class="stat-item">
+                    <span class="stat-label">Reps</span>
+                    <div class="stat-value-group">
+                        <button class="stat-btn stat-minus" data-type="reps">−</button>
+                        <input type="number" class="stat-value" value="${reps}" step="1" data-type="reps">
+                        <button class="stat-btn stat-plus" data-type="reps">+</button>
+                    </div>
+                </div>
+
+                <div class="stat-item">
+                    <span class="stat-label">Repos</span>
+                    <div class="stat-value-group">
+                        <button class="stat-btn stat-minus" data-type="rest">−</button>
+                        <input type="number" class="stat-value" value="${rest}" step="5" data-type="rest">
+                        <button class="stat-btn stat-plus" data-type="rest">+</button>
+                        <span class="stat-unit">s</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Infos secondaires -->
+            <div class="exercise-meta">
+                ${exercise.tempo ? `<span class="meta-badge">Tempo: ${exercise.tempo}</span>` : ''}
+                ${exercise.rpe ? `<span class="meta-badge">RPE: ${exercise.rpe}</span>` : ''}
+            </div>
+
+            <!-- Notes -->
+            ${exercise.notes ? `
+                <div class="exercise-notes">
+                    <span class="notes-icon">💡</span>
+                    <p>${exercise.notes}</p>
+                </div>
+            ` : ''}
+
+            <!-- Grille des séries (sans timer individuel pour superset) -->
+            <div class="sets-grid">
+                ${this.renderSets(sets, reps, weight, rest, exercise, isInSuperset)}
+            </div>
+        `;
+    }
+
+    renderSets(setCount, reps, weight, rest, exercise, isInSuperset) {
+        let html = '';
+        
         for (let i = 1; i <= setCount; i++) {
-            const isChecked = savedState[`set_${i}`] || false;
+            const setId = `${exercise.id || exercise.name}_set_${i}`;
+            
             html += `
-                <div class="series-card-modern ${isChecked ? 'completed' : ''}" data-set="${i}">
-                    <div class="series-number">${i}</div>
-                    <div class="series-info">
-                        <div class="series-reps">${reps} reps</div>
-                        ${weight ? `<div class="series-weight">${weight}kg</div>` : ''}
+                <div class="set-card" data-set-id="${setId}" data-set-number="${i}" data-rest="${rest}">
+                    <div class="set-number">${i}</div>
+                    
+                    <div class="set-info">
+                        <span class="set-reps">${reps} reps</span>
+                        <span class="set-weight">${weight}kg</span>
                     </div>
-                    <div class="series-timer">
-                        <svg class="timer-icon" width="20" height="20" viewBox="0 0 20 20">
-                            <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
-                        </svg>
-                        <span>${rest}s</span>
-                    </div>
-                    <label class="series-checkbox-modern">
-                        <input type="checkbox" 
-                               data-set="${i}" 
-                               data-total="${setCount}"
-                               ${isChecked ? 'checked' : ''} />
-                        <span class="checkbox-checkmark">✓</span>
-                    </label>
+
+                    <button class="set-check">
+                        <span class="check-icon"></span>
+                    </button>
+
+                    ${!isInSuperset ? `
+                        <div class="timer-circular" data-duration="${rest}">
+                            <svg viewBox="0 0 80 80" class="timer-svg">
+                                <circle cx="40" cy="40" r="35" class="timer-bg"/>
+                                <circle cx="40" cy="40" r="35" class="timer-progress" 
+                                        stroke-dasharray="219.91" 
+                                        stroke-dashoffset="0"/>
+                            </svg>
+                            <div class="timer-text">
+                                <span class="timer-value">${this.formatTime(rest)}</span>
+                            </div>
+                        </div>
+                    ` : ''}
                 </div>
             `;
         }
@@ -157,78 +286,22 @@ export class WorkoutRenderer {
         return html;
     }
 
-    attachCheckboxListeners(weekNumber) {
-        const checkboxes = this.container.querySelectorAll('.series-checkbox-modern input[type="checkbox"]');
-
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', (e) => {
-                this.handleSetCompleteModern(e.target, weekNumber);
-            });
-        });
+    formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
     }
 
-    handleSetCompleteModern(checkbox, weekNumber) {
-        const seriesCard = checkbox.closest('.series-card-modern');
-        const exerciseBlock = checkbox.closest('.exercise-block-modern');
-        const exerciseName = exerciseBlock.dataset.exercise;
-        const setNumber = parseInt(checkbox.dataset.set);
-        const totalSets = parseInt(checkbox.dataset.total);
-
-        console.log(`✅ Série ${setNumber}/${totalSets} - ${exerciseName}`);
-
-        // Animation visuelle
-        if (checkbox.checked) {
-            seriesCard.classList.add('completed');
-
-            // Timer automatique
-            const restTime = this.getRestTimeForExercise(exerciseBlock);
-
-            // Démarrer le timer si pas la dernière série
-            if (this.timerManager && setNumber < totalSets) {
-                console.log(`⏱️ Démarrage timer : ${restTime}s pour ${exerciseName}`);
-                this.timerManager.start(
-                    restTime,
-                    exerciseName,
-                    setNumber + 1,
-                    totalSets
-                );
+    initInteractive(weekNumber) {
+        // Attendre que workout-interactive.js soit chargé
+        setTimeout(() => {
+            if (window.workoutApp) {
+                console.log('🔄 Réinitialisation interactive');
+                window.workoutApp.init();
+                window.workoutApp.loadSavedData();
+            } else {
+                console.warn('⚠️ workout-interactive.js non chargé');
             }
-        } else {
-            seriesCard.classList.remove('completed');
-        }
-
-        // Sauvegarder l'état
-        this.saveExerciseState(exerciseName, setNumber, checkbox.checked, weekNumber);
-    }
-
-    getRestTimeForExercise(exerciseBlock) {
-        const timerElement = exerciseBlock.querySelector('.series-timer span');
-        if (timerElement) {
-            const seconds = parseInt(timerElement.textContent.replace('s', ''));
-            return isNaN(seconds) ? 120 : seconds;
-        }
-        return 120;
-    }
-
-    saveExerciseState(exerciseName, setNumber, isChecked, weekNumber) {
-        const storageKey = `workout_${weekNumber}_${exerciseName}`;
-        const state = this.loadExerciseState(storageKey);
-        state[`set_${setNumber}`] = isChecked;
-
-        try {
-            localStorage.setItem(storageKey, JSON.stringify(state));
-        } catch (error) {
-            console.warn('⚠️ Erreur sauvegarde localStorage:', error);
-        }
-    }
-
-    loadExerciseState(storageKey) {
-        try {
-            const saved = localStorage.getItem(storageKey);
-            return saved ? JSON.parse(saved) : {};
-        } catch (error) {
-            console.warn('⚠️ Erreur lecture localStorage:', error);
-            return {};
-        }
+        }, 100);
     }
 }
