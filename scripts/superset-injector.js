@@ -1,234 +1,148 @@
-// ═══════════════════════════════════════════════════════════
-// 🔥 SUPERSET INJECTOR - Injection automatique
-// Fichier: scripts/superset-injector.js
-// ═══════════════════════════════════════════════════════════
+// ==================================================================
+// SUPERSET INJECTOR - VERSION CORRIGÉE (SANS BOUCLE INFINIE)
+// ==================================================================
 
-(function() {
-    'use strict';
+console.log('🔥 Superset Injector chargé');
+
+let isProcessing = false;
+let processedExercises = new Set();
+
+function enhanceSupersets() {
+    // Éviter les appels multiples simultanés
+    if (isProcessing) {
+        console.log('⏸️ Traitement déjà en cours, ignoré');
+        return;
+    }
     
-    console.log('🔥 Superset Injector chargé');
+    isProcessing = true;
+    console.log('🎨 Détection des supersets...');
     
-    // ═════════════════════════════════════════════════════════
-    // FONCTION : Détecter et marquer les supersets
-    // ═════════════════════════════════════════════════════════
+    const exercises = document.querySelectorAll('.exercise-block-modern');
+    console.log(`📊 ${exercises.length} exercices trouvés`);
     
-    function enhanceSupersets() {
-        console.log('🎨 Détection des supersets...');
+    if (exercises.length === 0) {
+        isProcessing = false;
+        return;
+    }
+    
+    let supersetCount = 0;
+    
+    exercises.forEach((exercise, index) => {
+        // Vérifier si déjà traité
+        const exerciseName = exercise.querySelector('h3')?.textContent || '';
+        const exerciseId = `${exerciseName}-${index}`;
         
-        // Trouver tous les blocs d'exercices
-        const exerciseBlocks = document.querySelectorAll('.exercise-block-modern');
-        
-        if (exerciseBlocks.length === 0) {
-            console.log('⚠️ Aucun exercice trouvé');
-            return;
+        if (processedExercises.has(exerciseId)) {
+            return; // Déjà traité, on saute
         }
         
-        console.log(`📊 ${exerciseBlocks.length} exercices trouvés`);
+        const nextExercise = exercises[index + 1];
+        if (!nextExercise) return;
         
-        // Grouper les exercices consécutifs qui ont isSuperset
-        const processedIndices = new Set();
+        const currentRest = exercise.querySelector('.exercise-rest')?.textContent || '';
+        const nextRest = nextExercise.querySelector('.exercise-rest')?.textContent || '';
         
-        exerciseBlocks.forEach((block, index) => {
-            if (processedIndices.has(index)) return;
+        // Détecter si c'est un superset (repos = 0s)
+        if (currentRest.includes('0s') && index < exercises.length - 1) {
+            const nextName = nextExercise.querySelector('h3')?.textContent || '';
             
-            const exerciseName = block.dataset.exercise;
-            if (!exerciseName) return;
+            console.log(`✅ Superset détecté: ${exerciseName} + ${nextName}`);
             
-            // Vérifier si c'est un superset dans les données
-            const isSuperset = checkIfSuperset(exerciseName, index);
+            // Marquer comme traité
+            processedExercises.add(exerciseId);
+            processedExercises.add(`${nextName}-${index + 1}`);
             
-            if (isSuperset) {
-                // Trouver le bloc suivant
-                const nextBlock = exerciseBlocks[index + 1];
-                
-                if (nextBlock) {
-                    console.log(`✅ Superset détecté: ${exerciseName} + ${nextBlock.dataset.exercise}`);
-                    
-                    // Marquer le premier bloc comme superset
-                    block.setAttribute('data-superset', 'true');
-                    block.setAttribute('data-rest', '90'); // Repos par défaut
-                    
-                    // Créer le diviseur +
-                    const divider = document.createElement('div');
-                    divider.className = 'superset-divider';
-                    divider.innerHTML = '<div class="superset-plus">+</div>';
-                    
-                    // Insérer le diviseur entre les deux blocs
-                    nextBlock.parentNode.insertBefore(divider, nextBlock);
-                    
-                    // Englober les deux blocs + divider dans un conteneur
-                    const wrapper = document.createElement('div');
-                    wrapper.setAttribute('data-superset', 'true');
-                    wrapper.setAttribute('data-rest', '90');
-                    
-                    // Déplacer le premier bloc dans le wrapper
-                    block.parentNode.insertBefore(wrapper, block);
-                    wrapper.appendChild(block);
-                    wrapper.appendChild(divider);
-                    wrapper.appendChild(nextBlock);
-                    
-                    // Ajouter l'info repos
-                    const restInfo = document.createElement('div');
-                    restInfo.className = 'superset-rest-info';
-                    restInfo.innerHTML = `
-                        <div class="superset-rest-text">REPOS APRÈS LE DUO</div>
-                        <div class="superset-rest-duration">90s</div>
-                        <div class="superset-rest-subtitle">Récupération complète</div>
-                    `;
-                    wrapper.appendChild(restInfo);
-                    
-                    // Marquer comme traité
-                    processedIndices.add(index);
-                    processedIndices.add(index + 1);
-                }
+            // Ajouter les classes superset
+            exercise.classList.add('is-superset-first');
+            nextExercise.classList.add('is-superset-second');
+            
+            // Badge SUPERSET sur les deux
+            if (!exercise.querySelector('.superset-badge')) {
+                const badge1 = document.createElement('div');
+                badge1.className = 'superset-badge';
+                badge1.textContent = 'SUPERSET';
+                exercise.querySelector('.exercise-header').appendChild(badge1);
             }
-        });
-        
-        console.log(`✅ ${processedIndices.size / 2} supersets créés`);
-    }
-    
-    // ═════════════════════════════════════════════════════════
-    // FONCTION : Vérifier si un exercice est un superset
-    // ═════════════════════════════════════════════════════════
-    
-    function checkIfSuperset(exerciseName, index) {
-        // Liste des exercices qui sont des supersets
-        const supersetExercises = [
-            'Lat Pulldown',
-            'Landmine Press',
-            'Incline Curl',
-            'Spider Curl',
-            'Cable Pushdown',
-            'Extension Triceps Corde',
-            'Lateral Raises',
-            'Leg Curl',
-            'Leg Extension',
-            'Cable Fly',
-            'Dumbbell Fly',
-            'EZ Bar Curl',
-            'Overhead Extension'
-        ];
-        
-        return supersetExercises.some(name => 
-            exerciseName.includes(name) || name.includes(exerciseName)
-        );
-    }
-    
-    // ═════════════════════════════════════════════════════════
-    // FONCTION : Gérer les interactions superset
-    // ═════════════════════════════════════════════════════════
-    
-    function attachSupersetListeners() {
-        const supersetWrappers = document.querySelectorAll('[data-superset="true"]');
-        
-        supersetWrappers.forEach(wrapper => {
-            const blocks = wrapper.querySelectorAll('.exercise-block-modern');
             
-            if (blocks.length !== 2) return;
+            if (!nextExercise.querySelector('.superset-badge')) {
+                const badge2 = document.createElement('div');
+                badge2.className = 'superset-badge';
+                badge2.textContent = 'SUPERSET';
+                nextExercise.querySelector('.exercise-header').appendChild(badge2);
+            }
             
-            const [block1, block2] = blocks;
+            // Créer le connecteur entre les deux exercices
+            if (!exercise.nextElementSibling?.classList.contains('superset-connector')) {
+                const connector = document.createElement('div');
+                connector.className = 'superset-connector';
+                connector.innerHTML = `
+                    <div class="connector-line"></div>
+                    <div class="connector-icon">+</div>
+                    <div class="connector-line"></div>
+                `;
+                exercise.parentNode.insertBefore(connector, nextExercise);
+            }
             
-            // Récupérer les grilles de séries
-            const grid1 = block1.querySelector('.series-grid-modern');
-            const grid2 = block2.querySelector('.series-grid-modern');
+            // Ajouter l'info de repos après le duo
+            const finalRest = nextRest.replace('Repos : ', '');
+            if (!nextExercise.querySelector('.superset-rest-info')) {
+                const restInfo = document.createElement('div');
+                restInfo.className = 'superset-rest-info';
+                restInfo.innerHTML = `
+                    <div class="rest-icon">⏱️</div>
+                    <div class="rest-text">REPOS APRÈS LE DUO</div>
+                    <div class="rest-time">${finalRest}</div>
+                `;
+                nextExercise.appendChild(restInfo);
+            }
             
-            if (!grid1 || !grid2) return;
-            
-            // Récupérer les checkboxes
-            const checkboxes1 = grid1.querySelectorAll('input[type="checkbox"]');
-            const checkboxes2 = grid2.querySelectorAll('input[type="checkbox"]');
-            
-            // Écouter les changements sur exercice 2
-            checkboxes2.forEach((checkbox, index) => {
-                checkbox.addEventListener('change', function(e) {
-                    if (this.checked) {
-                        // Vérifier que l'exercice 1 de la même série est coché
-                        const checkbox1 = checkboxes1[index];
-                        
-                        if (!checkbox1 || !checkbox1.checked) {
-                            alert('⚠️ Faites d\'abord l\'exercice 1 de cette série !');
-                            this.checked = false;
-                            return;
-                        }
-                        
-                        console.log(`✅ Superset série ${index + 1} terminée !`);
-                        
-                        // Timer automatique (si le TimerManager existe)
-                        if (window.app && window.app.timerManager) {
-                            const restTime = parseInt(wrapper.dataset.rest) || 90;
-                            const setNumber = index + 1;
-                            const totalSets = checkboxes1.length;
-                            const ex1Name = block1.querySelector('.exercise-title-modern h2').textContent;
-                            const ex2Name = block2.querySelector('.exercise-title-modern h2').textContent;
-                            
-                            if (setNumber < totalSets) {
-                                window.app.timerManager.start(
-                                    restTime,
-                                    `${ex1Name} + ${ex2Name}`,
-                                    setNumber + 1,
-                                    totalSets
-                                );
-                            }
-                        }
-                    }
-                });
-            });
-        });
-        
-        console.log(`✅ Listeners attachés à ${supersetWrappers.length} supersets`);
-    }
-    
-    // ═════════════════════════════════════════════════════════
-    // INITIALISATION
-    // ═════════════════════════════════════════════════════════
-    
-    function init() {
-        // Attendre que la page soit chargée
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', run);
-        } else {
-            run();
+            supersetCount++;
         }
-    }
+    });
     
-    function run() {
-        // Attendre que les exercices soient rendus
+    console.log(`✅ ${supersetCount} supersets créés`);
+    isProcessing = false;
+}
+
+// Observer pour détecter les changements de DOM (une seule fois)
+let observer = null;
+
+function startObserver() {
+    if (observer) return; // Déjà créé
+    
+    observer = new MutationObserver((mutations) => {
+        const hasExerciseChanges = mutations.some(mutation => 
+            Array.from(mutation.addedNodes).some(node => 
+                node.classList && node.classList.contains('exercise-block-modern')
+            )
+        );
+        
+        if (hasExerciseChanges) {
+            console.log('🔄 Nouveaux exercices détectés');
+            setTimeout(enhanceSupersets, 100); // Petit délai pour éviter les appels multiples
+        }
+    });
+    
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+}
+
+// Initialisation au chargement
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             enhanceSupersets();
-            attachSupersetListeners();
+            startObserver();
         }, 500);
-        
-        // Observer les changements de DOM (navigation entre jours)
-        const observer = new MutationObserver((mutations) => {
-            for (const mutation of mutations) {
-                if (mutation.addedNodes.length > 0) {
-                    // Vérifier si des exercices ont été ajoutés
-                    const hasExercises = Array.from(mutation.addedNodes).some(
-                        node => node.querySelector && node.querySelector('.exercise-block-modern')
-                    );
-                    
-                    if (hasExercises) {
-                        console.log('🔄 Nouveaux exercices détectés, relance...');
-                        setTimeout(() => {
-                            enhanceSupersets();
-                            attachSupersetListeners();
-                        }, 300);
-                    }
-                }
-            }
-        });
-        
-        // Observer le conteneur principal
-        const container = document.getElementById('content');
-        if (container) {
-            observer.observe(container, {
-                childList: true,
-                subtree: true
-            });
-        }
-    }
-    
-    // Lancer l'injection
-    init();
-    
-})();
+    });
+} else {
+    setTimeout(() => {
+        enhanceSupersets();
+        startObserver();
+    }, 500);
+}
+
+// Exposer la fonction pour debug manuel
+window.enhanceSupersets = enhanceSupersets;
