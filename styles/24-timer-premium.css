@@ -1,0 +1,198 @@
+/* ================================================================== */
+/* TIMER PREMIUM - PLEIN ÉCRAN AVEC DESIGN CIRCULAIRE */
+/* ================================================================== */
+
+.timer-overlay-premium {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000000;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.timer-overlay-premium.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.timer-premium-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+/* SVG Circle */
+.timer-premium-svg {
+  width: 340px;
+  height: 340px;
+  filter: drop-shadow(0 0 20px rgba(255, 109, 0, 0.3));
+}
+
+#timer-main-circle {
+  transition: stroke-dashoffset 1s linear;
+}
+
+/* Contenu central */
+.timer-premium-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  margin-top: -20px;
+}
+
+.timer-premium-exercise-name {
+  color: #FF6D00;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.timer-premium-time {
+  color: #FFFFFF;
+  font-size: 64px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  line-height: 1;
+  margin-bottom: 12px;
+  text-shadow: 0 0 30px rgba(255, 109, 0, 0.5);
+}
+
+.timer-premium-phase {
+  color: #888;
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* Boutons de contrôle */
+.timer-premium-controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.timer-control-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.timer-control-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.timer-control-btn:active {
+  transform: translateY(0);
+}
+
+.timer-control-pause {
+  background: rgba(255, 109, 0, 0.2);
+  border-color: #FF6D00;
+  color: #FF6D00;
+  padding: 12px 32px;
+}
+
+.timer-control-pause:hover {
+  background: rgba(255, 109, 0, 0.3);
+  border-color: #FF9100;
+}
+
+/* Bouton fermer */
+.timer-premium-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.timer-premium-close:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .timer-premium-svg {
+    width: 280px;
+    height: 280px;
+  }
+
+  .timer-premium-time {
+    font-size: 52px;
+  }
+
+  .timer-premium-exercise-name {
+    font-size: 20px;
+  }
+
+  .timer-control-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .timer-premium-svg {
+    width: 240px;
+    height: 240px;
+  }
+
+  .timer-premium-time {
+    font-size: 42px;
+  }
+
+  .timer-premium-exercise-name {
+    font-size: 18px;
+  }
+
+  .timer-premium-controls {
+    gap: 12px;
+  }
+
+  .timer-control-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+}
