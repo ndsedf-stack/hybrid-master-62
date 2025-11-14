@@ -92,7 +92,7 @@ export default class TimerManager {
     overlay.innerHTML = `
       <!-- GIF de l'exercice -->
       <img 
-        src="${this.exerciseData.gif || 'assets/gifs/default.gif'}" 
+        src="${this.exerciseData.gif || 'assets/gifs/default.svg'}" 
         alt="${this.exerciseData.name}"
         class="timer-exercise-gif"
       />
@@ -233,34 +233,55 @@ export default class TimerManager {
   }
 
   /**
-   * Met à jour les 4 cercles - COUNTDOWN (se vident)
+   * Met à jour les 4 cercles - CHACUN AVEC SA PROPRE LOGIQUE
    */
   updateCircles() {
-    // Progress en countdown : 1.0 (plein) → 0.0 (vide)
-    const progress = this.remainingTime / this.totalTime;
+    // Cercle 1 (Session) : Progress sur TOUTE la séance (tous les sets)
+    const totalSessionTime = this.totalTime * (this.totalReps || 1);
+    const elapsedSessionTime = (this.currentRep - 1) * this.totalTime + (this.totalTime - this.remainingTime);
+    const sessionProgress = Math.max(0, Math.min(1, elapsedSessionTime / totalSessionTime));
 
-    // Calcul du stroke-dashoffset pour countdown
+    // Cercle 2 (Exercise) : Progress sur le SET actuel (se remplit)
+    const exerciseProgress = 1 - (this.remainingTime / this.totalTime);
+
+    // Cercle 3 (Rest) : Progress du repos actuel (countdown, se vide)
+    const restProgress = this.remainingTime / this.totalTime;
+
+    // Cercle 4 (Current) : Progress du tempo actuel
+    const tempoProgress = this.getTempoProgress();
+
+    // Applique chaque progress à son cercle
     const circles = [
-      { id: 'circle-session', radius: 140 },
-      { id: 'circle-exercise', radius: 120 },
-      { id: 'circle-rest', radius: 100 },
-      { id: 'circle-current', radius: 80 }
+      { id: 'circle-session', radius: 140, progress: sessionProgress },
+      { id: 'circle-exercise', radius: 120, progress: exerciseProgress },
+      { id: 'circle-rest', radius: 100, progress: restProgress },
+      { id: 'circle-current', radius: 80, progress: tempoProgress }
     ];
 
-    circles.forEach(({ id, radius }) => {
+    circles.forEach(({ id, radius, progress }) => {
       const circle = document.getElementById(id);
       if (!circle) return;
 
       const circumference = 2 * Math.PI * radius;
-      
-      // Pour countdown : offset = circumference * (1 - progress)
-      // Quand progress = 1 (début) → offset = 0 (cercle plein)
-      // Quand progress = 0 (fin) → offset = circumference (cercle vide)
       const offset = circumference * (1 - progress);
       
       circle.style.strokeDasharray = circumference;
       circle.style.strokeDashoffset = offset;
     });
+  }
+
+  /**
+   * Calcule le progress dans la phase tempo actuelle
+   */
+  getTempoProgress() {
+    if (!this.tempoValues || this.tempoValues.length !== 3) return 0;
+
+    const [descent, pause, lift] = this.tempoValues;
+    const totalTempo = descent + pause + lift;
+    const tempoElapsed = this.totalTime - this.remainingTime;
+    const tempoPosition = tempoElapsed % totalTempo;
+
+    return tempoPosition / totalTempo;
   }
 
   /**
