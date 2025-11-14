@@ -961,4 +961,4 @@ export class ProgramData {
 // ====================================================================
 // EXPORT PAR DÉFAUT
 // ====================================================================
-export default new ProgramData();
+window.programData = programData;
