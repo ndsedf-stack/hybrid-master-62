@@ -335,11 +335,19 @@ export default class TimerManager {
       const exerciseEndTime = cumulativeTime + exerciseDuration;
 
       if (this.sessionElapsedTime >= exerciseEndTime) {
-        seg.setAttribute('opacity', '0.3');
+        // Exercice terminé → très transparent et fin
+        seg.setAttribute('opacity', '0.15');
+        seg.setAttribute('stroke-width', '12');
       } else if (this.sessionElapsedTime >= cumulativeTime) {
+        // Exercice en cours → diminue de 1.0 à 0.2
         const progress = (this.sessionElapsedTime - cumulativeTime) / exerciseDuration;
-        const opacity = 0.9 - (progress * 0.6);
+        const opacity = 1.0 - (progress * 0.8);
         seg.setAttribute('opacity', opacity.toString());
+        seg.setAttribute('stroke-width', '18');
+      } else {
+        // Exercice pas encore commencé → pleine opacité
+        seg.setAttribute('opacity', '1.0');
+        seg.setAttribute('stroke-width', '18');
       }
 
       cumulativeTime = exerciseEndTime;
