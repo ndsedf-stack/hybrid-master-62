@@ -111,7 +111,7 @@ export class WorkoutRenderer {
                 <div class="exercise-block-modern" data-superset="true" data-rest="${restTime}">
                     
                     <!-- Exercice 1 du superset -->
-                    <div class="superset-exercise" data-superset-order="1" data-exercise="${exercise1.name}" data-exercise-id="${exercise1.name}">
+                    <div class="superset-exercise" data-superset-order="1" data-exercise="${exercise1.name}" data-exercise-id="${exercise1.id || exercise1.name}">
                         <div class="exercise-title-modern">
                             <h2>${exercise1.name}</h2>
                             ${exercise1.variation ? `<span class="variation-badge">${exercise1.variation}</span>` : ''}
@@ -362,7 +362,7 @@ export class WorkoutRenderer {
                                     gif: exerciseData.gif || 'assets/gifs/default.gif',
                                     tempo: exerciseData.tempo || '3-1-2-0'
                                 },
-                                setNumber + 1,
+                                setNumber,
                                 totalSets,
                                 restTime
                             );
@@ -393,6 +393,7 @@ export class WorkoutRenderer {
             if (!isSuperset) {
                 const restTime = this.getRestTimeForExercise(exerciseBlock);
 
+                // ✅ FIX: Timer sur TOUTES les séries (y compris la dernière)
                 if (this.timerManager && setNumber <= totalSets) {
                     console.log(`⏱️ Démarrage timer : ${restTime}s pour ${exerciseName}`);
                     
@@ -405,7 +406,7 @@ export class WorkoutRenderer {
                             gif: exerciseData.gif || 'assets/gifs/default.gif',
                             tempo: exerciseData.tempo || '3-1-2-0'
                         },
-                        setNumber + 1,
+                        setNumber,
                         totalSets,
                         restTime
                     );
@@ -451,18 +452,31 @@ export class WorkoutRenderer {
     }
 
     /**
-     * Récupère les données d'un exercice depuis programData
+     * ✅ FIX: Récupère les données d'un exercice depuis programData
      */
     getExerciseData(exerciseId) {
-        if (window.programData) {
-            for (const day of Object.values(window.programData)) {
-                if (day.exercises) {
-                    const exercise = day.exercises.find(ex => ex.id === exerciseId);
-                    if (exercise) return exercise;
+        if (!window.programData || !window.programData.program) {
+            console.error('❌ programData non disponible');
+            return { name: 'Exercice', gif: 'assets/gifs/default.gif', tempo: '3-1-2-0' };
+        }
+
+        // Cherche dans week1 (adapte selon la semaine active)
+        const weekData = window.programData.program.week1;
+        
+        if (weekData) {
+            // Parcourt tous les jours de la semaine
+            for (const [dayKey, dayData] of Object.entries(weekData)) {
+                if (dayData && dayData.exercises) {
+                    const exercise = dayData.exercises.find(ex => ex.id === exerciseId);
+                    if (exercise) {
+                        console.log(`✅ Exercice trouvé: ${exercise.name} | Tempo: ${exercise.tempo} | GIF: ${exercise.gif}`);
+                        return exercise;
+                    }
                 }
             }
         }
-        
+
+        console.warn(`⚠️ Exercice non trouvé pour ID: ${exerciseId}`);
         return {
             name: 'Exercice',
             gif: 'assets/gifs/default.gif',
