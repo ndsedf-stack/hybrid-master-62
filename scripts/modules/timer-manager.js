@@ -1,275 +1,197 @@
 /**
- * TIMER MANAGER - ULTRA PRO VERSION CORRIGÉE
- * 4 cercles animés + barre tempo + intégration program-data
- * CERCLES EN COUNTDOWN (se vident) + BARRE TEMPO VISUELLE
+ * TIMER MANAGER - ULTRA PRO VERSION FINALE CORRIGÉE
+ * 4 cercles animés en countdown + barre tempo visuelle + récupération tempo
  */
 
 export default class TimerManager {
   constructor() {
     this.timerInterval = null;
+    this.totalTime = 0;
     this.remainingTime = 0;
-    this.initialTime = 0;
-    this.isPaused = false;
-    this.overlay = null;
-    this.onComplete = null;
-    this.currentExercise = null;
-    this.currentSet = null;
-    this.tempoData = null; // [descent, pause, lift]
-    
-    console.log('✅ TimerManager Premium initialisé');
+    this.currentRep = 0;
+    this.totalReps = 0;
+    this.exerciseData = null;
+    this.tempoPhaseIndex = 0;
+    this.tempoPhaseTime = 0;
+    this.tempoValues = [3, 1, 2]; // Valeurs par défaut
   }
 
   /**
-   * Démarre le timer avec les données de l'exercice
+   * Démarre le timer avec les données d'exercice
    */
-  start(exerciseName, setNumber, restTime, tempo = [3, 1, 2], gifUrl = null) {
-    console.log('🚀 Timer start:', { exerciseName, setNumber, restTime, tempo });
+  startTimer(exerciseData, currentRep, totalReps, duration) {
+    this.exerciseData = exerciseData;
+    this.currentRep = currentRep;
+    this.totalReps = totalReps;
+    this.totalTime = duration;
+    this.remainingTime = duration;
     
-    this.currentExercise = exerciseName;
-    this.currentSet = setNumber;
-    this.initialTime = restTime;
-    this.remainingTime = restTime;
-    this.tempoData = tempo;
-    this.isPaused = false;
+    // Récupérer le tempo depuis exerciseData
+    this.parseTempoFromExercise();
     
-    // Créer l'overlay si nécessaire
-    if (!this.overlay) {
-      this.createOverlay(gifUrl);
-    }
+    // Afficher l'overlay
+    this.showOverlay();
     
-    // Mettre à jour les informations
-    this.updateDisplay();
+    // Initialiser l'interface
+    this.updateInterface();
     
     // Démarrer le compte à rebours
     this.startCountdown();
   }
 
   /**
-   * Crée l'overlay du timer ultra pro
+   * Parse le tempo depuis exerciseData.tempo
+   * Format attendu : "3120" ou "3-1-2-0" → [descent, pause, lift]
    */
-  createOverlay(gifUrl) {
-    console.log('🎨 Création de l\'overlay ultra pro');
-    
-    // Supprimer l'ancien overlay s'il existe
-    const existingOverlay = document.getElementById('timer-overlay-ultra-pro');
-    if (existingOverlay) {
-      existingOverlay.remove();
+  parseTempoFromExercise() {
+    if (!this.exerciseData || !this.exerciseData.tempo) {
+      console.warn('⚠️ Tempo non trouvé, utilisation des valeurs par défaut');
+      this.tempoValues = [3, 1, 2];
+      return;
     }
+
+    const tempo = this.exerciseData.tempo.toString();
     
-    const tempo = this.tempoData || [3, 1, 2];
-    
-    this.overlay = document.createElement('div');
-    this.overlay.id = 'timer-overlay-ultra-pro';
-    this.overlay.innerHTML = `
-      <div class="timer-ultra-content">
-        
-        <!-- GIF de l'exercice -->
-        <div class="exercise-gif-container">
-          ${gifUrl ? `<img src="${gifUrl}" alt="${this.currentExercise}" class="exercise-gif" />` : `<div style="color: rgba(255,255,255,0.5);">GIF</div>`}
+    // Si format "3120" → extraire chaque chiffre
+    if (/^\d{3,4}$/.test(tempo)) {
+      this.tempoValues = [
+        parseInt(tempo[0]) || 3, // descent
+        parseInt(tempo[1]) || 1, // pause
+        parseInt(tempo[2]) || 2  // lift
+      ];
+    }
+    // Si format "3-1-2-0" → split et parser
+    else if (tempo.includes('-')) {
+      const parts = tempo.split('-').map(Number);
+      this.tempoValues = [
+        parts[0] || 3, // descent
+        parts[1] || 1, // pause
+        parts[2] || 2  // lift
+      ];
+    }
+    // Format non reconnu → valeurs par défaut
+    else {
+      console.warn('⚠️ Format tempo non reconnu:', tempo);
+      this.tempoValues = [3, 1, 2];
+    }
+
+    console.log('✅ Tempo récupéré:', this.tempoValues);
+  }
+
+  /**
+   * Affiche l'overlay du timer
+   */
+  showOverlay() {
+    const overlay = document.getElementById('timer-overlay-ultra-pro');
+    if (!overlay) {
+      console.error('❌ Overlay timer non trouvé');
+      return;
+    }
+
+    // Construire le HTML de l'interface
+    overlay.innerHTML = `
+      <!-- GIF de l'exercice -->
+      <img 
+        src="${this.exerciseData.gif || 'assets/gifs/default.gif'}" 
+        alt="${this.exerciseData.name}"
+        class="timer-exercise-gif"
+      />
+
+      <!-- Compteur de répétitions -->
+      <div class="timer-rep-counter">REP ${this.currentRep}/${this.totalReps}</div>
+
+      <!-- Conteneur des 4 cercles -->
+      <div class="timer-circles-container">
+        <!-- Cercle 1 : Session (le plus grand - blanc) -->
+        <svg class="timer-circle-svg" viewBox="0 0 320 320">
+          <circle cx="160" cy="160" r="140" class="timer-circle-bg" />
+          <circle cx="160" cy="160" r="140" class="timer-circle-progress timer-circle-session" id="circle-session" />
+        </svg>
+
+        <!-- Cercle 2 : Exercise (bleu) -->
+        <svg class="timer-circle-svg" viewBox="0 0 320 320">
+          <circle cx="160" cy="160" r="120" class="timer-circle-bg" />
+          <circle cx="160" cy="160" r="120" class="timer-circle-progress timer-circle-exercise" id="circle-exercise" />
+        </svg>
+
+        <!-- Cercle 3 : Rest (orange) -->
+        <svg class="timer-circle-svg" viewBox="0 0 320 320">
+          <circle cx="160" cy="160" r="100" class="timer-circle-bg" />
+          <circle cx="160" cy="160" r="100" class="timer-circle-progress timer-circle-rest" id="circle-rest" />
+        </svg>
+
+        <!-- Cercle 4 : Current Rep (vert - le plus petit) -->
+        <svg class="timer-circle-svg" viewBox="0 0 320 320">
+          <circle cx="160" cy="160" r="80" class="timer-circle-bg" />
+          <circle cx="160" cy="160" r="80" class="timer-circle-progress timer-circle-current" id="circle-current" />
+        </svg>
+
+        <!-- Temps central -->
+        <div class="timer-time-display">
+          <div class="timer-time-value" id="timer-display">0:00</div>
+          <div class="timer-time-label">REPOS</div>
         </div>
+      </div>
+
+      <!-- Barre tempo ultra visuelle -->
+      <div class="timer-tempo-container">
+        <div class="timer-tempo-title">TEMPO</div>
         
-        <!-- Nom de l'exercice -->
-        <div class="exercise-name-overlay">${this.currentExercise}</div>
-        
-        <!-- Conteneur des 4 cercles -->
-        <div class="timer-circles-container">
-          <svg width="340" height="340" viewBox="0 0 340 340">
-            <!-- Gradient pour le cercle rest -->
-            <defs>
-              <linearGradient id="gradient-rest" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#00bfff;stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#1e90ff;stop-opacity:1" />
-              </linearGradient>
-            </defs>
-            
-            <!-- Cercle 1 : Session (extérieur) -->
-            <circle 
-              class="timer-circle-session" 
-              cx="170" 
-              cy="170" 
-              r="150"
-              transform="rotate(-90 170 170)"
-            />
-            
-            <!-- Cercle 2 : Exercise (milieu) -->
-            <circle 
-              class="timer-circle-exercise" 
-              cx="170" 
-              cy="170" 
-              r="130"
-              transform="rotate(-90 170 170)"
-            />
-            
-            <!-- Cercle 3 : Rest (intérieur) -->
-            <circle 
-              class="timer-circle-rest" 
-              cx="170" 
-              cy="170" 
-              r="110"
-              transform="rotate(-90 170 170)"
-            />
-          </svg>
-          
-          <!-- Point actuel (petit point rouge) -->
-          <div class="timer-current-dot"></div>
-          
-          <!-- Temps au centre -->
-          <div class="timer-center-content">
-            <div class="timer-main-time" id="timer-main-time">0:00</div>
-            <div class="timer-repos-label">REPOS</div>
+        <!-- Barre de progression -->
+        <div class="timer-tempo-bar-container">
+          <div class="timer-tempo-bar-fill phase-descent" id="tempo-bar"></div>
+        </div>
+
+        <!-- Labels des phases -->
+        <div class="timer-tempo-phases">
+          <div class="timer-tempo-phase descent active" id="tempo-descent">
+            <div class="timer-tempo-phase-icon">⬇️</div>
+            <div class="timer-tempo-phase-label">Descent</div>
+            <div class="timer-tempo-phase-value">${this.tempoValues[0]}s</div>
+          </div>
+          <div class="timer-tempo-phase pause" id="tempo-pause">
+            <div class="timer-tempo-phase-icon">⏸️</div>
+            <div class="timer-tempo-phase-label">Pause</div>
+            <div class="timer-tempo-phase-value">${this.tempoValues[1]}s</div>
+          </div>
+          <div class="timer-tempo-phase lift" id="tempo-lift">
+            <div class="timer-tempo-phase-icon">⬆️</div>
+            <div class="timer-tempo-phase-label">Lift</div>
+            <div class="timer-tempo-phase-value">${this.tempoValues[2]}s</div>
           </div>
         </div>
-        
-        <!-- Barre Tempo Ultra Visuelle -->
-        <div class="tempo-bar-container">
-          <div class="tempo-bar-wrapper">
-            <div class="tempo-bar-title">TEMPO</div>
-            <div class="tempo-bar-track">
-              <div class="tempo-bar-progress phase-descent"></div>
-            </div>
-            <div class="tempo-phases">
-              <div class="tempo-phase-label descent">
-                ⬇️ ${tempo[0]}s
-              </div>
-              <div class="tempo-phase-label pause">
-                ⏸️ ${tempo[1]}s
-              </div>
-              <div class="tempo-phase-label lift">
-                ⬆️ ${tempo[2]}s
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Rep counter -->
-        <div class="rep-counter-display">
-          <div class="rep-counter-label" id="rep-counter">REP ${this.currentSet}</div>
-        </div>
-        
-        <!-- Boutons de contrôle -->
-        <div class="timer-controls-ultra">
-          <button class="timer-btn-ultra timer-btn-pause" id="timer-btn-pause">Pause</button>
-          <button class="timer-btn-ultra timer-btn-skip" id="timer-btn-skip">Terminer</button>
-        </div>
-        
+      </div>
+
+      <!-- Nom de l'exercice -->
+      <div class="timer-exercise-name">${this.exerciseData.name}</div>
+
+      <!-- Boutons de contrôle -->
+      <div class="timer-controls">
+        <button class="timer-btn timer-btn-pause" id="timer-pause-btn">Pause</button>
+        <button class="timer-btn timer-btn-end" id="timer-end-btn">Terminer</button>
       </div>
     `;
-    
-    document.body.appendChild(this.overlay);
-    
-    // Attacher les événements
+
+    // Ajouter les événements
     this.attachEvents();
-    
-    console.log('✅ Overlay créé');
+
+    // Afficher l'overlay
+    overlay.classList.add('active');
   }
 
   /**
-   * Attache les événements aux boutons
+   * Attacher les événements aux boutons
    */
   attachEvents() {
-    const pauseBtn = this.overlay.querySelector('#timer-btn-pause');
-    const skipBtn = this.overlay.querySelector('#timer-btn-skip');
-    
-    pauseBtn?.addEventListener('click', () => this.togglePause());
-    skipBtn?.addEventListener('click', () => this.skip());
-  }
+    const pauseBtn = document.getElementById('timer-pause-btn');
+    const endBtn = document.getElementById('timer-end-btn');
 
-  /**
-   * Met à jour l'affichage du timer
-   */
-  updateDisplay() {
-    if (!this.overlay) return;
-    
-    const timeDisplay = this.overlay.querySelector('#timer-main-time');
-    if (timeDisplay) {
-      const minutes = Math.floor(this.remainingTime / 60);
-      const seconds = this.remainingTime % 60;
-      timeDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    if (pauseBtn) {
+      pauseBtn.addEventListener('click', () => this.pauseTimer());
     }
-    
-    // Mettre à jour les cercles
-    this.updateCircles();
-    
-    // Mettre à jour la barre tempo
-    this.updateTempoBar();
-  }
 
-  /**
-   * Met à jour les cercles de progression (COUNTDOWN)
-   */
-  updateCircles() {
-    const restProgress = this.remainingTime / this.initialTime; // Countdown: 1 → 0
-    const exerciseProgress = 0.5; // Exemple
-    const sessionProgress = 0.75; // Exemple
-    
-    // Appliquer les progressions (countdown: se vident)
-    this.overlay.style.setProperty('--progress-rest', restProgress);
-    this.overlay.style.setProperty('--progress-exercise', exerciseProgress);
-    this.overlay.style.setProperty('--progress-session', sessionProgress);
-  }
-
-  /**
-   * Met à jour la barre tempo visuelle
-   */
-  updateTempoBar() {
-    if (!this.tempoData) return;
-    
-    const [descent, pause, lift] = this.tempoData;
-    const totalTempo = descent + pause + lift;
-    
-    // Calculer la progression dans le cycle tempo
-    const repTime = this.initialTime - this.remainingTime;
-    const cycleTime = repTime % totalTempo;
-    
-    const progressBar = this.overlay.querySelector('.tempo-bar-progress');
-    const descentLabel = this.overlay.querySelector('.tempo-phase-label.descent');
-    const pauseLabel = this.overlay.querySelector('.tempo-phase-label.pause');
-    const liftLabel = this.overlay.querySelector('.tempo-phase-label.lift');
-    
-    if (!progressBar) return;
-    
-    // Déterminer la phase actuelle
-    let currentPhase = 'descent';
-    let phaseProgress = 0;
-    let phaseWidth = 0;
-    
-    if (cycleTime < descent) {
-      // Phase descent (ROUGE)
-      currentPhase = 'descent';
-      phaseProgress = cycleTime / descent;
-      phaseWidth = (descent / totalTempo) * 100;
-      progressBar.style.width = `${phaseWidth * phaseProgress}%`;
-      progressBar.className = 'tempo-bar-progress phase-descent';
-      
-      descentLabel?.classList.add('active');
-      pauseLabel?.classList.remove('active');
-      liftLabel?.classList.remove('active');
-      
-    } else if (cycleTime < descent + pause) {
-      // Phase pause (JAUNE)
-      currentPhase = 'pause';
-      phaseProgress = (cycleTime - descent) / pause;
-      const descentWidth = (descent / totalTempo) * 100;
-      phaseWidth = (pause / totalTempo) * 100;
-      progressBar.style.width = `${descentWidth + (phaseWidth * phaseProgress)}%`;
-      progressBar.className = 'tempo-bar-progress phase-pause';
-      
-      descentLabel?.classList.remove('active');
-      pauseLabel?.classList.add('active');
-      liftLabel?.classList.remove('active');
-      
-    } else {
-      // Phase lift (VERT)
-      currentPhase = 'lift';
-      phaseProgress = (cycleTime - descent - pause) / lift;
-      const previousWidth = ((descent + pause) / totalTempo) * 100;
-      phaseWidth = (lift / totalTempo) * 100;
-      progressBar.style.width = `${previousWidth + (phaseWidth * phaseProgress)}%`;
-      progressBar.className = 'tempo-bar-progress phase-lift';
-      
-      descentLabel?.classList.remove('active');
-      pauseLabel?.classList.remove('active');
-      liftLabel?.classList.add('active');
+    if (endBtn) {
+      endBtn.addEventListener('click', () => this.stopTimer());
     }
   }
 
@@ -277,106 +199,171 @@ export default class TimerManager {
    * Démarre le compte à rebours
    */
   startCountdown() {
-    if (this.timerInterval) {
-      clearInterval(this.timerInterval);
-    }
-    
     this.timerInterval = setInterval(() => {
-      if (!this.isPaused) {
-        this.remainingTime--;
-        this.updateDisplay();
-        
-        if (this.remainingTime <= 0) {
-          this.complete();
-        }
+      this.remainingTime--;
+
+      if (this.remainingTime <= 0) {
+        this.stopTimer();
+        return;
       }
+
+      this.updateInterface();
     }, 1000);
   }
 
   /**
-   * Pause / Reprend le timer
+   * Met à jour toute l'interface
    */
-  togglePause() {
-    this.isPaused = !this.isPaused;
-    const pauseBtn = this.overlay.querySelector('#timer-btn-pause');
+  updateInterface() {
+    this.updateTimeDisplay();
+    this.updateCircles();
+    this.updateTempoBar();
+  }
+
+  /**
+   * Met à jour l'affichage du temps
+   */
+  updateTimeDisplay() {
+    const display = document.getElementById('timer-display');
+    if (!display) return;
+
+    const minutes = Math.floor(this.remainingTime / 60);
+    const seconds = this.remainingTime % 60;
+    display.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  /**
+   * Met à jour les 4 cercles - COUNTDOWN (se vident)
+   */
+  updateCircles() {
+    // Progress en countdown : 1.0 (plein) → 0.0 (vide)
+    const progress = this.remainingTime / this.totalTime;
+
+    // Calcul du stroke-dashoffset pour countdown
+    const circles = [
+      { id: 'circle-session', radius: 140 },
+      { id: 'circle-exercise', radius: 120 },
+      { id: 'circle-rest', radius: 100 },
+      { id: 'circle-current', radius: 80 }
+    ];
+
+    circles.forEach(({ id, radius }) => {
+      const circle = document.getElementById(id);
+      if (!circle) return;
+
+      const circumference = 2 * Math.PI * radius;
+      
+      // Pour countdown : offset = circumference * (1 - progress)
+      // Quand progress = 1 (début) → offset = 0 (cercle plein)
+      // Quand progress = 0 (fin) → offset = circumference (cercle vide)
+      const offset = circumference * (1 - progress);
+      
+      circle.style.strokeDasharray = circumference;
+      circle.style.strokeDashoffset = offset;
+    });
+  }
+
+  /**
+   * Met à jour la barre tempo et les phases actives
+   */
+  updateTempoBar() {
+    const totalTempo = this.tempoValues.reduce((a, b) => a + b, 0);
+    const elapsedInRep = (this.totalTime - this.remainingTime) % totalTempo;
+
+    let currentPhase = 0;
+    let elapsedInPhase = elapsedInRep;
+
+    // Déterminer la phase active
+    for (let i = 0; i < this.tempoValues.length; i++) {
+      if (elapsedInPhase < this.tempoValues[i]) {
+        currentPhase = i;
+        break;
+      }
+      elapsedInPhase -= this.tempoValues[i];
+    }
+
+    // Calculer la progression dans la phase actuelle
+    const phaseProgress = (elapsedInPhase / this.tempoValues[currentPhase]) * 100;
+
+    // Mettre à jour la barre
+    const bar = document.getElementById('tempo-bar');
+    if (bar) {
+      bar.style.width = `${phaseProgress}%`;
+      
+      // Changer la classe selon la phase
+      bar.className = 'timer-tempo-bar-fill';
+      if (currentPhase === 0) bar.classList.add('phase-descent');
+      else if (currentPhase === 1) bar.classList.add('phase-pause');
+      else if (currentPhase === 2) bar.classList.add('phase-lift');
+    }
+
+    // Mettre à jour les labels actifs
+    const phases = ['tempo-descent', 'tempo-pause', 'tempo-lift'];
+    phases.forEach((id, index) => {
+      const elem = document.getElementById(id);
+      if (!elem) return;
+      
+      if (index === currentPhase) {
+        elem.classList.add('active');
+      } else {
+        elem.classList.remove('active');
+      }
+    });
+  }
+
+  /**
+   * Pause le timer
+   */
+  pauseTimer() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+      
+      const pauseBtn = document.getElementById('timer-pause-btn');
+      if (pauseBtn) {
+        pauseBtn.textContent = 'Reprendre';
+        pauseBtn.onclick = () => this.resumeTimer();
+      }
+    }
+  }
+
+  /**
+   * Reprend le timer
+   */
+  resumeTimer() {
+    this.startCountdown();
+    
+    const pauseBtn = document.getElementById('timer-pause-btn');
     if (pauseBtn) {
-      pauseBtn.textContent = this.isPaused ? 'Reprendre' : 'Pause';
+      pauseBtn.textContent = 'Pause';
+      pauseBtn.onclick = () => this.pauseTimer();
     }
-    console.log(this.isPaused ? '⏸️ Timer en pause' : '▶️ Timer repris');
   }
 
   /**
-   * Saute le timer
+   * Arrête le timer
    */
-  skip() {
-    console.log('⏭️ Timer skip');
-    this.complete();
-  }
-
-  /**
-   * Termine le timer
-   */
-  complete() {
-    console.log('✅ Timer terminé');
-    
+  stopTimer() {
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
       this.timerInterval = null;
     }
-    
-    // Supprimer l'overlay
-    if (this.overlay) {
-      this.overlay.remove();
-      this.overlay = null;
+
+    // Cacher l'overlay
+    const overlay = document.getElementById('timer-overlay-ultra-pro');
+    if (overlay) {
+      overlay.classList.remove('active');
     }
-    
-    // Appeler le callback de complétion
-    if (this.onComplete) {
-      this.onComplete();
-    }
+
+    // Notifier que le timer est terminé
+    this.onTimerComplete();
   }
 
   /**
-   * Définit le callback de complétion
+   * Callback quand le timer est terminé
    */
-  setOnComplete(callback) {
-    this.onComplete = callback;
-  }
-
-  /**
-   * Arrête et nettoie le timer
-   */
-  stop() {
-    console.log('🛑 Timer arrêté');
-    
-    if (this.timerInterval) {
-      clearInterval(this.timerInterval);
-      this.timerInterval = null;
-    }
-    
-    if (this.overlay) {
-      this.overlay.remove();
-      this.overlay = null;
-    }
-  }
-
-  /**
-   * Récupère le temps de repos depuis data-rest
-   */
-  getRestTime(exerciseElement) {
-    const restTime = exerciseElement?.dataset?.rest;
-    return restTime ? parseInt(restTime) : 75; // Défaut 75s
-  }
-
-  /**
-   * Récupère le tempo depuis data-tempo
-   */
-  getTempo(exerciseElement) {
-    const tempo = exerciseElement?.dataset?.tempo;
-    if (tempo) {
-      const parts = tempo.split('-').map(Number);
-      return parts.length === 3 ? parts : [3, 1, 2];
-    }
-    return [3, 1, 2]; // Défaut
+  onTimerComplete() {
+    console.log('✅ Timer terminé !');
+    // Ici, on pourrait déclencher un événement pour marquer la série comme complétée
   }
 }
