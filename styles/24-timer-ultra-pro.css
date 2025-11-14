@@ -61,13 +61,33 @@
   justify-content: center;
 }
 
+/* ✅ FIX: Chaque SVG a maintenant sa propre taille */
 .timer-circle-svg {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-90deg);
+}
+
+/* Tailles spécifiques pour chaque cercle */
+.timer-circle-svg:nth-child(1) {
+  width: 320px;
+  height: 320px;
+}
+
+.timer-circle-svg:nth-child(2) {
+  width: 280px;
+  height: 280px;
+}
+
+.timer-circle-svg:nth-child(3) {
+  width: 240px;
+  height: 240px;
+}
+
+.timer-circle-svg:nth-child(4) {
+  width: 200px;
+  height: 200px;
 }
 
 /* Cercles de fond (gris foncé) */
@@ -111,6 +131,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
+  z-index: 10;
 }
 
 .timer-time-value {
@@ -332,6 +353,26 @@
   .timer-circles-container {
     width: 280px;
     height: 280px;
+  }
+
+  .timer-circle-svg:nth-child(1) {
+    width: 280px;
+    height: 280px;
+  }
+
+  .timer-circle-svg:nth-child(2) {
+    width: 240px;
+    height: 240px;
+  }
+
+  .timer-circle-svg:nth-child(3) {
+    width: 200px;
+    height: 200px;
+  }
+
+  .timer-circle-svg:nth-child(4) {
+    width: 160px;
+    height: 160px;
   }
   
   .timer-time-value {
