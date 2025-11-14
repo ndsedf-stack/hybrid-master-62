@@ -1,111 +1,244 @@
 /* ==================================================================
-   SUPERSET STYLES - VERSION PROPRE (COMME L'EXEMPLE)
+   SUPERSET PREMIUM - GLASSMORPHISM DESIGN
    ================================================================== */
 
-/* Badge SUPERSET - Petit et discret en haut à gauche */
+/* Container du superset - Effet verre avec lueur orange */
+.superset-container {
+    position: relative;
+    margin: 20px 0;
+    padding: 24px;
+    background: rgba(255, 136, 0, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 136, 0, 0.2);
+    border-left: 6px solid #ff8800;
+    border-radius: 16px;
+    box-shadow: 
+        0 8px 32px rgba(255, 136, 0, 0.1),
+        0 0 0 1px rgba(255, 136, 0, 0.1) inset;
+    transition: all 0.3s ease;
+}
+
+.superset-container:hover {
+    background: rgba(255, 136, 0, 0.08);
+    box-shadow: 
+        0 12px 48px rgba(255, 136, 0, 0.15),
+        0 0 0 1px rgba(255, 136, 0, 0.2) inset;
+    transform: translateY(-2px);
+}
+
+/* Badge SUPERSET - Petit et élégant en haut à gauche */
 .superset-badge {
     position: absolute;
-    top: 12px;
-    left: 12px;
-    background: #ff8800;
+    top: 16px;
+    left: 16px;
+    background: linear-gradient(135deg, #ff8800, #ff6600);
     color: white;
-    padding: 4px 10px;
-    border-radius: 6px;
+    padding: 4px 12px;
+    border-radius: 8px;
     font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.3px;
+    letter-spacing: 1px;
     text-transform: uppercase;
+    box-shadow: 0 4px 12px rgba(255, 136, 0, 0.3);
     z-index: 10;
 }
 
-/* Bordure orange fine à gauche */
+/* Exercices du superset - Sans bordure supplémentaire */
 .is-superset-first,
 .is-superset-second {
-    position: relative;
-    border-left: 3px solid #ff8800;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 12px 0;
+    transition: all 0.2s ease;
 }
 
-/* Connecteur entre les exercices - Simple et centré */
+.is-superset-first:hover,
+.is-superset-second:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 136, 0, 0.2);
+}
+
+/* Premier exercice - Padding top pour le badge */
+.is-superset-first {
+    padding-top: 32px;
+}
+
+/* Connecteur + premium entre les exercices */
 .superset-connector {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 40px;
+    height: 48px;
     margin: 0;
-    padding: 0;
+    position: relative;
 }
 
-.connector-line {
-    display: none; /* Pas de lignes, juste le + */
+.superset-connector::before,
+.superset-connector::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 20px;
+    background: linear-gradient(to bottom, 
+        rgba(255, 136, 0, 0.3),
+        rgba(255, 136, 0, 0.6));
+}
+
+.superset-connector::before {
+    top: 0;
+}
+
+.superset-connector::after {
+    bottom: 0;
 }
 
 .connector-icon {
-    width: 32px;
-    height: 32px;
-    background: #ff8800;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #ff8800, #ff6600);
     color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
-    box-shadow: 0 2px 8px rgba(255, 136, 0, 0.25);
+    box-shadow: 
+        0 4px 16px rgba(255, 136, 0, 0.4),
+        0 0 0 4px rgba(255, 136, 0, 0.1);
+    transition: all 0.3s ease;
+    z-index: 5;
 }
 
-/* Info repos en bas - Discret */
+.connector-icon:hover {
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 
+        0 6px 20px rgba(255, 136, 0, 0.5),
+        0 0 0 6px rgba(255, 136, 0, 0.15);
+}
+
+/* Info repos en bas - Ultra discret mais visible */
 .superset-rest-info {
-    margin-top: 12px;
-    padding: 8px 12px;
-    background: transparent;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: rgba(255, 136, 0, 0.03);
+    border: 1px solid rgba(255, 136, 0, 0.1);
+    border-radius: 10px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     font-size: 13px;
-    color: #999;
+    color: rgba(255, 255, 255, 0.6);
 }
 
 .rest-icon {
-    font-size: 14px;
-    opacity: 0.7;
+    font-size: 16px;
+    opacity: 0.8;
 }
 
 .rest-text {
     flex: 1;
     font-size: 12px;
-    text-transform: none;
-    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
 }
 
 .rest-time {
+    font-weight: 700;
+    font-size: 15px;
+    color: #ff8800;
+    background: rgba(255, 136, 0, 0.1);
+    padding: 4px 12px;
+    border-radius: 6px;
+}
+
+/* Ajustement des titres d'exercices */
+.superset-container .exercise-header h3 {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 18px;
     font-weight: 600;
-    color: #ccc;
+    margin-bottom: 8px;
+}
+
+/* Specs des exercices - Plus lisibles */
+.superset-container .exercise-specs-modern {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+}
+
+.superset-container .exercise-specs-modern span {
+    color: rgba(255, 255, 255, 0.7);
     font-size: 13px;
 }
 
-/* Ajustement du header pour le badge */
-.exercise-header {
-    position: relative;
+/* Grille des séries - Highlight orange pour les séries complétées */
+.superset-container .series-grid-modern .serie-checkbox:checked + label {
+    background: linear-gradient(135deg, #ff8800, #ff6600);
+    color: white;
+    box-shadow: 0 4px 12px rgba(255, 136, 0, 0.3);
 }
 
-/* Responsive */
+/* Notes - Plus subtiles */
+.superset-container .exercise-notes-modern {
+    margin: 12px 0;
+    padding: 12px;
+    background: rgba(255, 136, 0, 0.05);
+    border-left: 3px solid rgba(255, 136, 0, 0.4);
+    border-radius: 6px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Responsive - Mobile */
 @media (max-width: 768px) {
+    .superset-container {
+        padding: 16px;
+        margin: 16px 0;
+    }
+    
     .superset-badge {
         font-size: 9px;
-        padding: 3px 8px;
-        top: 10px;
-        left: 10px;
+        padding: 3px 10px;
+        top: 12px;
+        left: 12px;
     }
     
     .connector-icon {
-        width: 28px;
-        height: 28px;
-        font-size: 18px;
+        width: 36px;
+        height: 36px;
+        font-size: 20px;
     }
     
     .superset-rest-info {
-        font-size: 12px;
-        padding: 6px 10px;
+        font-size: 11px;
+        padding: 10px 12px;
     }
+    
+    .rest-time {
+        font-size: 13px;
+    }
+}
+
+/* Animation d'apparition */
+@keyframes supersetFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.superset-container {
+    animation: supersetFadeIn 0.4s ease-out;
 }
