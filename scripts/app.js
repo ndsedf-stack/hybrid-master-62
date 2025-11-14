@@ -3,6 +3,9 @@
 // ==================================================================
 
 import programData from './program-data.js';
+// Exposer programData globalement pour superset-injector
+window.programData = programData;
+console.log('✅ programData exposé globalement', programData);
 import { HomeRenderer } from './modules/home-renderer.js';
 import { WorkoutRenderer } from './ui/workout-renderer.js';
 import TimerManager from './modules/timer-manager.js';
