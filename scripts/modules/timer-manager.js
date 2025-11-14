@@ -34,9 +34,12 @@ export default class TimerManager {
   startTimer(exerciseData, currentRep, totalReps, duration) {
     console.log('🚀 START TIMER ULTIMATE:', {exerciseData, currentRep, totalReps, duration});
     
-    this.exerciseData = exerciseData;
+    // Récupérer les données complètes depuis programData
+    this.exerciseData = this.getCompleteExerciseData(exerciseData.name) || exerciseData;
     this.currentRep = currentRep;
     this.totalReps = totalReps;
+    
+    console.log('📋 Exercice complet:', this.exerciseData);
     
     // Détection superset
     this.detectSuperset();
@@ -62,6 +65,27 @@ export default class TimerManager {
     this.showOverlay();
     this.updateInterface();
     this.startCountdown();
+  }
+
+  getCompleteExerciseData(exerciseName) {
+    const weekData = window.programData?.program?.week1;
+    if (!weekData) return null;
+
+    const dayKeys = ['dimanche', 'mardi', 'vendredi', 'maison'];
+    
+    for (const dayKey of dayKeys) {
+      const dayData = weekData[dayKey];
+      if (dayData?.exercises) {
+        const exercise = dayData.exercises.find(ex => ex.name === exerciseName);
+        if (exercise) {
+          console.log('✅ Données complètes trouvées:', exercise);
+          return exercise;
+        }
+      }
+    }
+    
+    console.warn('⚠️ Exercice non trouvé dans programData');
+    return null;
   }
 
   detectSuperset() {
