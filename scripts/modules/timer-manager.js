@@ -1,8 +1,5 @@
 /**
- * TIMER MANAGER - 3 CERCLES SIMPLIFIÉ
- * Cercle 1: Session complète (se vide progressivement)
- * Cercle 2: Repos actuel (countdown)
- * Cercle 3: Set actuel (se remplit)
+ * TIMER MANAGER - CERCLE AVEC SEGMENTS COLORÉS PAR EXERCICE
  */
 
 export default class TimerManager {
@@ -14,8 +11,11 @@ export default class TimerManager {
     this.totalReps = 0;
     this.exerciseData = null;
     this.tempoValues = [3, 1, 2];
+    this.sessionExercises = [];
+    this.currentExerciseIndex = 0;
     this.sessionTotalTime = 0;
     this.sessionElapsedTime = 0;
+    this.colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE'];
   }
 
   startTimer(exerciseData, currentRep, totalReps, duration) {
@@ -35,38 +35,44 @@ export default class TimerManager {
   calculateSessionData() {
     const weekData = window.programData?.program?.week1;
     if (!weekData) {
+      this.sessionExercises = [{
+        name: this.exerciseData.name,
+        sets: this.totalReps,
+        rest: Math.floor(this.totalTime / 60),
+        duration: this.totalTime * this.totalReps
+      }];
       this.sessionTotalTime = this.totalTime * this.totalReps;
       this.sessionElapsedTime = (this.currentRep - 1) * this.totalTime;
+      this.currentExerciseIndex = 0;
       return;
     }
 
     for (const [day, dayData] of Object.entries(weekData)) {
       if (dayData?.exercises) {
-        const exercises = dayData.exercises;
+        this.sessionExercises = dayData.exercises.map(ex => ({
+          name: ex.name,
+          sets: parseInt(ex.sets) || 3,
+          rest: parseInt(ex.rest) || 90,
+          duration: (parseInt(ex.sets) || 3) * (parseInt(ex.rest) || 90)
+        }));
         
-        this.sessionTotalTime = exercises.reduce((sum, ex) => {
-          return sum + (parseInt(ex.sets) || 3) * (parseInt(ex.rest) || 90);
-        }, 0);
+        this.sessionTotalTime = this.sessionExercises.reduce((sum, ex) => sum + ex.duration, 0);
         
-        const currentIndex = exercises.findIndex(ex => ex.name === this.exerciseData.name);
+        const currentIndex = this.sessionExercises.findIndex(ex => ex.name === this.exerciseData.name);
         if (currentIndex >= 0) {
-          this.sessionElapsedTime = exercises
+          this.currentExerciseIndex = currentIndex;
+          this.sessionElapsedTime = this.sessionExercises
             .slice(0, currentIndex)
-            .reduce((sum, ex) => sum + (parseInt(ex.sets) || 3) * (parseInt(ex.rest) || 90), 0);
-          this.sessionElapsedTime += (this.currentRep - 1) * (parseInt(this.exerciseData.rest) || 90);
+            .reduce((sum, ex) => sum + ex.duration, 0);
+          this.sessionElapsedTime += (this.currentRep - 1) * this.totalTime;
         }
         break;
       }
     }
-
-    if (this.sessionTotalTime === 0) {
-      this.sessionTotalTime = this.totalTime * this.totalReps;
-      this.sessionElapsedTime = (this.currentRep - 1) * this.totalTime;
-    }
   }
 
   parseTempoFromExercise() {
-    if (!this.exerciseData || !this.exerciseData.tempo) {
+    if (!this.exerciseData?.tempo) {
       this.tempoValues = [3, 1, 2];
       return;
     }
@@ -81,11 +87,7 @@ export default class TimerManager {
       ];
     } else if (tempo.includes('-')) {
       const parts = tempo.split('-').map(Number);
-      this.tempoValues = [
-        parts[0] || 3,
-        parts[1] || 1,
-        parts[2] || 2
-      ];
+      this.tempoValues = [parts[0] || 3, parts[1] || 1, parts[2] || 2];
     } else {
       this.tempoValues = [3, 1, 2];
     }
@@ -99,19 +101,16 @@ export default class TimerManager {
       <div class="timer-rep-counter">REP ${this.currentRep}/${this.totalReps}</div>
 
       <div class="timer-circles-container">
-        <!-- Cercle 1 : Session complète -->
         <svg class="timer-circle-svg" viewBox="0 0 320 320">
           <circle cx="160" cy="160" r="150" class="timer-circle-bg" />
-          <circle cx="160" cy="160" r="150" class="timer-circle-progress timer-circle-session" id="circle-session" />
+          <g id="session-segments"></g>
         </svg>
 
-        <!-- Cercle 2 : Repos (countdown) -->
         <svg class="timer-circle-svg" viewBox="0 0 320 320">
           <circle cx="160" cy="160" r="130" class="timer-circle-bg" />
           <circle cx="160" cy="160" r="130" class="timer-circle-progress timer-circle-rest" id="circle-rest" />
         </svg>
 
-        <!-- Cercle 3 : Set actuel (se remplit) -->
         <svg class="timer-circle-svg" viewBox="0 0 320 320">
           <circle cx="160" cy="160" r="110" class="timer-circle-bg" />
           <circle cx="160" cy="160" r="110" class="timer-circle-progress timer-circle-exercise" id="circle-exercise" />
@@ -155,8 +154,41 @@ export default class TimerManager {
       </div>
     `;
 
+    this.drawColoredSegments();
     this.attachEvents();
     overlay.classList.add('active');
+  }
+
+  drawColoredSegments() {
+    const container = document.getElementById('session-segments');
+    if (!container || this.sessionExercises.length === 0) return;
+
+    const radius = 150;
+    const circumference = 2 * Math.PI * radius;
+    let cumulativeAngle = 0;
+
+    this.sessionExercises.forEach((ex, index) => {
+      const percentage = ex.duration / this.sessionTotalTime;
+      const arcLength = percentage * circumference;
+      const dashArray = `${arcLength} ${circumference}`;
+      const offset = -cumulativeAngle;
+
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', '160');
+      circle.setAttribute('cy', '160');
+      circle.setAttribute('r', radius);
+      circle.setAttribute('fill', 'none');
+      circle.setAttribute('stroke', this.colors[index % this.colors.length]);
+      circle.setAttribute('stroke-width', '18');
+      circle.setAttribute('stroke-dasharray', dashArray);
+      circle.setAttribute('stroke-dashoffset', offset);
+      circle.setAttribute('opacity', '0.8');
+      circle.setAttribute('class', 'session-segment');
+      circle.setAttribute('data-index', index);
+
+      container.appendChild(circle);
+      cumulativeAngle += arcLength;
+    });
   }
 
   attachEvents() {
@@ -195,17 +227,33 @@ export default class TimerManager {
   }
 
   updateCircles() {
-    // Cercle 1 : Session (se vide progressivement)
-    const sessionProgress = this.sessionElapsedTime / this.sessionTotalTime;
-    this.updateCircle('circle-session', 150, sessionProgress);
-
-    // Cercle 2 : Repos (countdown)
+    this.updateSessionSegments();
+    
     const restProgress = this.remainingTime / this.totalTime;
     this.updateCircle('circle-rest', 130, restProgress);
 
-    // Cercle 3 : Set actuel (se remplit)
     const exerciseProgress = 1 - (this.remainingTime / this.totalTime);
     this.updateCircle('circle-exercise', 110, exerciseProgress);
+  }
+
+  updateSessionSegments() {
+    const segments = document.querySelectorAll('.session-segment');
+    let cumulativeTime = 0;
+
+    segments.forEach((seg, index) => {
+      const exerciseDuration = this.sessionExercises[index].duration;
+      const exerciseEndTime = cumulativeTime + exerciseDuration;
+
+      if (this.sessionElapsedTime >= exerciseEndTime) {
+        seg.setAttribute('opacity', '0.2');
+      } else if (this.sessionElapsedTime >= cumulativeTime) {
+        const progress = (this.sessionElapsedTime - cumulativeTime) / exerciseDuration;
+        const opacity = 0.8 - (progress * 0.6);
+        seg.setAttribute('opacity', opacity.toString());
+      }
+
+      cumulativeTime = exerciseEndTime;
+    });
   }
 
   updateCircle(id, radius, progress) {
@@ -278,6 +326,5 @@ export default class TimerManager {
     }
     const overlay = document.getElementById('timer-overlay-ultra-pro');
     if (overlay) overlay.classList.remove('active');
-    console.log('✅ Timer terminé !');
   }
 }
