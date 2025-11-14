@@ -34,11 +34,7 @@
   <link rel="stylesheet" href="styles/13-workout-premium-design.css" />
   <link rel="stylesheet" href="styles/14-ios18-premium-dark.css" />
   <link rel="stylesheet" href="styles/23-superset-enhancement.css" />
-```
-3. **Rafraîchir**
-```
-Ctrl + Shift + R
-</head>
+  <link rel="stylesheet" href="styles/24-timer-premium.css" />
 </head>
 <body>
   <!-- Header -->
@@ -48,10 +44,12 @@ Ctrl + Shift + R
       <div class="header-actions"></div>
     </div>
   </header>
+
   <!-- Main Content -->
   <main class="app-container container main-content">
-    <!-- Container principal pour app.js - CHANGÉ DE id="app" À id="content" -->
+    <!-- Container principal pour app.js -->
     <div id="content"></div>
+
     <!-- Widget Timer -->
     <div id="timer-widget" class="timer-container">
       <div class="timer-header">
@@ -81,6 +79,7 @@ Ctrl + Shift + R
         <button id="timer-skip">Skip</button>
       </div>
     </div>
+
     <!-- Navigation semaines -->
     <nav class="bottom-nav week-navigation">
       <button class="nav-btn nav-btn-prev" id="nav-prev" aria-label="Semaine précédente">
@@ -94,6 +93,7 @@ Ctrl + Shift + R
       </button>
     </nav>
   </main>
+
   <!-- JavaScript -->
   <script type="module" src="scripts/app.js"></script>
   <script src="scripts/superset-injector.js"></script>
