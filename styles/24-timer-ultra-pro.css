@@ -1,5 +1,5 @@
 /* ================================================================== */
-/* TIMER ULTRA PRO - 4 CERCLES + TEMPO BAR */
+/* TIMER ULTRA PRO - 4 CERCLES + TEMPO BAR - VERSION FINALE CORRIGÉE */
 /* ================================================================== */
 
 #timer-overlay-ultra-pro {
@@ -8,397 +8,337 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.95);
-  backdrop-filter: blur(20px);
-  z-index: 10000;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  z-index: 9999;
+  display: none;
+  overflow-y: auto;
+}
+
+#timer-overlay-ultra-pro.active {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 20px;
-  opacity: 0;
-  animation: fadeIn 0.3s ease forwards;
 }
 
-@keyframes fadeIn {
-  to {
-    opacity: 1;
-  }
+/* ============================================ */
+/* GIF EXERCISE - PLUS GRAND EN HAUT */
+/* ============================================ */
+.timer-exercise-gif {
+  width: 90%;
+  max-width: 500px;
+  height: auto;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
-/* ================================================================== */
-/* CONTENEUR PRINCIPAL */
-/* ================================================================== */
-
-.timer-ultra-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  width: 100%;
-  max-width: 400px;
-}
-
-/* ================================================================== */
-/* GIF DE L'EXERCICE */
-/* ================================================================== */
-
-.exercise-gif-container {
-  width: 100%;
-  max-width: 280px;
-  height: 200px;
-  border-radius: 20px;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.05);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 10px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
-
-.exercise-gif {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.exercise-name-overlay {
-  text-align: center;
-  color: #ff6b3d;
-  font-size: 16px;
+/* ============================================ */
+/* REP COUNTER - EN BAS DU GIF */
+/* ============================================ */
+.timer-rep-counter {
+  font-size: 48px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 10px;
+  color: #ff6b35;
+  margin: 10px 0 30px 0;
+  text-align: center;
+  letter-spacing: 2px;
+  text-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
 }
 
-/* ================================================================== */
-/* CONTENEUR DES 4 CERCLES */
-/* ================================================================== */
-
+/* ============================================ */
+/* 4 CERCLES ANIMÉS - COUNTDOWN (SE VIDENT) */
+/* ============================================ */
 .timer-circles-container {
   position: relative;
-  width: 340px;
-  height: 340px;
+  width: 320px;
+  height: 320px;
+  margin: 20px 0;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Cercle 1 : Session (extérieur) - GRIS */
+.timer-circle-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+/* Cercles de fond (gris foncé) */
+.timer-circle-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.05);
+  stroke-width: 12;
+}
+
+/* Cercles animés - COUNTDOWN (se vident de 100% → 0%) */
+.timer-circle-progress {
+  fill: none;
+  stroke-width: 12;
+  stroke-linecap: round;
+  stroke-dasharray: 879.2; /* 2 * PI * 140 */
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.3s ease-out;
+}
+
+/* Couleurs des cercles selon leur rôle */
 .timer-circle-session {
-  position: absolute;
-  stroke: rgba(255, 255, 255, 0.2);
-  stroke-width: 3;
-  fill: none;
-  stroke-dasharray: 439.6;
-  stroke-dashoffset: 0;
-  transform-origin: center;
-  opacity: 1 !important;
-  visibility: visible !important;
-  animation: fadeInCircle 0.5s ease forwards;
-}
-
-/* Cercle 2 : Exercise (milieu) - ORANGE */
-.timer-circle-exercise {
-  position: absolute;
-  stroke: #ff6b3d;
-  stroke-width: 4;
-  fill: none;
-  stroke-dasharray: 439.6;
-  stroke-dashoffset: 0;
-  transform-origin: center;
-  opacity: 1 !important;
-  visibility: visible !important;
-  animation: fadeInCircle 0.5s ease 0.1s forwards;
-}
-
-/* Cercle 3 : Rest (intérieur) - BLEU/CYAN */
-.timer-circle-rest {
-  position: absolute;
-  stroke: url(#gradient-rest);
-  stroke-width: 8;
-  fill: none;
-  stroke-dasharray: 439.6;
-  stroke-dashoffset: 0;
-  transform-origin: center;
-  filter: drop-shadow(0 0 10px rgba(0, 191, 255, 0.5));
-  opacity: 1 !important;
-  visibility: visible !important;
-  animation: fadeInCircle 0.5s ease 0.2s forwards;
-}
-
-/* Cercle 4 : Point actuel (petit point rouge) */
-.timer-current-dot {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  background: #ff3366;
-  border-radius: 50%;
-  box-shadow: 0 0 20px rgba(255, 51, 102, 0.8);
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes fadeInCircle {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 0.8;
-  }
-}
-
-/* Progression des cercles - COUNTDOWN (se vident) */
-.timer-circle-rest {
-  stroke-dashoffset: calc(439.6 * var(--progress-rest, 1));
+  stroke: rgba(255, 255, 255, 0.3);
 }
 
 .timer-circle-exercise {
-  stroke-dashoffset: calc(439.6 * var(--progress-exercise, 1));
+  stroke: #4a9eff;
 }
 
-.timer-circle-session {
-  stroke-dashoffset: calc(439.6 * var(--progress-session, 1));
+.timer-circle-rest {
+  stroke: #ff6b35;
 }
 
-/* ================================================================== */
-/* TEMPS AFFICHÉ AU CENTRE */
-/* ================================================================== */
+.timer-circle-current {
+  stroke: #00ff88;
+}
 
-.timer-center-content {
+/* Temps central */
+.timer-time-display {
   position: absolute;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
 }
 
-.timer-main-time {
-  font-size: 64px;
+.timer-time-value {
+  font-size: 72px;
   font-weight: 700;
-  color: #ffffff;
-  text-shadow: 0 0 30px rgba(0, 191, 255, 0.6);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -2px;
+  color: #fff;
+  line-height: 1;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
 }
 
-.timer-repos-label {
-  font-size: 14px;
+.timer-time-label {
+  font-size: 18px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-top: 8px;
+}
+
+/* ============================================ */
+/* BARRE TEMPO ULTRA VISUELLE */
+/* ============================================ */
+.timer-tempo-container {
+  width: 90%;
+  max-width: 400px;
+  margin: 30px 0;
+}
+
+.timer-tempo-title {
+  font-size: 16px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.5);
   text-transform: uppercase;
   letter-spacing: 2px;
-}
-
-/* ================================================================== */
-/* BARRE TEMPO ULTRA VISUELLE */
-/* ================================================================== */
-
-.tempo-bar-container {
-  width: 100%;
-  max-width: 320px;
-  margin: 20px auto;
-  padding: 0 20px;
-}
-
-.tempo-bar-wrapper {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 20px;
-  padding: 16px;
-  backdrop-filter: blur(10px);
-}
-
-.tempo-bar-title {
+  margin-bottom: 15px;
   text-align: center;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  margin-bottom: 12px;
-  text-transform: uppercase;
 }
 
-.tempo-bar-track {
-  width: 100%;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
+/* Barre de progression tempo */
+.timer-tempo-bar-container {
   position: relative;
+  width: 100%;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
   overflow: hidden;
-  margin-bottom: 12px;
-}
-
-.tempo-bar-progress {
-  height: 100%;
-  border-radius: 10px;
-  transition: all 0.1s linear;
-  position: absolute;
-  left: 0;
-  top: 0;
-}
-
-/* Phases du tempo avec couleurs */
-.tempo-bar-progress.phase-descent {
-  background: linear-gradient(90deg, #ff6b6b 0%, #ff8787 100%);
-  box-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
-}
-
-.tempo-bar-progress.phase-pause {
-  background: linear-gradient(90deg, #ffd93d 0%, #ffe66d 100%);
-  box-shadow: 0 0 15px rgba(255, 217, 61, 0.5);
-}
-
-.tempo-bar-progress.phase-lift {
-  background: linear-gradient(90deg, #6bcf7f 0%, #95e1a5 100%);
-  box-shadow: 0 0 15px rgba(107, 207, 127, 0.5);
-}
-
-/* Labels des phases */
-.tempo-phases {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.tempo-phase-label {
-  flex: 1;
-  text-align: center;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 6px 8px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.tempo-phase-label.active {
-  transform: scale(1.05);
-}
-
-.tempo-phase-label.descent {
-  background: rgba(255, 107, 107, 0.15);
-  color: #ff6b6b;
-  border: 1px solid rgba(255, 107, 107, 0.3);
-}
-
-.tempo-phase-label.descent.active {
-  background: rgba(255, 107, 107, 0.3);
-  box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
-}
-
-.tempo-phase-label.pause {
-  background: rgba(255, 217, 61, 0.15);
-  color: #ffd93d;
-  border: 1px solid rgba(255, 217, 61, 0.3);
-}
-
-.tempo-phase-label.pause.active {
-  background: rgba(255, 217, 61, 0.3);
-  box-shadow: 0 0 15px rgba(255, 217, 61, 0.3);
-}
-
-.tempo-phase-label.lift {
-  background: rgba(107, 207, 127, 0.15);
-  color: #6bcf7f;
-  border: 1px solid rgba(107, 207, 127, 0.3);
-}
-
-.tempo-phase-label.lift.active {
-  background: rgba(107, 207, 127, 0.3);
-  box-shadow: 0 0 15px rgba(107, 207, 127, 0.3);
-}
-
-/* ================================================================== */
-/* REP COUNTER */
-/* ================================================================== */
-
-.rep-counter-display {
-  text-align: center;
-  margin-top: 10px;
   margin-bottom: 20px;
 }
 
-.rep-counter-label {
-  font-size: 14px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.9);
-  letter-spacing: 1px;
+.timer-tempo-bar-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 20px currentColor;
 }
 
-/* ================================================================== */
-/* BOUTONS DE CONTRÔLE */
-/* ================================================================== */
+/* Couleurs de la barre selon la phase */
+.timer-tempo-bar-fill.phase-descent {
+  background: linear-gradient(90deg, #ff3366, #ff6b35);
+  color: #ff3366;
+}
 
-.timer-controls-ultra {
+.timer-tempo-bar-fill.phase-pause {
+  background: linear-gradient(90deg, #ffd700, #ffaa00);
+  color: #ffd700;
+}
+
+.timer-tempo-bar-fill.phase-lift {
+  background: linear-gradient(90deg, #00ff88, #00cc66);
+  color: #00ff88;
+}
+
+/* Labels des phases tempo */
+.timer-tempo-phases {
   display: flex;
-  gap: 12px;
-  margin-top: 20px;
+  justify-content: space-between;
+  gap: 10px;
 }
 
-.timer-btn-ultra {
-  padding: 14px 28px;
+.timer-tempo-phase {
+  flex: 1;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  text-align: center;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.timer-tempo-phase.active {
+  transform: scale(1.05);
+  border-color: currentColor;
+  box-shadow: 0 0 20px currentColor;
+}
+
+.timer-tempo-phase-icon {
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+
+.timer-tempo-phase-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 3px;
+}
+
+.timer-tempo-phase-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* Couleurs des phases */
+.timer-tempo-phase.descent {
+  color: #ff3366;
+}
+
+.timer-tempo-phase.pause {
+  color: #ffd700;
+}
+
+.timer-tempo-phase.lift {
+  color: #00ff88;
+}
+
+.timer-tempo-phase.descent.active {
+  background: rgba(255, 51, 102, 0.15);
+}
+
+.timer-tempo-phase.pause.active {
+  background: rgba(255, 215, 0, 0.15);
+}
+
+.timer-tempo-phase.lift.active {
+  background: rgba(0, 255, 136, 0.15);
+}
+
+/* ============================================ */
+/* EXERCISE NAME */
+/* ============================================ */
+.timer-exercise-name {
+  font-size: 22px;
+  font-weight: 600;
+  color: #fff;
+  margin: 20px 0;
+  text-align: center;
+}
+
+/* ============================================ */
+/* BOUTONS PAUSE/TERMINER */
+/* ============================================ */
+.timer-controls {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+  width: 90%;
+  max-width: 400px;
+}
+
+.timer-btn {
+  flex: 1;
+  padding: 18px 30px;
+  font-size: 18px;
+  font-weight: 700;
   border: none;
   border-radius: 12px;
-  font-size: 15px;
-  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
 }
 
 .timer-btn-pause {
   background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  backdrop-filter: blur(10px);
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .timer-btn-pause:hover {
-  background: rgba(255, 255, 255, 0.15);
-  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
 }
 
-.timer-btn-skip {
-  background: linear-gradient(135deg, #ff6b3d 0%, #ff8f61 100%);
-  color: #ffffff;
-  box-shadow: 0 4px 15px rgba(255, 107, 61, 0.4);
+.timer-btn-end {
+  background: linear-gradient(135deg, #ff6b35, #ff3366);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4);
 }
 
-.timer-btn-skip:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(255, 107, 61, 0.6);
+.timer-btn-end:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 30px rgba(255, 107, 53, 0.6);
 }
 
-/* ================================================================== */
+/* ============================================ */
+/* ANIMATIONS */
+/* ============================================ */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.timer-time-value {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* ============================================ */
 /* RESPONSIVE */
-/* ================================================================== */
-
-@media (max-width: 400px) {
+/* ============================================ */
+@media (max-width: 768px) {
+  .timer-exercise-gif {
+    max-width: 350px;
+  }
+  
   .timer-circles-container {
-    width: 300px;
-    height: 300px;
+    width: 280px;
+    height: 280px;
   }
-
-  .exercise-gif-container {
-    max-width: 240px;
-    height: 180px;
+  
+  .timer-time-value {
+    font-size: 56px;
   }
-
-  .timer-main-time {
-    font-size: 52px;
+  
+  .timer-rep-counter {
+    font-size: 36px;
   }
 }
