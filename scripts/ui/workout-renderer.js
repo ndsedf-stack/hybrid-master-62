@@ -111,7 +111,7 @@ export class WorkoutRenderer {
                 <div class="exercise-block-modern" data-superset="true" data-rest="${restTime}">
                     
                     <!-- Exercice 1 du superset -->
-                    <div class="superset-exercise" data-superset-order="1" data-exercise="${exercise1.name}">
+                    <div class="superset-exercise" data-superset-order="1" data-exercise="${exercise1.name}" data-exercise-id="${exercise1.name}">
                         <div class="exercise-title-modern">
                             <h2>${exercise1.name}</h2>
                             ${exercise1.variation ? `<span class="variation-badge">${exercise1.variation}</span>` : ''}
@@ -158,7 +158,7 @@ export class WorkoutRenderer {
                     </div>
 
                     <!-- Exercice 2 du superset -->
-                    <div class="superset-exercise" data-superset-order="2" data-exercise="${exercise2.name}">
+                    <div class="superset-exercise" data-superset-order="2" data-exercise="${exercise2.name}" data-exercise-id="${exercise2.id || exercise2.name}">
                         <div class="exercise-title-modern">
                             <h2>${exercise2.name}</h2>
                             ${exercise2.variation ? `<span class="variation-badge">${exercise2.variation}</span>` : ''}
@@ -216,7 +216,7 @@ export class WorkoutRenderer {
         const savedState = this.loadExerciseState(storageKey);
 
         return `
-            <div class="exercise-block-modern" data-exercise="${exercise.name}">
+            <div class="exercise-block-modern" data-exercise="${exercise.name}" data-exercise-id="${exercise.id || exercise.name}">
                 <!-- Titre de l'exercice -->
                 <div class="exercise-title-modern">
                     <h2>${exercise.name}</h2>
@@ -337,7 +337,7 @@ export class WorkoutRenderer {
                         // Vérifier que ex1 de la même série est coché
                         const ex1Checkbox = ex1Checkboxes[index];
                         
-                        if (!ex1Checkbox && ex1Checkbox.checked) {
+                        if (!ex1Checkbox || !ex1Checkbox.checked) {
                             alert('⚠️ Faites d\'abord l\'exercice 1 de cette série !');
                             e.target.checked = false;
                             return;
@@ -351,12 +351,20 @@ export class WorkoutRenderer {
 
                         console.log(`✅ Superset série ${setNumber}/${totalSets} terminée !`);
 
-                        if (this.timerManager && setNumber < totalSets) {
-                            this.timerManager.start(
-                                restTime,
-                                `${ex1Name} + ${ex2Name}`,
+                        if (this.timerManager && setNumber <= totalSets) {
+                            const firstExerciseBlock = block.querySelector('[data-superset-order="1"]');
+                            const exerciseId = firstExerciseBlock?.dataset.exerciseId;
+                            const exerciseData = exerciseId ? this.getExerciseData(exerciseId) : {};
+
+                            this.timerManager.startTimer(
+                                {
+                                    name: `${ex1Name} + ${ex2Name}`,
+                                    gif: exerciseData.gif || 'assets/gifs/default.gif',
+                                    tempo: exerciseData.tempo || '3-1-2-0'
+                                },
                                 setNumber + 1,
-                                totalSets
+                                totalSets,
+                                restTime
                             );
                         }
                     }
@@ -385,13 +393,21 @@ export class WorkoutRenderer {
             if (!isSuperset) {
                 const restTime = this.getRestTimeForExercise(exerciseBlock);
 
-                if (this.timerManager && setNumber < totalSets) {
+                if (this.timerManager && setNumber <= totalSets) {
                     console.log(`⏱️ Démarrage timer : ${restTime}s pour ${exerciseName}`);
-                    this.timerManager.start(
-                        restTime,
-                        exerciseName,
+                    
+                    const exerciseId = exerciseBlock.dataset.exerciseId;
+                    const exerciseData = exerciseId ? this.getExerciseData(exerciseId) : {};
+
+                    this.timerManager.startTimer(
+                        {
+                            name: exerciseName,
+                            gif: exerciseData.gif || 'assets/gifs/default.gif',
+                            tempo: exerciseData.tempo || '3-1-2-0'
+                        },
                         setNumber + 1,
-                        totalSets
+                        totalSets,
+                        restTime
                     );
                 }
             }
@@ -432,5 +448,25 @@ export class WorkoutRenderer {
             console.warn('⚠️ Erreur lecture localStorage:', error);
             return {};
         }
+    }
+
+    /**
+     * Récupère les données d'un exercice depuis programData
+     */
+    getExerciseData(exerciseId) {
+        if (window.programData) {
+            for (const day of Object.values(window.programData)) {
+                if (day.exercises) {
+                    const exercise = day.exercises.find(ex => ex.id === exerciseId);
+                    if (exercise) return exercise;
+                }
+            }
+        }
+        
+        return {
+            name: 'Exercice',
+            gif: 'assets/gifs/default.gif',
+            tempo: '3-1-2-0'
+        };
     }
 }
