@@ -359,7 +359,7 @@ export class WorkoutRenderer {
                             this.timerManager.startTimer(
                                 {
                                     name: `${ex1Name} + ${ex2Name}`,
-                                    gif: exerciseData.gif || 'assets/gifs/default.gif',
+                                    gif: exerciseData.gif || 'assets/gifs/default.svg',
                                     tempo: exerciseData.tempo || '3-1-2-0'
                                 },
                                 setNumber,
@@ -403,7 +403,7 @@ export class WorkoutRenderer {
                     this.timerManager.startTimer(
                         {
                             name: exerciseName,
-                            gif: exerciseData.gif || 'assets/gifs/default.gif',
+                            gif: exerciseData.gif || 'assets/gifs/default.svg',
                             tempo: exerciseData.tempo || '3-1-2-0'
                         },
                         setNumber,
@@ -479,7 +479,7 @@ export class WorkoutRenderer {
         console.warn(`⚠️ Exercice non trouvé pour ID: ${exerciseId}`);
         return {
             name: 'Exercice',
-            gif: 'assets/gifs/default.gif',
+            gif: 'assets/gifs/default.svg',
             tempo: '3-1-2-0'
         };
     }
