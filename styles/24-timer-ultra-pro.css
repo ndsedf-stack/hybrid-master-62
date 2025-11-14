@@ -1,445 +1,323 @@
-/* ================================================================== */
-/* TIMER ULTRA PRO - 4 CERCLES + TEMPO BAR - SANS IMAGE */
-/* ================================================================== */
+/**
+ * TIMER MANAGER - 3 CERCLES VERSION FINALE
+ * Cercle 1: Session complète avec segments par exercice
+ * Cercle 2: Repos actuel (countdown)
+ * Cercle 3: Set actuel (se remplit)
+ */
 
-#timer-overlay-ultra-pro {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-  z-index: 9999;
-  display: none;
-  overflow-y: auto;
-}
-
-#timer-overlay-ultra-pro.active {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-/* ============================================ */
-/* GIF EXERCISE - CACHÉ */
-/* ============================================ */
-.timer-exercise-gif {
-  display: none;
-}
-
-/* ============================================ */
-/* REP COUNTER */
-/* ============================================ */
-.timer-rep-counter {
-  font-size: 48px;
-  font-weight: 700;
-  color: #ff6b35;
-  margin: 0 0 30px 0;
-  text-align: center;
-  letter-spacing: 2px;
-  text-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
-}
-
-/* ============================================ */
-/* 4 CERCLES ANIMÉS - COUNTDOWN (SE VIDENT) */
-/* ============================================ */
-.timer-circles-container {
-  position: relative;
-  width: 420px;
-  height: 420px;
-  margin: 20px 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* ✅ FIX: Chaque SVG a maintenant sa propre taille */
-.timer-circle-svg {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(-90deg);
-}
-
-/* Tailles spécifiques pour chaque cercle - GRANDS ET VISIBLES */
-.timer-circle-svg:nth-child(1) {
-  width: 420px;
-  height: 420px;
-}
-
-.timer-circle-svg:nth-child(2) {
-  width: 360px;
-  height: 360px;
-}
-
-.timer-circle-svg:nth-child(3) {
-  width: 300px;
-  height: 300px;
-}
-
-.timer-circle-svg:nth-child(4) {
-  width: 240px;
-  height: 240px;
-}
-
-/* Cercles de fond (gris foncé) */
-.timer-circle-bg {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.08);
-  stroke-width: 16;
-}
-
-/* Cercles animés - COUNTDOWN (se vident de 100% → 0%) */
-.timer-circle-progress {
-  fill: none;
-  stroke-width: 16;
-  stroke-linecap: round;
-  stroke-dasharray: 879.2;
-  stroke-dashoffset: 0;
-  transition: stroke-dashoffset 0.3s ease-out;
-}
-
-/* Couleurs des cercles selon leur rôle */
-.timer-circle-session {
-  stroke: rgba(255, 255, 255, 0.4);
-}
-
-.timer-circle-exercise {
-  stroke: #4a9eff;
-}
-
-.timer-circle-rest {
-  stroke: #ff6b35;
-}
-
-.timer-circle-current {
-  stroke: #00ff88;
-}
-
-/* Temps central */
-.timer-time-display {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  z-index: 10;
-}
-
-.timer-time-value {
-  font-size: 90px;
-  font-weight: 700;
-  color: #fff;
-  line-height: 1;
-  text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
-}
-
-.timer-time-label {
-  font-size: 20px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.6);
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  margin-top: 10px;
-}
-
-/* ============================================ */
-/* BARRE TEMPO ULTRA VISUELLE */
-/* ============================================ */
-.timer-tempo-container {
-  width: 90%;
-  max-width: 450px;
-  margin: 30px 0;
-}
-
-.timer-tempo-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.5);
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-/* Barre de progression tempo */
-.timer-tempo-bar-container {
-  position: relative;
-  width: 100%;
-  height: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  overflow: hidden;
-  margin-bottom: 20px;
-}
-
-.timer-tempo-bar-fill {
-  height: 100%;
-  width: 0%;
-  border-radius: 20px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 20px currentColor;
-}
-
-/* Couleurs de la barre selon la phase */
-.timer-tempo-bar-fill.phase-descent {
-  background: linear-gradient(90deg, #ff3366, #ff6b35);
-  color: #ff3366;
-}
-
-.timer-tempo-bar-fill.phase-pause {
-  background: linear-gradient(90deg, #ffd700, #ffaa00);
-  color: #ffd700;
-}
-
-.timer-tempo-bar-fill.phase-lift {
-  background: linear-gradient(90deg, #00ff88, #00cc66);
-  color: #00ff88;
-}
-
-/* Labels des phases tempo */
-.timer-tempo-phases {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.timer-tempo-phase {
-  flex: 1;
-  padding: 14px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  text-align: center;
-  border: 2px solid transparent;
-  transition: all 0.3s ease;
-}
-
-.timer-tempo-phase.active {
-  transform: scale(1.05);
-  border-color: currentColor;
-  box-shadow: 0 0 20px currentColor;
-}
-
-.timer-tempo-phase-icon {
-  font-size: 28px;
-  margin-bottom: 5px;
-}
-
-.timer-tempo-phase-label {
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: rgba(255, 255, 255, 0.5);
-  margin-bottom: 3px;
-}
-
-.timer-tempo-phase-value {
-  font-size: 22px;
-  font-weight: 700;
-  color: #fff;
-}
-
-/* Couleurs des phases */
-.timer-tempo-phase.descent {
-  color: #ff3366;
-}
-
-.timer-tempo-phase.pause {
-  color: #ffd700;
-}
-
-.timer-tempo-phase.lift {
-  color: #00ff88;
-}
-
-.timer-tempo-phase.descent.active {
-  background: rgba(255, 51, 102, 0.15);
-}
-
-.timer-tempo-phase.pause.active {
-  background: rgba(255, 215, 0, 0.15);
-}
-
-.timer-tempo-phase.lift.active {
-  background: rgba(0, 255, 136, 0.15);
-}
-
-/* ============================================ */
-/* EXERCISE NAME */
-/* ============================================ */
-.timer-exercise-name {
-  font-size: 24px;
-  font-weight: 600;
-  color: #fff;
-  margin: 25px 0;
-  text-align: center;
-}
-
-/* ============================================ */
-/* BOUTONS PAUSE/TERMINER */
-/* ============================================ */
-.timer-controls {
-  display: flex;
-  gap: 15px;
-  margin-top: 30px;
-  width: 90%;
-  max-width: 450px;
-}
-
-.timer-btn {
-  flex: 1;
-  padding: 20px 32px;
-  font-size: 18px;
-  font-weight: 700;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  transition: all 0.3s ease;
-}
-
-.timer-btn-pause {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-.timer-btn-pause:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-}
-
-.timer-btn-end {
-  background: linear-gradient(135deg, #ff6b35, #ff3366);
-  color: #fff;
-  box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4);
-}
-
-.timer-btn-end:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 30px rgba(255, 107, 53, 0.6);
-}
-
-/* ============================================ */
-/* ANIMATIONS */
-/* ============================================ */
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-
-.timer-time-value {
-  animation: pulse 2s ease-in-out infinite;
-}
-
-/* ============================================ */
-/* RESPONSIVE - MOBILE */
-/* ============================================ */
-@media (max-width: 768px) {
-  .timer-circles-container {
-    width: 350px;
-    height: 350px;
+export default class TimerManager {
+  constructor() {
+    this.timerInterval = null;
+    this.totalTime = 0;
+    this.remainingTime = 0;
+    this.currentRep = 0;
+    this.totalReps = 0;
+    this.exerciseData = null;
+    this.tempoValues = [3, 1, 2];
+    this.sessionExercises = [];
+    this.currentExerciseIndex = 0;
+    this.sessionTotalTime = 0;
+    this.sessionElapsedTime = 0;
   }
 
-  .timer-circle-svg:nth-child(1) {
-    width: 350px;
-    height: 350px;
+  startTimer(exerciseData, currentRep, totalReps, duration) {
+    this.exerciseData = exerciseData;
+    this.currentRep = currentRep;
+    this.totalReps = totalReps;
+    this.totalTime = duration;
+    this.remainingTime = duration;
+    
+    this.calculateSessionData();
+    this.parseTempoFromExercise();
+    this.showOverlay();
+    this.updateInterface();
+    this.startCountdown();
   }
 
-  .timer-circle-svg:nth-child(2) {
-    width: 300px;
-    height: 300px;
+  calculateSessionData() {
+    const weekData = window.programData?.program?.week1;
+    if (!weekData) return;
+
+    for (const [day, dayData] of Object.entries(weekData)) {
+      if (dayData?.exercises) {
+        this.sessionExercises = dayData.exercises.map(ex => ({
+          name: ex.name,
+          sets: parseInt(ex.sets) || 3,
+          rest: parseInt(ex.rest) || 90,
+          duration: (parseInt(ex.sets) || 3) * (parseInt(ex.rest) || 90)
+        }));
+        
+        this.sessionTotalTime = this.sessionExercises.reduce((sum, ex) => sum + ex.duration, 0);
+        
+        const currentIndex = this.sessionExercises.findIndex(ex => ex.name === this.exerciseData.name);
+        if (currentIndex >= 0) {
+          this.currentExerciseIndex = currentIndex;
+          this.sessionElapsedTime = this.sessionExercises
+            .slice(0, currentIndex)
+            .reduce((sum, ex) => sum + ex.duration, 0);
+          this.sessionElapsedTime += (this.currentRep - 1) * (parseInt(this.exerciseData.rest) || 90);
+        }
+        break;
+      }
+    }
   }
 
-  .timer-circle-svg:nth-child(3) {
-    width: 250px;
-    height: 250px;
+  parseTempoFromExercise() {
+    if (!this.exerciseData || !this.exerciseData.tempo) {
+      this.tempoValues = [3, 1, 2];
+      return;
+    }
+
+    const tempo = this.exerciseData.tempo.toString();
+    
+    if (/^\d{3,4}$/.test(tempo)) {
+      this.tempoValues = [
+        parseInt(tempo[0]) || 3,
+        parseInt(tempo[1]) || 1,
+        parseInt(tempo[2]) || 2
+      ];
+    } else if (tempo.includes('-')) {
+      const parts = tempo.split('-').map(Number);
+      this.tempoValues = [
+        parts[0] || 3,
+        parts[1] || 1,
+        parts[2] || 2
+      ];
+    } else {
+      this.tempoValues = [3, 1, 2];
+    }
   }
 
-  .timer-circle-svg:nth-child(4) {
-    width: 200px;
-    height: 200px;
-  }
-  
-  .timer-time-value {
-    font-size: 70px;
-  }
-  
-  .timer-rep-counter {
-    font-size: 40px;
-  }
-}
+  showOverlay() {
+    const overlay = document.getElementById('timer-overlay-ultra-pro');
+    if (!overlay) return;
 
-/* ============================================ */
-/* RESPONSIVE IPHONE 15 PRO MAX (430 × 932px) */
-/* ============================================ */
-@media (max-width: 430px) {
-  #timer-overlay-ultra-pro.active {
-    padding: 20px;
-    justify-content: center;
-  }
-  
-  .timer-circles-container {
-    width: 340px;
-    height: 340px;
-  }
+    overlay.innerHTML = `
+      <div class="timer-rep-counter">REP ${this.currentRep}/${this.totalReps}</div>
 
-  .timer-circle-svg:nth-child(1) {
-    width: 340px;
-    height: 340px;
-  }
+      <div class="timer-circles-container">
+        <!-- Cercle 1 : Session complète avec segments -->
+        <svg class="timer-circle-svg" viewBox="0 0 320 320">
+          <circle cx="160" cy="160" r="150" class="timer-circle-bg" />
+          <g id="session-segments"></g>
+        </svg>
 
-  .timer-circle-svg:nth-child(2) {
-    width: 290px;
-    height: 290px;
-  }
+        <!-- Cercle 2 : Repos (countdown) -->
+        <svg class="timer-circle-svg" viewBox="0 0 320 320">
+          <circle cx="160" cy="160" r="130" class="timer-circle-bg" />
+          <circle cx="160" cy="160" r="130" class="timer-circle-progress timer-circle-rest" id="circle-rest" />
+        </svg>
 
-  .timer-circle-svg:nth-child(3) {
-    width: 240px;
-    height: 240px;
-  }
+        <!-- Cercle 3 : Set actuel (se remplit) -->
+        <svg class="timer-circle-svg" viewBox="0 0 320 320">
+          <circle cx="160" cy="160" r="110" class="timer-circle-bg" />
+          <circle cx="160" cy="160" r="110" class="timer-circle-progress timer-circle-exercise" id="circle-exercise" />
+        </svg>
 
-  .timer-circle-svg:nth-child(4) {
-    width: 190px;
-    height: 190px;
-  }
-  
-  .timer-time-value {
-    font-size: 64px;
-  }
-  
-  .timer-rep-counter {
-    font-size: 36px;
-    margin: 0 0 25px 0;
-  }
+        <div class="timer-time-display">
+          <div class="timer-time-value" id="timer-display">0:00</div>
+          <div class="timer-time-label">REPOS</div>
+        </div>
+      </div>
 
-  .timer-tempo-container {
-    max-width: 380px;
-    margin: 25px 0;
-  }
+      <div class="timer-tempo-container">
+        <div class="timer-tempo-title">TEMPO</div>
+        <div class="timer-tempo-bar-container">
+          <div class="timer-tempo-bar-fill phase-descent" id="tempo-bar"></div>
+        </div>
+        <div class="timer-tempo-phases">
+          <div class="timer-tempo-phase descent active" id="tempo-descent">
+            <div class="timer-tempo-phase-icon">⬇️</div>
+            <div class="timer-tempo-phase-label">Descent</div>
+            <div class="timer-tempo-phase-value">${this.tempoValues[0]}s</div>
+          </div>
+          <div class="timer-tempo-phase pause" id="tempo-pause">
+            <div class="timer-tempo-phase-icon">⏸️</div>
+            <div class="timer-tempo-phase-label">Pause</div>
+            <div class="timer-tempo-phase-value">${this.tempoValues[1]}s</div>
+          </div>
+          <div class="timer-tempo-phase lift" id="tempo-lift">
+            <div class="timer-tempo-phase-icon">⬆️</div>
+            <div class="timer-tempo-phase-label">Lift</div>
+            <div class="timer-tempo-phase-value">${this.tempoValues[2]}s</div>
+          </div>
+        </div>
+      </div>
 
-  .timer-tempo-phase {
-    padding: 12px 10px;
-  }
+      <div class="timer-exercise-name">${this.exerciseData.name}</div>
 
-  .timer-tempo-phase-icon {
-    font-size: 24px;
-  }
+      <div class="timer-controls">
+        <button class="timer-btn timer-btn-pause" id="timer-pause-btn">Pause</button>
+        <button class="timer-btn timer-btn-end" id="timer-end-btn">Terminer</button>
+      </div>
+    `;
 
-  .timer-tempo-phase-value {
-    font-size: 20px;
+    this.drawSessionSegments();
+    this.attachEvents();
+    overlay.classList.add('active');
   }
 
-  .timer-controls {
-    max-width: 380px;
+  drawSessionSegments() {
+    const container = document.getElementById('session-segments');
+    if (!container || this.sessionExercises.length === 0) return;
+
+    const radius = 150;
+    const circumference = 2 * Math.PI * radius;
+    let startAngle = 0;
+
+    this.sessionExercises.forEach((ex, index) => {
+      const segmentLength = (ex.duration / this.sessionTotalTime) * circumference;
+      const dashArray = `${segmentLength} ${circumference - segmentLength}`;
+      const dashOffset = -startAngle;
+
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', '160');
+      circle.setAttribute('cy', '160');
+      circle.setAttribute('r', radius);
+      circle.setAttribute('fill', 'none');
+      circle.setAttribute('stroke', index <= this.currentExerciseIndex ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.5)');
+      circle.setAttribute('stroke-width', '14');
+      circle.setAttribute('stroke-dasharray', dashArray);
+      circle.setAttribute('stroke-dashoffset', dashOffset);
+      circle.setAttribute('class', 'session-segment');
+      circle.setAttribute('data-index', index);
+
+      container.appendChild(circle);
+      startAngle += segmentLength;
+    });
   }
 
-  .timer-btn {
-    padding: 18px 28px;
-    font-size: 17px;
+  attachEvents() {
+    const pauseBtn = document.getElementById('timer-pause-btn');
+    const endBtn = document.getElementById('timer-end-btn');
+    if (pauseBtn) pauseBtn.addEventListener('click', () => this.pauseTimer());
+    if (endBtn) endBtn.addEventListener('click', () => this.stopTimer());
+  }
+
+  startCountdown() {
+    this.timerInterval = setInterval(() => {
+      this.remainingTime--;
+      this.sessionElapsedTime++;
+
+      if (this.remainingTime <= 0) {
+        this.stopTimer();
+        return;
+      }
+
+      this.updateInterface();
+    }, 1000);
+  }
+
+  updateInterface() {
+    this.updateTimeDisplay();
+    this.updateCircles();
+    this.updateTempoBar();
+  }
+
+  updateTimeDisplay() {
+    const display = document.getElementById('timer-display');
+    if (!display) return;
+    const minutes = Math.floor(this.remainingTime / 60);
+    const seconds = this.remainingTime % 60;
+    display.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  updateCircles() {
+    // Cercle 1 : Session (à rebours)
+    const sessionProgress = this.sessionElapsedTime / this.sessionTotalTime;
+    this.updateSessionSegments(sessionProgress);
+
+    // Cercle 2 : Repos (countdown)
+    const restProgress = this.remainingTime / this.totalTime;
+    this.updateCircle('circle-rest', 130, restProgress);
+
+    // Cercle 3 : Set actuel (se remplit)
+    const exerciseProgress = 1 - (this.remainingTime / this.totalTime);
+    this.updateCircle('circle-exercise', 110, exerciseProgress);
+  }
+
+  updateSessionSegments(progress) {
+    const segments = document.querySelectorAll('.session-segment');
+    segments.forEach((seg, index) => {
+      if (index < this.currentExerciseIndex) {
+        seg.setAttribute('stroke', 'rgba(255,255,255,0.15)');
+      } else if (index === this.currentExerciseIndex) {
+        const opacity = 0.5 - (progress * 0.35);
+        seg.setAttribute('stroke', `rgba(255,255,255,${opacity})`);
+      }
+    });
+  }
+
+  updateCircle(id, radius, progress) {
+    const circle = document.getElementById(id);
+    if (!circle) return;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference * (1 - progress);
+    circle.style.strokeDasharray = circumference;
+    circle.style.strokeDashoffset = offset;
+  }
+
+  updateTempoBar() {
+    const totalTempo = this.tempoValues.reduce((a, b) => a + b, 0);
+    const elapsedInRep = (this.totalTime - this.remainingTime) % totalTempo;
+    let currentPhase = 0;
+    let elapsedInPhase = elapsedInRep;
+
+    for (let i = 0; i < this.tempoValues.length; i++) {
+      if (elapsedInPhase < this.tempoValues[i]) {
+        currentPhase = i;
+        break;
+      }
+      elapsedInPhase -= this.tempoValues[i];
+    }
+
+    const phaseProgress = (elapsedInPhase / this.tempoValues[currentPhase]) * 100;
+    const bar = document.getElementById('tempo-bar');
+    if (bar) {
+      bar.style.width = `${phaseProgress}%`;
+      bar.className = 'timer-tempo-bar-fill';
+      if (currentPhase === 0) bar.classList.add('phase-descent');
+      else if (currentPhase === 1) bar.classList.add('phase-pause');
+      else if (currentPhase === 2) bar.classList.add('phase-lift');
+    }
+
+    const phases = ['tempo-descent', 'tempo-pause', 'tempo-lift'];
+    phases.forEach((id, index) => {
+      const elem = document.getElementById(id);
+      if (elem) {
+        index === currentPhase ? elem.classList.add('active') : elem.classList.remove('active');
+      }
+    });
+  }
+
+  pauseTimer() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+      const pauseBtn = document.getElementById('timer-pause-btn');
+      if (pauseBtn) {
+        pauseBtn.textContent = 'Reprendre';
+        pauseBtn.onclick = () => this.resumeTimer();
+      }
+    }
+  }
+
+  resumeTimer() {
+    this.startCountdown();
+    const pauseBtn = document.getElementById('timer-pause-btn');
+    if (pauseBtn) {
+      pauseBtn.textContent = 'Pause';
+      pauseBtn.onclick = () => this.pauseTimer();
+    }
+  }
+
+  stopTimer() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+    const overlay = document.getElementById('timer-overlay-ultra-pro');
+    if (overlay) overlay.classList.remove('active');
+    console.log('✅ Timer terminé !');
   }
 }
