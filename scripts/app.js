@@ -41,7 +41,6 @@ class HybridMasterApp {
       
       console.log('✅ Données chargées:', week1);
       
-      // ✅ LIGNE 45 SUPPRIMÉE : this.timerManager.init() n'existe plus
       
       // Connecter le timer au WorkoutRenderer
       this.workoutRenderer.setTimerManager(this.timerManager);
