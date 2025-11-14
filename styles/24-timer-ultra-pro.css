@@ -93,6 +93,10 @@
   stroke: #4a9eff;
 }
 
+.session-segment {
+  transition: opacity 0.5s ease;
+}
+
 .timer-time-display {
   position: absolute;
   top: 50%;
