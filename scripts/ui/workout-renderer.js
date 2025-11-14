@@ -162,6 +162,7 @@ export class WorkoutRenderer {
         `;
     }
 
+    // EXERCICES NORMAUX - FORMAT CLASSIQUE (PAS DE SPEC-ITEM)
     renderExerciseContent(exercise, weekNumber) {
         const state = this.loadExerciseState(`workout_${weekNumber}_${exercise.name}`);
         

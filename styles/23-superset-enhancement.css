@@ -1,5 +1,5 @@
 /* ==================================================================
-   SUPERSET PREMIUM - GLASSMORPHISM DESIGN
+   SUPERSET PREMIUM - GLASSMORPHISM DESIGN PROFESSIONNEL
    ================================================================== */
 
 /* Container du superset - Effet verre avec lueur orange */
@@ -63,6 +63,57 @@
 /* Premier exercice - Padding top pour le badge */
 .is-superset-first {
     padding-top: 32px;
+}
+
+/* Titre exercice plus pro */
+.superset-container .exercise-header h3 {
+    color: #ff8800;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+}
+
+/* Specs des exercices - Layout professionnel en grille UNIQUEMENT DANS SUPERSET */
+.superset-container .exercise-specs-modern {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+    padding: 0;
+    background: transparent;
+}
+
+.superset-container .exercise-specs-modern .spec-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.superset-container .exercise-specs-modern .spec-item:hover {
+    background: rgba(255, 136, 0, 0.05);
+    border-color: rgba(255, 136, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+.superset-container .spec-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: rgba(255, 136, 0, 0.8);
+    margin-bottom: 2px;
+}
+
+.superset-container .spec-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.95);
 }
 
 /* Connecteur + premium entre les exercices */
@@ -155,37 +206,6 @@
     border-radius: 6px;
 }
 
-/* Ajustement des titres d'exercices */
-.superset-container .exercise-header h3 {
-    color: rgba(255, 255, 255, 0.95);
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-
-/* Specs des exercices - Plus lisibles */
-.superset-container .exercise-specs-modern {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-    margin: 12px 0;
-    padding: 12px;
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 8px;
-}
-
-.superset-container .exercise-specs-modern span {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 13px;
-}
-
-/* Grille des séries - Highlight orange pour les séries complétées */
-.superset-container .series-grid-modern .serie-checkbox:checked + label {
-    background: linear-gradient(135deg, #ff8800, #ff6600);
-    color: white;
-    box-shadow: 0 4px 12px rgba(255, 136, 0, 0.3);
-}
-
 /* Notes - Plus subtiles */
 .superset-container .exercise-notes-modern {
     margin: 12px 0;
@@ -195,6 +215,11 @@
     border-radius: 6px;
     font-size: 12px;
     color: rgba(255, 255, 255, 0.6);
+}
+
+.superset-container .exercise-notes-modern .notes-icon {
+    margin-right: 8px;
+    opacity: 0.7;
 }
 
 /* Responsive - Mobile */
@@ -209,6 +234,23 @@
         padding: 3px 10px;
         top: 12px;
         left: 12px;
+    }
+    
+    .superset-container .exercise-header h3 {
+        font-size: 18px;
+    }
+    
+    .superset-container .exercise-specs-modern {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .superset-container .spec-item {
+        padding: 10px;
+    }
+    
+    .superset-container .spec-value {
+        font-size: 16px;
     }
     
     .connector-icon {
