@@ -22,76 +22,61 @@ function enhanceSupersets() {
     console.log('🎨 Détection des supersets...');
     console.log(`📊 ${exercises.length} exercices trouvés`);
     
-    // Récupérer les données du programme
-    const programData = window.programData;
-    if (!programData) {
-        console.log('❌ programData non trouvé dans window');
-        return;
-    }
-    
-    // Trouver le jour actuel (depuis le titre ou l'URL)
-    const titleElement = document.querySelector('.workout-title');
-    if (!titleElement) {
-        console.log('❌ Titre du workout non trouvé');
-        return;
-    }
-    
-    const dayMatch = titleElement.textContent.match(/(Dimanche|Mardi|Vendredi|Maison)/i);
-    if (!dayMatch) {
-        console.log('❌ Jour non détecté dans le titre');
-        return;
-    }
-    
-    const currentDay = dayMatch[1].toLowerCase();
-    console.log(`📅 Jour détecté: ${currentDay}`);
-    
-    // Récupérer les exercices du jour depuis programData
-    let workoutData;
-    try {
-        // Essayer de trouver le workout dans programData
-        const allWeeks = programData.program || programData;
-        const firstWeek = allWeeks['1'] || allWeeks.week1;
-        workoutData = firstWeek[currentDay];
-        
-        if (!workoutData) {
-            console.log('❌ Données du workout non trouvées');
-            return;
-        }
-    } catch (e) {
-        console.log('❌ Erreur lecture programData:', e);
-        return;
-    }
-    
-    const dataExercises = workoutData.exercises || [];
-    console.log(`📋 ${dataExercises.length} exercices dans les données`);
-    
-    // Identifier les paires de supersets
-    const supersetPairs = [];
-    const processed = new Set();
-    
-    dataExercises.forEach((ex, index) => {
-        if (ex.isSuperset && !processed.has(index)) {
-            // Trouver son partenaire
-            const partnerIndex = dataExercises.findIndex((partner, pIndex) => 
-                pIndex !== index && 
-                partner.isSuperset && 
-                (partner.supersetWith === ex.name || ex.supersetWith === partner.name)
-            );
-            
-            if (partnerIndex !== -1) {
-                supersetPairs.push({
-                    first: index,
-                    second: partnerIndex,
-                    firstName: ex.name,
-                    secondName: dataExercises[partnerIndex].name,
-                    rest: ex.rest || 90
-                });
-                processed.add(index);
-                processed.add(partnerIndex);
-                console.log(`✅ Superset détecté: ${ex.name} + ${dataExercises[partnerIndex].name}`);
-            }
+    // Lire les données directement depuis le HTML (l'ordre est le même)
+    // workout-renderer affiche les exercices dans l'ordre exact de workout.exercises
+    const exerciseNames = [];
+    exercises.forEach(ex => {
+        const nameElement = ex.querySelector('h3');
+        if (nameElement) {
+            exerciseNames.push(nameElement.textContent.trim());
         }
     });
+    
+    console.log(`📋 Exercices trouvés: ${exerciseNames.join(', ')}`);
+    
+    // Identifier les paires en cherchant les exercices consécutifs qui ont "SUPERSET" dans leurs notes
+    const dataExercises = [];
+    exercises.forEach((ex, index) => {
+        const notes = ex.querySelector('.exercise-notes')?.textContent || '';
+        const name = ex.querySelector('h3')?.textContent.trim() || '';
+        const isSuperset = notes.includes('SUPERSET');
+        
+        dataExercises.push({
+            index,
+            name,
+            isSuperset,
+            element: ex
+        });
+    });
+    
+    console.log(`📊 ${dataExercises.length} exercices analysés`);
+    
+    // Identifier les paires de supersets consécutifs
+    const supersetPairs = [];
+    
+    for (let i = 0; i < dataExercises.length - 1; i++) {
+        const current = dataExercises[i];
+        const next = dataExercises[i + 1];
+        
+        // Si deux exercices consécutifs ont "SUPERSET" dans leurs notes
+        if (current.isSuperset && next.isSuperset) {
+            // Lire le temps de repos depuis l'exercice
+            const restElement = current.element.querySelector('.exercise-info span');
+            const restMatch = restElement?.textContent.match(/(\d+)s/);
+            const rest = restMatch ? parseInt(restMatch[1]) : 90;
+            
+            supersetPairs.push({
+                first: i,
+                second: i + 1,
+                firstName: current.name,
+                secondName: next.name,
+                rest: rest
+            });
+            
+            console.log(`✅ Superset détecté: ${current.name} + ${next.name}`);
+            i++; // Sauter le prochain car déjà traité
+        }
+    }
     
     if (supersetPairs.length === 0) {
         console.log('ℹ️ Aucun superset trouvé pour ce jour');
@@ -100,8 +85,8 @@ function enhanceSupersets() {
     
     // Appliquer les styles aux exercices HTML
     supersetPairs.forEach(pair => {
-        const firstBlock = exercises[pair.first];
-        const secondBlock = exercises[pair.second];
+        const firstBlock = dataExercises[pair.first].element;
+        const secondBlock = dataExercises[pair.second].element;
         
         if (firstBlock && secondBlock) {
             // Marquer les blocs
