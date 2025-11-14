@@ -1,332 +1,266 @@
-/* ==================================================================
-   SUPERSET PREMIUM - GLASSMORPHISM DESIGN PROFESSIONNEL
-   ================================================================== */
+// ==================================================================
+// WORKOUT RENDERER - AVEC SUPERSETS PROFESSIONNELS
+// ==================================================================
 
-/* Container du superset - Effet verre avec lueur orange */
-.superset-container {
-    position: relative;
-    margin: 20px 0;
-    padding: 24px;
-    background: rgba(255, 136, 0, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 136, 0, 0.2);
-    border-left: 6px solid #ff8800;
-    border-radius: 16px;
-    box-shadow: 
-        0 8px 32px rgba(255, 136, 0, 0.1),
-        0 0 0 1px rgba(255, 136, 0, 0.1) inset;
-    transition: all 0.3s ease;
-}
-
-.superset-container:hover {
-    background: rgba(255, 136, 0, 0.08);
-    box-shadow: 
-        0 12px 48px rgba(255, 136, 0, 0.15),
-        0 0 0 1px rgba(255, 136, 0, 0.2) inset;
-    transform: translateY(-2px);
-}
-
-/* Badge SUPERSET - Petit et élégant en haut à gauche */
-.superset-badge {
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    background: linear-gradient(135deg, #ff8800, #ff6600);
-    color: white;
-    padding: 4px 12px;
-    border-radius: 8px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    box-shadow: 0 4px 12px rgba(255, 136, 0, 0.3);
-    z-index: 10;
-}
-
-/* Exercices du superset - Sans bordure supplémentaire */
-.is-superset-first,
-.is-superset-second {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    padding: 20px;
-    margin: 12px 0;
-    transition: all 0.2s ease;
-}
-
-.is-superset-first:hover,
-.is-superset-second:hover {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 136, 0, 0.2);
-}
-
-/* Premier exercice - Padding top pour le badge */
-.is-superset-first {
-    padding-top: 32px;
-}
-
-/* Titre exercice plus pro */
-.superset-container .exercise-header h3 {
-    color: #ff8800;
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 12px;
-    letter-spacing: -0.5px;
-}
-
-/* Specs des exercices - Layout professionnel en grille */
-.superset-container .exercise-specs-modern {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 12px;
-    margin: 16px 0;
-    padding: 0;
-    background: transparent;
-}
-
-.superset-container .exercise-specs-modern .spec-item {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 12px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
-    transition: all 0.2s ease;
-}
-
-.superset-container .exercise-specs-modern .spec-item:hover {
-    background: rgba(255, 136, 0, 0.05);
-    border-color: rgba(255, 136, 0, 0.2);
-    transform: translateY(-2px);
-}
-
-.superset-container .spec-label {
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: rgba(255, 136, 0, 0.8);
-    margin-bottom: 2px;
-}
-
-.superset-container .spec-value {
-    font-size: 18px;
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.95);
-}
-
-/* Connecteur + premium entre les exercices */
-.superset-connector {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 48px;
-    margin: 0;
-    position: relative;
-}
-
-.superset-connector::before,
-.superset-connector::after {
-    content: '';
-    position: absolute;
-    width: 2px;
-    height: 20px;
-    background: linear-gradient(to bottom, 
-        rgba(255, 136, 0, 0.3),
-        rgba(255, 136, 0, 0.6));
-}
-
-.superset-connector::before {
-    top: 0;
-}
-
-.superset-connector::after {
-    bottom: 0;
-}
-
-.connector-icon {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, #ff8800, #ff6600);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    font-weight: 700;
-    box-shadow: 
-        0 4px 16px rgba(255, 136, 0, 0.4),
-        0 0 0 4px rgba(255, 136, 0, 0.1);
-    transition: all 0.3s ease;
-    z-index: 5;
-}
-
-.connector-icon:hover {
-    transform: scale(1.1) rotate(90deg);
-    box-shadow: 
-        0 6px 20px rgba(255, 136, 0, 0.5),
-        0 0 0 6px rgba(255, 136, 0, 0.15);
-}
-
-/* Info repos en bas - Ultra discret mais visible */
-.superset-rest-info {
-    margin-top: 16px;
-    padding: 12px 16px;
-    background: rgba(255, 136, 0, 0.03);
-    border: 1px solid rgba(255, 136, 0, 0.1);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.6);
-}
-
-.rest-icon {
-    font-size: 16px;
-    opacity: 0.8;
-}
-
-.rest-text {
-    flex: 1;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 500;
-}
-
-.rest-time {
-    font-weight: 700;
-    font-size: 15px;
-    color: #ff8800;
-    background: rgba(255, 136, 0, 0.1);
-    padding: 4px 12px;
-    border-radius: 6px;
-}
-
-/* Notes - Plus subtiles */
-.superset-container .exercise-notes-modern {
-    margin: 12px 0;
-    padding: 12px;
-    background: rgba(255, 136, 0, 0.05);
-    border-left: 3px solid rgba(255, 136, 0, 0.4);
-    border-radius: 6px;
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.6);
-}
-
-.superset-container .exercise-notes-modern .notes-icon {
-    margin-right: 8px;
-    opacity: 0.7;
-}
-
-/* Grille des séries - Highlight orange pour les séries complétées */
-.superset-container .series-grid-modern {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
-    gap: 10px;
-    margin-top: 16px;
-}
-
-.superset-container .serie-item-modern {
-    position: relative;
-}
-
-.superset-container .serie-checkbox {
-    display: none;
-}
-
-.superset-container .serie-label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 12px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.superset-container .serie-label:hover {
-    background: rgba(255, 136, 0, 0.1);
-    border-color: rgba(255, 136, 0, 0.3);
-    transform: translateY(-2px);
-}
-
-.superset-container .serie-checkbox:checked + .serie-label {
-    background: linear-gradient(135deg, #ff8800, #ff6600);
-    border-color: #ff8800;
-    color: white;
-    box-shadow: 0 4px 12px rgba(255, 136, 0, 0.3);
-}
-
-.superset-container .serie-number {
-    font-size: 16px;
-    font-weight: 700;
-}
-
-/* Responsive - Mobile */
-@media (max-width: 768px) {
-    .superset-container {
-        padding: 16px;
-        margin: 16px 0;
+export class WorkoutRenderer {
+    constructor(container, onBack) {
+        this.container = container;
+        this.onBack = onBack;
+        this.timerManager = null;
     }
-    
-    .superset-badge {
-        font-size: 9px;
-        padding: 3px 10px;
-        top: 12px;
-        left: 12px;
-    }
-    
-    .superset-container .exercise-header h3 {
-        font-size: 18px;
-    }
-    
-    .superset-container .exercise-specs-modern {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
-    }
-    
-    .superset-container .spec-item {
-        padding: 10px;
-    }
-    
-    .superset-container .spec-value {
-        font-size: 16px;
-    }
-    
-    .connector-icon {
-        width: 36px;
-        height: 36px;
-        font-size: 20px;
-    }
-    
-    .superset-rest-info {
-        font-size: 11px;
-        padding: 10px 12px;
-    }
-    
-    .rest-time {
-        font-size: 13px;
-    }
-}
 
-/* Animation d'apparition */
-@keyframes supersetFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
+    connectTimerManager(timerManager) {
+        this.timerManager = timerManager;
+        console.log('✅ TimerManager connecté au WorkoutRenderer');
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
 
-.superset-container {
-    animation: supersetFadeIn 0.4s ease-out;
+    setTimerManager(timerManager) {
+        this.connectTimerManager(timerManager);
+    }
+
+    render(dayData, weekNumber) {
+        console.log('🎨 Rendu séance:', dayData && dayData.day, dayData && dayData.block, weekNumber);
+        
+        if (!dayData) {
+            this.container.innerHTML = '<div class="error">Aucune donnée disponible</div>';
+            return;
+        }
+
+        const html = `
+            <div class="workout-header">
+                <button class="back-button" id="backButton">← Retour</button>
+                <div class="workout-title">
+                    <h2>${dayData.day}</h2>
+                    <span class="workout-subtitle">${dayData.block} - Semaine ${weekNumber}</span>
+                </div>
+            </div>
+            <div class="exercises-container">
+                ${this.renderExercises(dayData.exercises, weekNumber)}
+            </div>
+        `;
+
+        this.container.innerHTML = html;
+        document.getElementById('backButton').addEventListener('click', this.onBack);
+        this.attachEventListeners(weekNumber);
+    }
+
+    renderExercises(exercises, weekNumber) {
+        if (!exercises || exercises.length === 0) {
+            return '<p class="no-exercises">Aucun exercice pour cette séance</p>';
+        }
+
+        let html = '';
+        let i = 0;
+
+        while (i < exercises.length) {
+            const exercise = exercises[i];
+
+            // Vérifier si c'est un superset
+            if (exercise.superset && i + 1 < exercises.length) {
+                const nextExercise = exercises[i + 1];
+                html += this.renderSuperset(exercise, nextExercise, exercise.rest, weekNumber);
+                i += 2;
+            } else {
+                html += this.renderExerciseContent(exercise, weekNumber);
+                i++;
+            }
+        }
+
+        return html;
+    }
+
+    renderSuperset(exercise1, exercise2, restTime, weekNumber) {
+        const state1 = this.loadExerciseState(`workout_${weekNumber}_${exercise1.name}`);
+        const state2 = this.loadExerciseState(`workout_${weekNumber}_${exercise2.name}`);
+
+        return `
+            <div class="superset-container">
+                <div class="superset-badge">SUPERSET</div>
+                
+                <div class="exercise-block-modern is-superset-first" data-exercise="${exercise1.name}">
+                    <div class="exercise-header">
+                        <h3>${exercise1.name}</h3>
+                    </div>
+                    <div class="exercise-specs-modern">
+                        <div class="spec-item">
+                            <span class="spec-label">Séries</span>
+                            <span class="spec-value">${exercise1.sets}</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">Reps</span>
+                            <span class="spec-value">${exercise1.reps}</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">Poids</span>
+                            <span class="spec-value">${exercise1.weight}kg</span>
+                        </div>
+                        ${exercise1.tempo ? `
+                        <div class="spec-item">
+                            <span class="spec-label">Tempo</span>
+                            <span class="spec-value">${exercise1.tempo}</span>
+                        </div>
+                        ` : ''}
+                        ${exercise1.rpe ? `
+                        <div class="spec-item">
+                            <span class="spec-label">RPE</span>
+                            <span class="spec-value">${exercise1.rpe}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    ${exercise1.notes ? `<div class="exercise-notes-modern"><span class="notes-icon">💡</span><p>${exercise1.notes}</p></div>` : ''}
+                    <div class="series-grid-modern" data-exercise="${exercise1.name}">
+                        ${this.renderSeriesGridModern(exercise1, state1, weekNumber)}
+                    </div>
+                </div>
+
+                <div class="superset-connector">
+                    <div class="connector-icon">+</div>
+                </div>
+
+                <div class="exercise-block-modern is-superset-second" data-exercise="${exercise2.name}">
+                    <div class="exercise-header">
+                        <h3>${exercise2.name}</h3>
+                    </div>
+                    <div class="exercise-specs-modern">
+                        <div class="spec-item">
+                            <span class="spec-label">Séries</span>
+                            <span class="spec-value">${exercise2.sets}</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">Reps</span>
+                            <span class="spec-value">${exercise2.reps}</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">Poids</span>
+                            <span class="spec-value">${exercise2.weight}kg</span>
+                        </div>
+                        ${exercise2.tempo ? `
+                        <div class="spec-item">
+                            <span class="spec-label">Tempo</span>
+                            <span class="spec-value">${exercise2.tempo}</span>
+                        </div>
+                        ` : ''}
+                        ${exercise2.rpe ? `
+                        <div class="spec-item">
+                            <span class="spec-label">RPE</span>
+                            <span class="spec-value">${exercise2.rpe}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    ${exercise2.notes ? `<div class="exercise-notes-modern"><span class="notes-icon">💡</span><p>${exercise2.notes}</p></div>` : ''}
+                    <div class="series-grid-modern" data-exercise="${exercise2.name}">
+                        ${this.renderSeriesGridModern(exercise2, state2, weekNumber)}
+                    </div>
+                </div>
+
+                <div class="superset-rest-info">
+                    <span class="rest-icon">⏱️</span>
+                    <span class="rest-text">Repos après le duo</span>
+                    <span class="rest-time">${restTime}s</span>
+                </div>
+            </div>
+        `;
+    }
+
+    renderExerciseContent(exercise, weekNumber) {
+        const state = this.loadExerciseState(`workout_${weekNumber}_${exercise.name}`);
+        
+        return `
+            <div class="exercise-block-modern" data-exercise="${exercise.name}">
+                <div class="exercise-header">
+                    <h3>${exercise.name}</h3>
+                </div>
+                <div class="exercise-specs-modern">
+                    <span>${exercise.sets} séries × ${exercise.reps} reps @ ${exercise.weight}kg</span>
+                    ${exercise.tempo ? `<span>Tempo: ${exercise.tempo}</span>` : ''}
+                    ${exercise.rpe ? `<span>RPE: ${exercise.rpe}</span>` : ''}
+                </div>
+                ${exercise.notes ? `<div class="exercise-notes-modern"><p>${exercise.notes}</p></div>` : ''}
+                <div class="series-grid-modern" data-exercise="${exercise.name}">
+                    ${this.renderSeriesGridModern(exercise, state, weekNumber)}
+                </div>
+            </div>
+        `;
+    }
+
+    renderSeriesGridModern(exercise, state, weekNumber) {
+        const sets = parseInt(exercise.sets);
+        let html = '';
+        
+        for (let i = 1; i <= sets; i++) {
+            const isCompleted = state && state.completedSets && state.completedSets.includes(i);
+            html += `
+                <div class="serie-item-modern">
+                    <input 
+                        type="checkbox" 
+                        class="serie-checkbox" 
+                        id="serie_${exercise.name}_${i}"
+                        data-exercise="${exercise.name}"
+                        data-set="${i}"
+                        data-week="${weekNumber}"
+                        data-rest="${exercise.rest || 60}"
+                        ${isCompleted ? 'checked' : ''}
+                    >
+                    <label class="serie-label" for="serie_${exercise.name}_${i}">
+                        <span class="serie-number">${i}</span>
+                    </label>
+                </div>
+            `;
+        }
+        
+        return html;
+    }
+
+    attachEventListeners(weekNumber) {
+        const checkboxes = this.container.querySelectorAll('.serie-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => this.handleSerieToggle(e, weekNumber));
+        });
+    }
+
+    handleSerieToggle(event, weekNumber) {
+        const checkbox = event.target;
+        const exerciseName = checkbox.dataset.exercise;
+        const setNumber = parseInt(checkbox.dataset.set);
+        const restTime = parseInt(checkbox.dataset.rest);
+        
+        const storageKey = `workout_${weekNumber}_${exerciseName}`;
+        let state = this.loadExerciseState(storageKey);
+        
+        if (!state) {
+            state = { completedSets: [] };
+        }
+        
+        if (checkbox.checked) {
+            if (!state.completedSets.includes(setNumber)) {
+                state.completedSets.push(setNumber);
+            }
+            
+            if (this.timerManager) {
+                this.timerManager.startTimer(restTime);
+            }
+        } else {
+            state.completedSets = state.completedSets.filter(s => s !== setNumber);
+        }
+        
+        this.saveExerciseState(storageKey, state);
+    }
+
+    loadExerciseState(key) {
+        try {
+            const data = localStorage.getItem(key);
+            return data ? JSON.parse(data) : null;
+        } catch (error) {
+            console.error('Erreur chargement état:', error);
+            return null;
+        }
+    }
+
+    saveExerciseState(key, state) {
+        try {
+            localStorage.setItem(key, JSON.stringify(state));
+        } catch (error) {
+            console.error('Erreur sauvegarde état:', error);
+        }
+    }
 }
