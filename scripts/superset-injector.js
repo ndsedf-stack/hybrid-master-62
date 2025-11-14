@@ -1,7 +1,6 @@
 // ==================================================================
-// SUPERSET INJECTOR - DÉTECTE supersetWith DANS LES DONNÉES
+// SUPERSET INJECTOR - DÉTECTION VIA supersetWith
 // ==================================================================
-
 console.log('🔥 Superset Injector chargé');
 
 let hasRun = false;
@@ -12,189 +11,156 @@ function enhanceSupersets() {
         return;
     }
     
-    const exercisesContainer = document.querySelector('.exercises-container');
-    if (!exercisesContainer) {
-        console.log('⏳ Container non trouvé, attente...');
+    // ✅ ATTENDRE QUE programData SOIT DISPONIBLE
+    if (!window.programData) {
+        console.log('⏳ programData pas encore chargé, on réessaie dans 100ms...');
+        setTimeout(enhanceSupersets, 100);
         return;
     }
     
-    const exercises = exercisesContainer.querySelectorAll('.exercise-block-modern');
+    const exercises = document.querySelectorAll('.exercise-block-modern');
     if (exercises.length === 0) {
         console.log('⏳ Pas d\'exercices encore, attente...');
+        setTimeout(enhanceSupersets, 100);
         return;
     }
     
     hasRun = true;
-    console.log('🎨 Détection des supersets...');
+    console.log('🎨 Détection des supersets avec programData...');
     console.log(`📊 ${exercises.length} exercices trouvés`);
     
-    // Récupérer les données de program-data.js
-    const currentWeek = parseInt(localStorage.getItem('currentWeek') || '1');
-    const currentDay = document.querySelector('.workout-title h2')?.textContent.trim();
-    
-    console.log(`📅 Jour: ${currentDay}, Semaine: ${currentWeek}`);
-    
-    // Accéder aux données du programme
-    if (!window.programData) {
-        console.log('❌ programData non disponible');
+    // Récupérer les données du jour actuel
+    const dayTitle = document.querySelector('.workout-day-title');
+    if (!dayTitle) {
+        console.log('❌ Titre du jour non trouvé');
         return;
     }
     
-    // Trouver le workout actuel
-    let currentWorkout = null;
+    const dayText = dayTitle.textContent.toLowerCase();
+    let dayKey = null;
+    
+    if (dayText.includes('dimanche')) dayKey = 'dimanche';
+    else if (dayText.includes('mardi')) dayKey = 'mardi';
+    else if (dayText.includes('vendredi')) dayKey = 'vendredi';
+    else if (dayText.includes('maison')) dayKey = 'maison';
+    
+    if (!dayKey) {
+        console.log('❌ Jour non reconnu:', dayText);
+        return;
+    }
+    
+    console.log(`📅 Jour détecté: ${dayKey}`);
+    
+    // Trouver le workout correspondant
+    let dayWorkout = null;
     for (const block of window.programData.blocks) {
-        for (const workout of block.workouts) {
-            if (workout.day === currentDay) {
-                currentWorkout = workout;
-                break;
+        for (const week of block.weeks) {
+            for (const day of week.days) {
+                if (day.day === dayKey) {
+                    dayWorkout = day;
+                    break;
+                }
             }
+            if (dayWorkout) break;
         }
-        if (currentWorkout) break;
+        if (dayWorkout) break;
     }
     
-    if (!currentWorkout) {
-        console.log('❌ Workout non trouvé');
+    if (!dayWorkout || !dayWorkout.exercises) {
+        console.log('❌ Workout non trouvé pour ce jour');
         return;
     }
     
-    console.log(`✅ Workout trouvé: ${currentWorkout.day}`);
+    console.log(`✅ Workout trouvé avec ${dayWorkout.exercises.length} exercices`);
     
     // Identifier les paires de supersets
     const supersetPairs = [];
     const processedIndices = new Set();
     
-    currentWorkout.exercises.forEach((exercise, index) => {
+    dayWorkout.exercises.forEach((exercise, index) => {
         if (processedIndices.has(index)) return;
         
         if (exercise.supersetWith) {
-            // Trouver le partenaire
-            const partnerIndex = currentWorkout.exercises.findIndex((ex, idx) => 
+            // Trouver l'exercice jumelé
+            const partnerIndex = dayWorkout.exercises.findIndex((ex, idx) => 
                 idx > index && ex.name === exercise.supersetWith
             );
             
             if (partnerIndex !== -1) {
+                const partner = dayWorkout.exercises[partnerIndex];
                 supersetPairs.push({
-                    firstIndex: index,
-                    secondIndex: partnerIndex,
+                    first: index,
+                    second: partnerIndex,
                     firstName: exercise.name,
-                    secondName: currentWorkout.exercises[partnerIndex].name,
-                    rest: exercise.rest || 75
+                    secondName: partner.name,
+                    rest: exercise.rest || 90
                 });
                 
                 processedIndices.add(index);
                 processedIndices.add(partnerIndex);
                 
-                console.log(`✅ Superset: ${exercise.name} + ${exercise.supersetWith}`);
+                console.log(`✅ Superset: ${exercise.name} + ${partner.name}`);
             }
         }
     });
     
     if (supersetPairs.length === 0) {
-        console.log('ℹ️ Aucun superset pour ce jour');
+        console.log('ℹ️ Aucun superset trouvé pour ce jour');
         return;
     }
     
-    // Appliquer les transformations visuelles
+    // Appliquer les styles aux exercices HTML
     supersetPairs.forEach(pair => {
-        const firstBlock = exercises[pair.firstIndex];
-        const secondBlock = exercises[pair.secondIndex];
+        const firstBlock = exercises[pair.first];
+        const secondBlock = exercises[pair.second];
         
-        if (!firstBlock || !secondBlock) {
-            console.log(`❌ Blocs non trouvés pour ${pair.firstName}`);
-            return;
+        if (firstBlock && secondBlock) {
+            // Marquer les blocs
+            firstBlock.classList.add('is-superset-first');
+            secondBlock.classList.add('is-superset-second');
+            
+            // Ajouter badge "SUPERSET" au premier exercice
+            const header = firstBlock.querySelector('.exercise-header');
+            if (header && !header.querySelector('.superset-badge')) {
+                const badge = document.createElement('div');
+                badge.className = 'superset-badge';
+                badge.textContent = 'SUPERSET';
+                header.style.position = 'relative';
+                header.appendChild(badge);
+            }
+            
+            // Créer le connecteur entre les deux exercices
+            const connector = document.createElement('div');
+            connector.className = 'superset-connector';
+            connector.innerHTML = `
+                <div class="connector-icon">+</div>
+            `;
+            
+            // Insérer le connecteur entre les deux blocs
+            secondBlock.parentNode.insertBefore(connector, secondBlock);
+            
+            // Ajouter l'info de repos après le deuxième exercice
+            const restInfo = document.createElement('div');
+            restInfo.className = 'superset-rest-info';
+            restInfo.innerHTML = `
+                <span class="rest-icon">⏱️</span>
+                <span class="rest-text">Repos après le duo</span>
+                <span class="rest-time">${pair.rest}s</span>
+            `;
+            secondBlock.appendChild(restInfo);
+            
+            console.log(`✨ Superset créé: ${pair.firstName} + ${pair.secondName}`);
         }
-        
-        // Créer le container superset
-        const supersetContainer = document.createElement('div');
-        supersetContainer.className = 'superset-container';
-        
-        // Badge SUPERSET
-        const badge = document.createElement('div');
-        badge.className = 'superset-badge';
-        badge.textContent = 'SUPERSET';
-        supersetContainer.appendChild(badge);
-        
-        // Marquer les exercices
-        firstBlock.classList.add('is-superset-first');
-        secondBlock.classList.add('is-superset-second');
-        
-        // Ajouter les spec-items aux exercices du superset
-        enhanceExerciseSpecs(firstBlock, currentWorkout.exercises[pair.firstIndex]);
-        enhanceExerciseSpecs(secondBlock, currentWorkout.exercises[pair.secondIndex]);
-        
-        // Insérer le premier exercice dans le container
-        firstBlock.parentNode.insertBefore(supersetContainer, firstBlock);
-        supersetContainer.appendChild(firstBlock);
-        
-        // Créer le connecteur
-        const connector = document.createElement('div');
-        connector.className = 'superset-connector';
-        connector.innerHTML = '<div class="connector-icon">+</div>';
-        supersetContainer.appendChild(connector);
-        
-        // Ajouter le deuxième exercice
-        supersetContainer.appendChild(secondBlock);
-        
-        // Info repos
-        const restInfo = document.createElement('div');
-        restInfo.className = 'superset-rest-info';
-        restInfo.innerHTML = `
-            <span class="rest-icon">⏱️</span>
-            <span class="rest-text">Repos après le duo</span>
-            <span class="rest-time">${pair.rest}s</span>
-        `;
-        supersetContainer.appendChild(restInfo);
-        
-        console.log(`✨ Superset créé: ${pair.firstName} + ${pair.secondName}`);
     });
     
     console.log(`✅ ${supersetPairs.length} supersets créés`);
-}
-
-function enhanceExerciseSpecs(exerciseBlock, exerciseData) {
-    const specsDiv = exerciseBlock.querySelector('.exercise-specs-modern');
-    if (!specsDiv) return;
-    
-    // Sauvegarder les infos actuelles
-    const sets = exerciseData.sets;
-    const reps = exerciseData.reps;
-    const weight = exerciseData.weight;
-    const tempo = exerciseData.tempo;
-    const rpe = exerciseData.rpe;
-    
-    // Remplacer par le format grille
-    specsDiv.innerHTML = `
-        <div class="spec-item">
-            <span class="spec-label">Séries</span>
-            <span class="spec-value">${sets}</span>
-        </div>
-        <div class="spec-item">
-            <span class="spec-label">Reps</span>
-            <span class="spec-value">${reps}</span>
-        </div>
-        <div class="spec-item">
-            <span class="spec-label">Poids</span>
-            <span class="spec-value">${weight}kg</span>
-        </div>
-        ${tempo ? `
-        <div class="spec-item">
-            <span class="spec-label">Tempo</span>
-            <span class="spec-value">${tempo}</span>
-        </div>
-        ` : ''}
-        ${rpe ? `
-        <div class="spec-item">
-            <span class="spec-label">RPE</span>
-            <span class="spec-value">${rpe}</span>
-        </div>
-        ` : ''}
-    `;
 }
 
 // Attendre que les exercices apparaissent
 function waitForExercises() {
     console.log('✅ Script initialisé - En attente des exercices...');
     
+    // Essayer toutes les 100ms pendant 5 secondes
     let attempts = 0;
     const maxAttempts = 50;
     
@@ -202,18 +168,18 @@ function waitForExercises() {
         attempts++;
         
         const exercises = document.querySelectorAll('.exercise-block-modern');
-        if (exercises.length > 0 && window.programData) {
-            console.log('🎯 Exercices et données détectés');
+        if (exercises.length > 0) {
+            console.log('🎯 Exercices détectés, lancement du traitement...');
             clearInterval(interval);
-            setTimeout(enhanceSupersets, 100);
+            enhanceSupersets();
         } else if (attempts >= maxAttempts) {
-            console.log('⏱️ Timeout');
+            console.log('⏱️ Timeout - Exercices non trouvés');
             clearInterval(interval);
         }
     }, 100);
 }
 
-// Lancer au chargement
+// Lancer au chargement du DOM
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', waitForExercises);
 } else {
