@@ -1,387 +1,293 @@
 /**
- * TIMER MANAGER - VERSION PREMIUM PLEIN ÉCRAN
- * Design circulaire multicolore avec segments animés
+ * TIMER MANAGER - VERSION 3 CERCLES ANIMÉS
  */
 export default class TimerManager {
   constructor() {
-    this.timerInterval = null;
-    this.remainingTime = 0;
-    this.initialTime = 0;
-    this.isRunning = false;
-    this.currentExercise = null;
-    this.currentSetNumber = 0;
-    this.totalSets = 0;
-    
-    // Éléments DOM
-    this.timerOverlay = null;
-    this.timeDisplay = null;
-    this.exerciseNameDisplay = null;
-    this.phaseDisplay = null;
-    
-    // SVG circles
-    this.mainCircle = null;
-    this.segmentsGroup = null;
-  }
+    this.size = 360;
+    this.stroke = 32;
+    this.colors = {
+      background: '#000000',
+      orange: '#FF6D00',
+      blue: '#2962FF',
+      green: '#00C853',
+      red: '#D50000',
+      white: '#FFFFFF',
+      placeholder: '#1f1f1f',
+      textMuted: '#BBBBBB',
+    };
 
-  /**
-   * Initialise le timer (appelé depuis app.js)
-   */
-  init() {
-    this.createTimerOverlay();
-    this.attachEventListeners();
-    console.log('✅ TimerManager Premium initialisé');
-  }
-
-  /**
-   * Crée l'overlay plein écran du timer
-   */
-  createTimerOverlay() {
-    // Créer l'overlay s'il n'existe pas
-    if (document.getElementById('timer-overlay-premium')) {
-      this.timerOverlay = document.getElementById('timer-overlay-premium');
-      return;
-    }
-
-    const overlay = document.createElement('div');
-    overlay.id = 'timer-overlay-premium';
-    overlay.className = 'timer-overlay-premium';
-    overlay.innerHTML = `
-      <div class="timer-premium-container">
-        <!-- SVG avec les cercles -->
-        <svg class="timer-premium-svg" viewBox="0 0 340 340">
-          <!-- Segments colorés (séance) -->
-          <g id="timer-segments"></g>
-          
-          <!-- Cercle principal (progression) -->
-          <circle id="timer-main-circle"
-                  cx="170" cy="170" r="140"
-                  stroke="url(#timer-gradient)"
-                  stroke-width="20"
-                  stroke-linecap="round"
-                  fill="none"
-                  transform="rotate(-90 170 170)"/>
-          
-          <!-- Gradient pour le cercle principal -->
-          <defs>
-            <linearGradient id="timer-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" style="stop-color:#FF6D00;stop-opacity:1" />
-              <stop offset="100%" style="stop-color:#FF9100;stop-opacity:1" />
-            </linearGradient>
-          </defs>
-        </svg>
-
-        <!-- Contenu central -->
-        <div class="timer-premium-center">
-          <div class="timer-premium-exercise-name">Exercice</div>
-          <div class="timer-premium-time">00:00</div>
-          <div class="timer-premium-phase">Série 1/5</div>
-        </div>
-
-        <!-- Boutons de contrôle -->
-        <div class="timer-premium-controls">
-          <button id="timer-premium-minus" class="timer-control-btn">-15s</button>
-          <button id="timer-premium-pause" class="timer-control-btn timer-control-pause">Pause</button>
-          <button id="timer-premium-plus" class="timer-control-btn">+15s</button>
-        </div>
-
-        <!-- Bouton fermer -->
-        <button id="timer-premium-close" class="timer-premium-close">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-      </div>
-    `;
-
-    document.body.appendChild(overlay);
-    this.timerOverlay = overlay;
-
-    // Récupérer les éléments
-    this.timeDisplay = overlay.querySelector('.timer-premium-time');
-    this.exerciseNameDisplay = overlay.querySelector('.timer-premium-exercise-name');
-    this.phaseDisplay = overlay.querySelector('.timer-premium-phase');
-    this.mainCircle = overlay.querySelector('#timer-main-circle');
-    this.segmentsGroup = overlay.querySelector('#timer-segments');
-
-    // Créer les segments colorés
-    this.createSegments();
-  }
-
-  /**
-   * Crée les segments colorés de la séance
-   */
-  createSegments() {
-    const segments = [
-      { start: 0, sweep: 55, color: '#00C853' },
-      { start: 65, sweep: 65, color: '#2962FF' },
-      { start: 140, sweep: 60, color: '#FF6D00' },
-      { start: 210, sweep: 40, color: '#D50000' },
-      { start: 260, sweep: 50, color: '#00BCD4' }
+    // Session segments (outer ring)
+    this.segments = [
+      { startDeg: -40, sweepDeg: 55, color: this.colors.green },
+      { startDeg: 25, sweepDeg: 85, color: this.colors.blue },
+      { startDeg: 120, sweepDeg: 80, color: this.colors.orange },
+      { startDeg: 210, sweepDeg: 45, color: this.colors.red },
+      { startDeg: 265, sweepDeg: 70, color: this.colors.blue },
     ];
 
-    const cx = 170;
-    const cy = 170;
-    const radius = 160;
-    const strokeWidth = 12;
+    // State
+    this.isRunning = false;
+    this.remainingTime = 0;
+    this.initialTime = 0;
+    this.currentExercise = null;
+    this.timerInterval = null;
+    this.restProgress = 1;
+    this._raf = null;
 
-    segments.forEach(seg => {
+    // Elements
+    this.overlay = null;
+    this.root = null;
+    this.svg = null;
+    this.paths = {
+      segments: [],
+      rest: null,
+    };
+    this.labels = {
+      exerciseName: null,
+      timerText: null,
+    };
+
+    console.log('✅ TimerManager 3 Cercles initialisé');
+  }
+
+  init() {
+    if (this.overlay) return;
+    this.createOverlay();
+  }
+
+  createOverlay() {
+    // Overlay plein écran
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.background = this.colors.background;
+    overlay.style.zIndex = '10000';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.opacity = '0';
+    overlay.style.visibility = 'hidden';
+    overlay.style.transition = 'opacity 0.3s ease, visibility 0.3s ease';
+    document.body.appendChild(overlay);
+    this.overlay = overlay;
+
+    // Root wrapper
+    const root = document.createElement('div');
+    root.style.position = 'relative';
+    root.style.width = `${this.size}px`;
+    root.style.height = `${this.size}px`;
+    overlay.appendChild(root);
+    this.root = root;
+
+    // Bouton fermer
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '×';
+    closeBtn.style.position = 'absolute';
+    closeBtn.style.top = '-60px';
+    closeBtn.style.right = '0';
+    closeBtn.style.background = 'rgba(255, 255, 255, 0.1)';
+    closeBtn.style.border = '2px solid rgba(255, 255, 255, 0.2)';
+    closeBtn.style.color = '#fff';
+    closeBtn.style.width = '48px';
+    closeBtn.style.height = '48px';
+    closeBtn.style.borderRadius = '50%';
+    closeBtn.style.fontSize = '32px';
+    closeBtn.style.cursor = 'pointer';
+    closeBtn.style.display = 'flex';
+    closeBtn.style.alignItems = 'center';
+    closeBtn.style.justifyContent = 'center';
+    closeBtn.addEventListener('click', () => this.stop());
+    root.appendChild(closeBtn);
+
+    // SVG
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', this.size);
+    svg.setAttribute('height', this.size);
+    root.appendChild(svg);
+    this.svg = svg;
+
+    const cx = this.size / 2;
+    const cy = this.size / 2;
+    const outerRadius = this.size / 2 - this.stroke * 0.5;
+    const innerRadius = this.size / 2 - this.stroke * 2.5;
+
+    // Draw session segments (outer ring)
+    this.segments.forEach((s) => {
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      const d = this.describeArc(cx, cy, radius, seg.start, seg.start + seg.sweep);
-      
-      path.setAttribute('d', d);
-      path.setAttribute('stroke', seg.color);
-      path.setAttribute('stroke-width', strokeWidth);
+      path.setAttribute('d', this.describeArc(cx, cy, outerRadius, -90 + s.startDeg, -90 + s.startDeg + s.sweepDeg));
+      path.setAttribute('stroke', s.color);
+      path.setAttribute('stroke-width', this.stroke);
       path.setAttribute('stroke-linecap', 'round');
       path.setAttribute('fill', 'none');
-      path.setAttribute('opacity', '0.6');
-      
-      this.segmentsGroup.appendChild(path);
+      svg.appendChild(path);
+      this.paths.segments.push(path);
     });
+
+    // Rest arc (blue) - inner circle
+    const restPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    restPath.setAttribute('stroke', this.colors.blue);
+    restPath.setAttribute('stroke-width', this.stroke);
+    restPath.setAttribute('stroke-linecap', 'round');
+    restPath.setAttribute('fill', 'none');
+    svg.appendChild(restPath);
+    this.paths.rest = restPath;
+
+    // Center content
+    const center = document.createElement('div');
+    center.style.position = 'absolute';
+    center.style.inset = '0';
+    center.style.display = 'flex';
+    center.style.flexDirection = 'column';
+    center.style.alignItems = 'center';
+    center.style.justifyContent = 'center';
+    root.appendChild(center);
+
+    // Exercise name (orange)
+    const exerciseName = document.createElement('div');
+    exerciseName.style.color = this.colors.orange;
+    exerciseName.style.fontSize = '24px';
+    exerciseName.style.fontWeight = '700';
+    exerciseName.style.letterSpacing = '0.5px';
+    exerciseName.style.marginBottom = '16px';
+    exerciseName.style.textAlign = 'center';
+    exerciseName.style.maxWidth = '280px';
+    exerciseName.textContent = 'Exercice';
+    center.appendChild(exerciseName);
+    this.labels.exerciseName = exerciseName;
+
+    // Timer (white)
+    const timerText = document.createElement('div');
+    timerText.style.color = this.colors.white;
+    timerText.style.fontSize = '64px';
+    timerText.style.fontWeight = '800';
+    timerText.style.letterSpacing = '2px';
+    timerText.style.textShadow = '0 0 30px rgba(255, 109, 0, 0.5)';
+    timerText.textContent = '0:00';
+    center.appendChild(timerText);
+    this.labels.timerText = timerText;
+
+    // Phase label
+    const phaseLabel = document.createElement('div');
+    phaseLabel.style.color = this.colors.textMuted;
+    phaseLabel.style.fontSize = '16px';
+    phaseLabel.style.fontWeight = '600';
+    phaseLabel.style.marginTop = '12px';
+    phaseLabel.style.textTransform = 'uppercase';
+    phaseLabel.style.letterSpacing = '2px';
+    phaseLabel.textContent = 'REPOS';
+    center.appendChild(phaseLabel);
   }
 
-  /**
-   * Calcule le path SVG d'un arc
-   */
-  describeArc(cx, cy, radius, startAngle, endAngle) {
-    const start = this.polarToCartesian(cx, cy, radius, endAngle);
-    const end = this.polarToCartesian(cx, cy, radius, startAngle);
-    const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
-    return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`;
-  }
-
-  /**
-   * Convertit coordonnées polaires en cartésiennes
-   */
-  polarToCartesian(cx, cy, radius, angleDeg) {
-    const angleRad = ((angleDeg - 90) * Math.PI) / 180;
-    return {
-      x: cx + radius * Math.cos(angleRad),
-      y: cy + radius * Math.sin(angleRad)
+  describeArc(cx, cy, r, startDeg, endDeg) {
+    const toXY = (deg) => {
+      const rad = ((deg - 90) * Math.PI) / 180;
+      return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
     };
+    const start = toXY(endDeg);
+    const end = toXY(startDeg);
+    const largeArcFlag = endDeg - startDeg <= 180 ? '0' : '1';
+    return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`;
   }
 
-  /**
-   * Attache les événements aux boutons
-   */
-  attachEventListeners() {
-    // Bouton Pause/Resume
-    const pauseBtn = document.getElementById('timer-premium-pause');
-    if (pauseBtn) {
-      pauseBtn.addEventListener('click', () => this.togglePause());
-    }
+  start(duration, exerciseName) {
+    console.log('🔥 Timer 3 Cercles démarré:', { duration, exerciseName });
 
-    // Bouton -15s
-    const minusBtn = document.getElementById('timer-premium-minus');
-    if (minusBtn) {
-      minusBtn.addEventListener('click', () => this.adjustTime(-15));
-    }
+    if (!this.overlay) this.init();
 
-    // Bouton +15s
-    const plusBtn = document.getElementById('timer-premium-plus');
-    if (plusBtn) {
-      plusBtn.addEventListener('click', () => this.adjustTime(15));
-    }
-
-    // Bouton Close
-    const closeBtn = document.getElementById('timer-premium-close');
-    if (closeBtn) {
-      closeBtn.addEventListener('click', () => this.hide());
-    }
-  }
-
-  /**
-   * Démarre le timer avec un temps de repos (en secondes)
-   */
-  start(seconds, exerciseName = '', setNumber = 0, totalSets = 0) {
-    console.log('🎯 Timer Premium démarré:', { seconds, exerciseName, setNumber, totalSets });
-    
     this.stop();
-
-    this.initialTime = seconds;
-    this.remainingTime = seconds;
+    this.remainingTime = duration;
+    this.initialTime = duration;
     this.currentExercise = exerciseName;
-    this.currentSetNumber = setNumber;
-    this.totalSets = totalSets;
-
-    // Mettre à jour l'affichage
-    if (this.exerciseNameDisplay) {
-      this.exerciseNameDisplay.textContent = exerciseName || 'Repos';
-    }
-    if (this.phaseDisplay) {
-      this.phaseDisplay.textContent = `Série ${setNumber}/${totalSets}`;
-    }
-
-    this.show();
-    this.updateDisplay();
-    this.resume();
-  }
-
-  /**
-   * Reprend le timer
-   */
-  resume() {
-    if (this.isRunning) return;
-
     this.isRunning = true;
-    this.timerInterval = setInterval(() => {
-      this.remainingTime--;
+    this.restProgress = 1;
 
-      if (this.remainingTime <= 0) {
-        this.onTimerEnd();
-      } else {
-        this.updateDisplay();
-      }
-    }, 1000);
-
-    const pauseBtn = document.getElementById('timer-premium-pause');
-    if (pauseBtn) {
-      pauseBtn.textContent = 'Pause';
+    // Update labels
+    if (this.labels.exerciseName) {
+      this.labels.exerciseName.textContent = exerciseName || 'Exercice';
     }
-  }
 
-  /**
-   * Met le timer en pause
-   */
-  pause() {
-    if (!this.isRunning) return;
+    // Show overlay
+    this.overlay.style.opacity = '1';
+    this.overlay.style.visibility = 'visible';
 
-    this.isRunning = false;
-    clearInterval(this.timerInterval);
-
-    const pauseBtn = document.getElementById('timer-premium-pause');
-    if (pauseBtn) {
-      pauseBtn.textContent = 'Resume';
-    }
-  }
-
-  /**
-   * Toggle pause/resume
-   */
-  togglePause() {
-    if (this.isRunning) {
-      this.pause();
-    } else {
-      this.resume();
-    }
-  }
-
-  /**
-   * Arrête complètement le timer
-   */
-  stop() {
-    this.isRunning = false;
-    clearInterval(this.timerInterval);
-    this.timerInterval = null;
-  }
-
-  /**
-   * Ajuste le temps (+/- secondes)
-   */
-  adjustTime(seconds) {
-    this.remainingTime += seconds;
-    if (this.remainingTime < 0) {
-      this.remainingTime = 0;
-    }
     this.updateDisplay();
+    this.timerInterval = setInterval(() => this.tick(), 1000);
+    this.startAnimation();
   }
 
-  /**
-   * Appelé quand le timer arrive à 0
-   */
-  onTimerEnd() {
-    this.stop();
-    this.playNotification();
-    this.vibrate();
-    
-    if (this.timeDisplay) {
-      this.timeDisplay.textContent = '00:00';
+  tick() {
+    this.remainingTime--;
+    this.updateDisplay();
+
+    if (this.remainingTime <= 0) {
+      this.complete();
     }
-    
-    setTimeout(() => {
-      this.hide();
-    }, 2000);
   }
 
-  /**
-   * Met à jour l'affichage du temps et du cercle
-   */
   updateDisplay() {
-    // Affichage du temps
     const minutes = Math.floor(this.remainingTime / 60);
     const seconds = this.remainingTime % 60;
-    const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
-    if (this.timeDisplay) {
-      this.timeDisplay.textContent = timeString;
+    if (this.labels.timerText) {
+      this.labels.timerText.textContent = timeStr;
     }
 
-    // Mise à jour du cercle de progression
-    if (this.mainCircle && this.initialTime > 0) {
-      const radius = 140;
-      const circumference = 2 * Math.PI * radius;
-      const percentage = (this.remainingTime / this.initialTime);
-      const offset = circumference * (1 - percentage);
-      
-      this.mainCircle.style.strokeDasharray = `${circumference}`;
-      this.mainCircle.style.strokeDashoffset = offset;
-      this.mainCircle.style.transition = 'stroke-dashoffset 1s linear';
+    // Update rest progress
+    this.restProgress = this.remainingTime / this.initialTime;
+    this.updateRestArc();
+  }
+
+  updateRestArc() {
+    if (!this.paths.rest) return;
+
+    const cx = this.size / 2;
+    const cy = this.size / 2;
+    const innerRadius = this.size / 2 - this.stroke * 2.5;
+    const endDeg = -90 + 360 * this.restProgress;
+
+    this.paths.rest.setAttribute('d', this.describeArc(cx, cy, innerRadius, -90, endDeg));
+  }
+
+  startAnimation() {
+    if (this._raf) cancelAnimationFrame(this._raf);
+    
+    const animate = () => {
+      this.updateRestArc();
+      if (this.isRunning) {
+        this._raf = requestAnimationFrame(animate);
+      }
+    };
+    
+    this._raf = requestAnimationFrame(animate);
+  }
+
+  stop() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+    if (this._raf) {
+      cancelAnimationFrame(this._raf);
+      this._raf = null;
+    }
+    this.isRunning = false;
+
+    if (this.overlay) {
+      this.overlay.style.opacity = '0';
+      this.overlay.style.visibility = 'hidden';
     }
   }
 
-  /**
-   * Affiche le timer plein écran
-   */
-  show() {
-    if (this.timerOverlay) {
-      this.timerOverlay.classList.add('active');
-      // Empêcher le scroll du body
-      document.body.style.overflow = 'hidden';
-    }
+  complete() {
+    this.stop();
+    console.log('✅ Timer terminé');
   }
 
-  /**
-   * Cache le timer
-   */
-  hide() {
-    if (this.timerOverlay) {
-      this.timerOverlay.classList.remove('active');
-      // Réactiver le scroll
-      document.body.style.overflow = '';
-    }
-  }
-
-  /**
-   * Joue un son de notification
-   */
-  playNotification() {
-    try {
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-
-      oscillator.frequency.value = 800;
-      oscillator.type = 'sine';
-
-      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + 0.5);
-    } catch (error) {
-      console.warn('⚠️ Son non disponible');
-    }
-  }
-
-  /**
-   * Vibre (mobile uniquement)
-   */
-  vibrate() {
-    if (navigator.vibrate) {
-      navigator.vibrate([200, 100, 200]);
-    }
+  isTimerRunning() {
+    return this.isRunning;
   }
 }
