@@ -337,7 +337,7 @@ export class WorkoutRenderer {
                         // Vérifier que ex1 de la même série est coché
                         const ex1Checkbox = ex1Checkboxes[index];
                         
-                        if (!ex1Checkbox && ex1Checkbox.checked) {
+                        if (!ex1Checkbox?.checked) {
                             alert('⚠️ Faites d\'abord l\'exercice 1 de cette série !');
                             e.target.checked = false;
                             return;
@@ -369,7 +369,7 @@ export class WorkoutRenderer {
         const seriesCard = checkbox.closest('.series-card-modern');
         const exerciseBlock = checkbox.closest('.exercise-block-modern');
         const exerciseName = exerciseBlock.dataset.exercise || 
-                             exerciseBlock.closest("[data-exercise]") && exerciseBlock.closest("[data-exercise]").dataset.exercise;
+                             exerciseBlock.closest('[data-exercise]')?.dataset.exercise;
         const setNumber = parseInt(checkbox.dataset.set);
         const totalSets = parseInt(checkbox.dataset.total);
 
