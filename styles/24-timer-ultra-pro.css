@@ -326,60 +326,102 @@
 
 @media (max-width: 430px) {
   #timer-overlay-ultra-pro.active {
-    padding: 15px;
+    padding: 8px;
   }
   
   .timer-circles-container {
-    width: 350px;
-    height: 350px;
+    width: 280px;
+    height: 280px;
+    margin: 10px 0;
   }
 
   .timer-circle-svg:nth-child(1) {
-    width: 350px;
-    height: 350px;
+    width: 280px;
+    height: 280px;
   }
 
   .timer-circle-svg:nth-child(2) {
-    width: 300px;
-    height: 300px;
+    width: 245px;
+    height: 245px;
   }
 
   .timer-circle-svg:nth-child(3) {
-    width: 250px;
-    height: 250px;
+    width: 210px;
+    height: 210px;
+  }
+
+  .timer-circle-bg {
+    stroke-width: 13;
+  }
+
+  .timer-circle-progress {
+    stroke-width: 13;
   }
   
   .timer-time-value {
-    font-size: 68px;
+    font-size: 50px;
+  }
+
+  .timer-time-label {
+    font-size: 14px;
+    margin-top: 5px;
   }
   
   .timer-rep-counter {
-    font-size: 38px;
-    margin: 0 0 25px 0;
+    font-size: 28px;
+    margin: 0 0 10px 0;
   }
 
   .timer-tempo-container {
-    max-width: 380px;
+    max-width: 340px;
+    margin: 15px 0;
+  }
+
+  .timer-tempo-bar-container {
+    height: 10px;
+    margin-bottom: 12px;
+  }
+
+  .timer-tempo-title {
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+
+  .timer-tempo-phases {
+    gap: 6px;
   }
 
   .timer-tempo-phase {
-    padding: 12px 10px;
+    padding: 8px 4px;
   }
 
   .timer-tempo-phase-icon {
-    font-size: 24px;
+    font-size: 18px;
+    margin-bottom: 2px;
+  }
+
+  .timer-tempo-phase-label {
+    font-size: 9px;
+    margin-bottom: 2px;
   }
 
   .timer-tempo-phase-value {
-    font-size: 20px;
+    font-size: 16px;
+  }
+
+  .timer-exercise-name {
+    font-size: 19px;
+    margin: 12px 0;
   }
 
   .timer-controls {
-    max-width: 380px;
+    max-width: 340px;
+    margin-top: 12px;
+    gap: 8px;
   }
 
   .timer-btn {
-    padding: 18px 28px;
-    font-size: 17px;
+    padding: 13px 18px;
+    font-size: 14px;
   }
 }
