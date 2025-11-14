@@ -1,5 +1,5 @@
 /* ================================================================== */
-/* TIMER ULTRA PRO - 4 CERCLES + TEMPO BAR - VERSION FINALE CORRIGÉE */
+/* TIMER ULTRA PRO - 4 CERCLES + TEMPO BAR - SANS IMAGE */
 /* ================================================================== */
 
 #timer-overlay-ultra-pro {
@@ -18,31 +18,25 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   padding: 20px;
 }
 
 /* ============================================ */
-/* GIF EXERCISE - PLUS PETIT */
+/* GIF EXERCISE - CACHÉ */
 /* ============================================ */
 .timer-exercise-gif {
-  width: 50%;
-  max-width: 180px;
-  height: auto;
-  border-radius: 16px;
-  margin-bottom: 15px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  display: none;
 }
 
 /* ============================================ */
-/* REP COUNTER - EN BAS DU GIF */
+/* REP COUNTER */
 /* ============================================ */
 .timer-rep-counter {
-  font-size: 42px;
+  font-size: 48px;
   font-weight: 700;
   color: #ff6b35;
-  margin: 5px 0 20px 0;
+  margin: 0 0 30px 0;
   text-align: center;
   letter-spacing: 2px;
   text-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
@@ -53,9 +47,9 @@
 /* ============================================ */
 .timer-circles-container {
   position: relative;
-  width: 380px;
-  height: 380px;
-  margin: 10px 0;
+  width: 420px;
+  height: 420px;
+  margin: 20px 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -69,38 +63,38 @@
   transform: translate(-50%, -50%) rotate(-90deg);
 }
 
-/* Tailles spécifiques pour chaque cercle - PLUS GRANDS */
+/* Tailles spécifiques pour chaque cercle - GRANDS ET VISIBLES */
 .timer-circle-svg:nth-child(1) {
-  width: 380px;
-  height: 380px;
+  width: 420px;
+  height: 420px;
 }
 
 .timer-circle-svg:nth-child(2) {
-  width: 320px;
-  height: 320px;
+  width: 360px;
+  height: 360px;
 }
 
 .timer-circle-svg:nth-child(3) {
-  width: 260px;
-  height: 260px;
+  width: 300px;
+  height: 300px;
 }
 
 .timer-circle-svg:nth-child(4) {
-  width: 200px;
-  height: 200px;
+  width: 240px;
+  height: 240px;
 }
 
 /* Cercles de fond (gris foncé) */
 .timer-circle-bg {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.05);
-  stroke-width: 14;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 16;
 }
 
 /* Cercles animés - COUNTDOWN (se vident de 100% → 0%) */
 .timer-circle-progress {
   fill: none;
-  stroke-width: 14;
+  stroke-width: 16;
   stroke-linecap: round;
   stroke-dasharray: 879.2;
   stroke-dashoffset: 0;
@@ -109,7 +103,7 @@
 
 /* Couleurs des cercles selon leur rôle */
 .timer-circle-session {
-  stroke: rgba(255, 255, 255, 0.3);
+  stroke: rgba(255, 255, 255, 0.4);
 }
 
 .timer-circle-exercise {
@@ -135,7 +129,7 @@
 }
 
 .timer-time-value {
-  font-size: 80px;
+  font-size: 90px;
   font-weight: 700;
   color: #fff;
   line-height: 1;
@@ -143,12 +137,12 @@
 }
 
 .timer-time-label {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.6);
   text-transform: uppercase;
   letter-spacing: 3px;
-  margin-top: 8px;
+  margin-top: 10px;
 }
 
 /* ============================================ */
@@ -156,8 +150,8 @@
 /* ============================================ */
 .timer-tempo-container {
   width: 90%;
-  max-width: 400px;
-  margin: 25px 0;
+  max-width: 450px;
+  margin: 30px 0;
 }
 
 .timer-tempo-title {
@@ -214,7 +208,7 @@
 
 .timer-tempo-phase {
   flex: 1;
-  padding: 12px;
+  padding: 14px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   text-align: center;
@@ -229,12 +223,12 @@
 }
 
 .timer-tempo-phase-icon {
-  font-size: 24px;
+  font-size: 28px;
   margin-bottom: 5px;
 }
 
 .timer-tempo-phase-label {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -243,7 +237,7 @@
 }
 
 .timer-tempo-phase-value {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   color: #fff;
 }
@@ -277,10 +271,10 @@
 /* EXERCISE NAME */
 /* ============================================ */
 .timer-exercise-name {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 600;
   color: #fff;
-  margin: 20px 0;
+  margin: 25px 0;
   text-align: center;
 }
 
@@ -290,14 +284,14 @@
 .timer-controls {
   display: flex;
   gap: 15px;
-  margin-top: 25px;
+  margin-top: 30px;
   width: 90%;
-  max-width: 400px;
+  max-width: 450px;
 }
 
 .timer-btn {
   flex: 1;
-  padding: 18px 30px;
+  padding: 20px 32px;
   font-size: 18px;
   font-weight: 700;
   border: none;
@@ -346,33 +340,72 @@
 /* RESPONSIVE - MOBILE */
 /* ============================================ */
 @media (max-width: 768px) {
-  .timer-exercise-gif {
-    max-width: 150px;
-  }
-  
   .timer-circles-container {
-    width: 320px;
-    height: 320px;
+    width: 350px;
+    height: 350px;
   }
 
   .timer-circle-svg:nth-child(1) {
-    width: 320px;
-    height: 320px;
+    width: 350px;
+    height: 350px;
   }
 
   .timer-circle-svg:nth-child(2) {
-    width: 270px;
-    height: 270px;
+    width: 300px;
+    height: 300px;
   }
 
   .timer-circle-svg:nth-child(3) {
-    width: 220px;
-    height: 220px;
+    width: 250px;
+    height: 250px;
   }
 
   .timer-circle-svg:nth-child(4) {
-    width: 170px;
-    height: 170px;
+    width: 200px;
+    height: 200px;
+  }
+  
+  .timer-time-value {
+    font-size: 70px;
+  }
+  
+  .timer-rep-counter {
+    font-size: 40px;
+  }
+}
+
+/* ============================================ */
+/* RESPONSIVE IPHONE 15 PRO MAX (430 × 932px) */
+/* ============================================ */
+@media (max-width: 430px) {
+  #timer-overlay-ultra-pro.active {
+    padding: 20px;
+    justify-content: center;
+  }
+  
+  .timer-circles-container {
+    width: 340px;
+    height: 340px;
+  }
+
+  .timer-circle-svg:nth-child(1) {
+    width: 340px;
+    height: 340px;
+  }
+
+  .timer-circle-svg:nth-child(2) {
+    width: 290px;
+    height: 290px;
+  }
+
+  .timer-circle-svg:nth-child(3) {
+    width: 240px;
+    height: 240px;
+  }
+
+  .timer-circle-svg:nth-child(4) {
+    width: 190px;
+    height: 190px;
   }
   
   .timer-time-value {
@@ -381,78 +414,32 @@
   
   .timer-rep-counter {
     font-size: 36px;
-  }
-}
-
-/* ============================================ */
-/* RESPONSIVE IPHONE 15 PRO MAX (430 × 932px) */
-/* ============================================ */
-@media (max-width: 430px) and (min-height: 900px) {
-  #timer-overlay-ultra-pro.active {
-    padding: 15px;
-  }
-
-  .timer-exercise-gif {
-    max-width: 140px;
-    margin-bottom: 10px;
-  }
-  
-  .timer-circles-container {
-    width: 300px;
-    height: 300px;
-  }
-
-  .timer-circle-svg:nth-child(1) {
-    width: 300px;
-    height: 300px;
-  }
-
-  .timer-circle-svg:nth-child(2) {
-    width: 250px;
-    height: 250px;
-  }
-
-  .timer-circle-svg:nth-child(3) {
-    width: 200px;
-    height: 200px;
-  }
-
-  .timer-circle-svg:nth-child(4) {
-    width: 150px;
-    height: 150px;
-  }
-  
-  .timer-time-value {
-    font-size: 56px;
-  }
-  
-  .timer-rep-counter {
-    font-size: 32px;
-    margin: 5px 0 15px 0;
+    margin: 0 0 25px 0;
   }
 
   .timer-tempo-container {
-    max-width: 360px;
+    max-width: 380px;
+    margin: 25px 0;
   }
 
   .timer-tempo-phase {
-    padding: 10px 8px;
+    padding: 12px 10px;
   }
 
   .timer-tempo-phase-icon {
-    font-size: 20px;
+    font-size: 24px;
   }
 
   .timer-tempo-phase-value {
-    font-size: 18px;
+    font-size: 20px;
   }
 
   .timer-controls {
-    max-width: 360px;
+    max-width: 380px;
   }
 
   .timer-btn {
-    padding: 16px 24px;
-    font-size: 16px;
+    padding: 18px 28px;
+    font-size: 17px;
   }
 }
