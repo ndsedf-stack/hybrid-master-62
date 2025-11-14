@@ -1,14 +1,14 @@
 /* ================================================================== */
-/* TIMER PREMIUM - PLEIN ÉCRAN AVEC DESIGN CIRCULAIRE */
+/* TIMER ULTRA PRO - 4 CERCLES + TEMPO BAR */
 /* ================================================================== */
 
-.timer-overlay-premium {
+#timer-overlay-ultra-pro {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: #000000;
+  background: #0a0a0a;
   z-index: 10000;
   display: flex;
   align-items: center;
@@ -18,181 +18,383 @@
   transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-.timer-overlay-premium.active {
+#timer-overlay-ultra-pro.active {
   opacity: 1;
   visibility: visible;
 }
 
-.timer-premium-container {
+.timer-container-ultra {
   position: relative;
   width: 100%;
-  max-width: 400px;
-  padding: 20px;
+  max-width: 500px;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 40px;
+  justify-content: space-between;
+  padding: 60px 20px 40px;
 }
 
-/* SVG Circle */
-.timer-premium-svg {
-  width: 340px;
-  height: 340px;
-  filter: drop-shadow(0 0 20px rgba(255, 109, 0, 0.3));
+/* ====== GIF EXERCICE EN HAUT ====== */
+.exercise-gif-container {
+  width: 280px;
+  height: 200px;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-#timer-main-circle {
+.gif-placeholder {
+  font-size: 48px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 4px;
+}
+
+/* ====== SVG CERCLES ====== */
+.timer-svg-ultra {
+  width: 420px;
+  height: 420px;
+  position: relative;
+  margin: 0 auto;
+}
+
+/* Background circles */
+.circle-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.05);
+  stroke-width: 8;
+}
+
+/* Cercles animés - TOUJOURS VISIBLES */
+.circle-session,
+.circle-exercise,
+.circle-rest {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transform-origin: center;
+  transform: rotate(-90deg);
   transition: stroke-dashoffset 1s linear;
+  /* IMPORTANT: Toujours visible */
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
-/* Contenu central */
-.timer-premium-center {
+.circle-session {
+  stroke-dasharray: 1130.97;
+  stroke-dashoffset: 1130.97;
+  animation: fadeInCircle 0.5s ease forwards;
+}
+
+.circle-exercise {
+  stroke-dasharray: 942.48;
+  stroke-dashoffset: 942.48;
+  animation: fadeInCircle 0.5s ease 0.1s forwards;
+}
+
+.circle-rest {
+  stroke-dasharray: 753.98;
+  stroke-dashoffset: 753.98;
+  animation: fadeInCircle 0.5s ease 0.2s forwards;
+}
+
+@keyframes fadeInCircle {
+  to {
+    opacity: 1;
+  }
+}
+
+/* ====== TEXTE CENTRAL ====== */
+.timer-center-content {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
+  width: 300px;
   margin-top: -20px;
 }
 
-.timer-premium-exercise-name {
-  color: #FF6D00;
-  font-size: 24px;
+.timer-exercise-name {
+  color: #FF6B35;
+  font-size: 22px;
   font-weight: 700;
   margin-bottom: 16px;
   text-transform: uppercase;
   letter-spacing: 1px;
+  text-shadow: 0 0 20px rgba(255, 107, 53, 0.4);
 }
 
-.timer-premium-time {
+.timer-time-ultra {
   color: #FFFFFF;
-  font-size: 64px;
+  font-size: 72px;
   font-weight: 800;
   letter-spacing: 2px;
   line-height: 1;
   margin-bottom: 12px;
-  text-shadow: 0 0 30px rgba(255, 109, 0, 0.5);
+  text-shadow: 0 0 30px rgba(255, 107, 53, 0.5);
+  font-variant-numeric: tabular-nums;
 }
 
-.timer-premium-phase {
-  color: #888;
+.timer-phase-label {
+  color: #A0A0A0;
   font-size: 16px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
 }
 
-/* Boutons de contrôle */
-.timer-premium-controls {
+/* ====== BARRE TEMPO ====== */
+.tempo-bar-container {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  justify-content: center;
+  margin-top: 30px;
+  margin-bottom: 15px;
+}
+
+.tempo-bar {
+  width: 80px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.tempo-bar span {
+  position: relative;
+  z-index: 2;
+  font-size: 18px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+  transition: all 0.3s ease;
+}
+
+.tempo-bar::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0%;
+  transition: height 0.3s ease;
+  z-index: 1;
+}
+
+/* Eccentric - Rouge */
+.tempo-bar.eccentric::before {
+  background: linear-gradient(180deg, #FF3B3F 0%, #FF0000 100%);
+}
+
+.tempo-bar.eccentric.active {
+  border-color: #FF3B3F;
+  box-shadow: 0 0 20px rgba(255, 59, 63, 0.6);
+}
+
+.tempo-bar.eccentric.active::before {
+  height: 100%;
+}
+
+.tempo-bar.eccentric.active span {
+  color: #FFFFFF;
+}
+
+/* Pause - Jaune */
+.tempo-bar.pause::before {
+  background: linear-gradient(180deg, #FFD93D 0%, #FFA500 100%);
+}
+
+.tempo-bar.pause.active {
+  border-color: #FFD93D;
+  box-shadow: 0 0 20px rgba(255, 217, 61, 0.6);
+}
+
+.tempo-bar.pause.active::before {
+  height: 100%;
+}
+
+.tempo-bar.pause.active span {
+  color: #000000;
+}
+
+/* Concentric - Vert */
+.tempo-bar.concentric::before {
+  background: linear-gradient(180deg, #6BCF7F 0%, #00FF00 100%);
+}
+
+.tempo-bar.concentric.active {
+  border-color: #6BCF7F;
+  box-shadow: 0 0 20px rgba(107, 207, 127, 0.6);
+}
+
+.tempo-bar.concentric.active::before {
+  height: 100%;
+}
+
+.tempo-bar.concentric.active span {
+  color: #FFFFFF;
+}
+
+/* ====== COMPTEUR REPS ====== */
+.rep-counter {
+  font-size: 20px;
+  font-weight: 700;
+  color: #A0A0A0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* ====== BOUTONS CONTRÔLE ====== */
+.timer-controls-ultra {
   display: flex;
   gap: 16px;
-  align-items: center;
-  margin-top: 20px;
+  justify-content: center;
+  width: 100%;
+  max-width: 400px;
+  margin-top: auto;
 }
 
-.timer-control-btn {
+.btn-control {
+  flex: 1;
+  padding: 14px 28px;
   background: rgba(255, 255, 255, 0.1);
   border: 2px solid rgba(255, 255, 255, 0.2);
-  color: #fff;
-  padding: 12px 24px;
-  border-radius: 12px;
+  border-radius: 16px;
+  color: #FFFFFF;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
-.timer-control-btn:hover {
+.btn-control:hover {
   background: rgba(255, 255, 255, 0.15);
   border-color: rgba(255, 255, 255, 0.3);
   transform: translateY(-2px);
 }
 
-.timer-control-btn:active {
+.btn-control:active {
   transform: translateY(0);
 }
 
-.timer-control-pause {
-  background: rgba(255, 109, 0, 0.2);
-  border-color: #FF6D00;
-  color: #FF6D00;
-  padding: 12px 32px;
+.btn-skip {
+  background: rgba(255, 107, 53, 0.2);
+  border-color: #FF6B35;
+  color: #FF6B35;
 }
 
-.timer-control-pause:hover {
-  background: rgba(255, 109, 0, 0.3);
+.btn-skip:hover {
+  background: rgba(255, 107, 53, 0.3);
   border-color: #FF9100;
 }
 
-/* Bouton fermer */
-.timer-premium-close {
+/* ====== BOUTON FERMER ====== */
+.timer-close-btn {
   position: absolute;
   top: 20px;
   right: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  color: #fff;
   width: 48px;
   height: 48px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
+  color: #FFFFFF;
+  font-size: 28px;
+  font-weight: 300;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
   transition: all 0.2s ease;
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  z-index: 10001;
 }
 
-.timer-premium-close:hover {
+.timer-close-btn:hover {
   background: rgba(255, 255, 255, 0.15);
   border-color: rgba(255, 255, 255, 0.3);
   transform: rotate(90deg);
 }
 
-/* Responsive */
+/* ====== RESPONSIVE ====== */
 @media (max-width: 768px) {
-  .timer-premium-svg {
-    width: 280px;
-    height: 280px;
+  .timer-svg-ultra {
+    width: 360px;
+    height: 360px;
   }
 
-  .timer-premium-time {
-    font-size: 52px;
+  .exercise-gif-container {
+    width: 240px;
+    height: 160px;
   }
 
-  .timer-premium-exercise-name {
+  .timer-time-ultra {
+    font-size: 64px;
+  }
+
+  .timer-exercise-name {
     font-size: 20px;
   }
 
-  .timer-control-btn {
-    padding: 10px 20px;
-    font-size: 14px;
+  .tempo-bar {
+    width: 70px;
+    height: 50px;
+  }
+
+  .tempo-bar span {
+    font-size: 16px;
   }
 }
 
 @media (max-width: 480px) {
-  .timer-premium-svg {
-    width: 240px;
-    height: 240px;
+  .timer-svg-ultra {
+    width: 320px;
+    height: 320px;
   }
 
-  .timer-premium-time {
-    font-size: 42px;
+  .exercise-gif-container {
+    width: 200px;
+    height: 140px;
   }
 
-  .timer-premium-exercise-name {
+  .timer-time-ultra {
+    font-size: 56px;
+  }
+
+  .timer-exercise-name {
     font-size: 18px;
   }
 
-  .timer-premium-controls {
-    gap: 12px;
+  .tempo-bar {
+    width: 60px;
+    height: 45px;
+    gap: 8px;
   }
 
-  .timer-control-btn {
-    padding: 8px 16px;
-    font-size: 13px;
+  .tempo-bar span {
+    font-size: 14px;
+  }
+
+  .btn-control {
+    padding: 12px 20px;
+    font-size: 14px;
   }
 }
