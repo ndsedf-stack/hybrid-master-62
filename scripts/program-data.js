@@ -961,4 +961,7 @@ export class ProgramData {
 // ====================================================================
 // EXPORT PAR DÉFAUT
 // ====================================================================
+// Export par défaut ET global pour superset-injector
+const programData = new ProgramData();
 window.programData = programData;
+export default programData;
