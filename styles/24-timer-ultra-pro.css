@@ -1,5 +1,5 @@
 /* ================================================================== */
-/* TIMER 3 CERCLES - VERSION FINALE */
+/* TIMER 3 CERCLES - SIMPLIFIÉ */
 /* ================================================================== */
 
 #timer-overlay-ultra-pro {
@@ -81,8 +81,8 @@
   transition: stroke-dashoffset 0.3s ease-out;
 }
 
-.session-segment {
-  transition: stroke 0.5s ease;
+.timer-circle-session {
+  stroke: rgba(255, 255, 255, 0.4);
 }
 
 .timer-circle-rest {
