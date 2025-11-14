@@ -1,5 +1,5 @@
 /* ================================================================== */
-/* TIMER 3 CERCLES - SIMPLIFIÉ */
+/* TIMER VISUEL - BELLES COULEURS */
 /* ================================================================== */
 
 #timer-overlay-ultra-pro {
@@ -8,7 +8,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
   z-index: 9999;
   display: none;
   overflow-y: auto;
@@ -20,6 +20,7 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
+  gap: 20px;
 }
 
 .timer-exercise-gif {
@@ -27,20 +28,23 @@
 }
 
 .timer-rep-counter {
-  font-size: 52px;
-  font-weight: 700;
-  color: #ff6b35;
-  margin: 0 0 30px 0;
+  font-size: 48px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #00D9FF, #08FFC8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
   text-align: center;
-  letter-spacing: 2px;
-  text-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+  letter-spacing: 3px;
+  text-shadow: 0 0 30px rgba(0, 217, 255, 0.5);
 }
 
 .timer-circles-container {
   position: relative;
   width: 450px;
   height: 450px;
-  margin: 20px 0;
+  margin: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -53,24 +57,24 @@
   transform: translate(-50%, -50%) rotate(-90deg);
 }
 
-.timer-circle-svg:nth-child(1) {
+.timer-circle-1 {
   width: 450px;
   height: 450px;
 }
 
-.timer-circle-svg:nth-child(2) {
+.timer-circle-2 {
   width: 400px;
   height: 400px;
 }
 
-.timer-circle-svg:nth-child(3) {
+.timer-circle-3 {
   width: 350px;
   height: 350px;
 }
 
 .timer-circle-bg {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.06);
+  stroke: rgba(255, 255, 255, 0.05);
   stroke-width: 18;
 }
 
@@ -81,20 +85,18 @@
   transition: stroke-dashoffset 0.3s ease-out;
 }
 
-.timer-circle-session {
-  stroke: rgba(255, 255, 255, 0.4);
+.session-segment {
+  transition: opacity 0.5s ease;
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+.set-segment {
+  transition: opacity 0.3s ease;
 }
 
 .timer-circle-rest {
-  stroke: #ff6b35;
-}
-
-.timer-circle-exercise {
-  stroke: #4a9eff;
-}
-
-.session-segment {
-  transition: opacity 0.5s ease;
+  stroke: #FF2E63;
+  filter: drop-shadow(0 0 10px rgba(255, 46, 99, 0.6));
 }
 
 .timer-time-display {
@@ -107,195 +109,180 @@
 }
 
 .timer-time-value {
-  font-size: 95px;
-  font-weight: 700;
+  font-size: 90px;
+  font-weight: 800;
   color: #fff;
   line-height: 1;
-  text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+  text-shadow: 0 0 40px rgba(0, 217, 255, 0.5);
 }
 
 .timer-time-label {
-  font-size: 22px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.6);
+  font-size: 18px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
   text-transform: uppercase;
-  letter-spacing: 3px;
-  margin-top: 10px;
+  letter-spacing: 4px;
+  margin-top: 8px;
 }
 
-.timer-tempo-container {
+/* ============================================ */
+/* TEMPO CARDS VISUEL */
+/* ============================================ */
+.timer-tempo-visual {
+  display: flex;
+  gap: 15px;
   width: 90%;
   max-width: 450px;
-  margin: 30px 0;
 }
 
-.timer-tempo-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.5);
+.tempo-phase-card {
+  flex: 1;
+  padding: 20px 15px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.tempo-phase-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.tempo-phase-card.active {
+  transform: scale(1.1) translateY(-5px);
+  border-color: currentColor;
+  box-shadow: 0 10px 40px currentColor;
+}
+
+.tempo-phase-card.active::before {
+  opacity: 0.1;
+}
+
+.tempo-phase-number {
+  font-size: 42px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.tempo-phase-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+  opacity: 0.8;
+}
+
+.tempo-phase-name {
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 2px;
-  margin-bottom: 15px;
-  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
 }
 
-.timer-tempo-bar-container {
-  position: relative;
-  width: 100%;
-  height: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  overflow: hidden;
-  margin-bottom: 20px;
+.tempo-phase-card.descent {
+  color: #FF2E63;
 }
 
-.timer-tempo-bar-fill {
-  height: 100%;
-  width: 0%;
-  border-radius: 20px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 20px currentColor;
+.tempo-phase-card.pause {
+  color: #FFDE59;
 }
 
-.timer-tempo-bar-fill.phase-descent {
-  background: linear-gradient(90deg, #ff3366, #ff6b35);
-  color: #ff3366;
-}
-
-.timer-tempo-bar-fill.phase-pause {
-  background: linear-gradient(90deg, #ffd700, #ffaa00);
-  color: #ffd700;
-}
-
-.timer-tempo-bar-fill.phase-lift {
-  background: linear-gradient(90deg, #00ff88, #00cc66);
-  color: #00ff88;
-}
-
-.timer-tempo-phases {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.timer-tempo-phase {
-  flex: 1;
-  padding: 14px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  text-align: center;
-  border: 2px solid transparent;
-  transition: all 0.3s ease;
-}
-
-.timer-tempo-phase.active {
-  transform: scale(1.05);
-  border-color: currentColor;
-  box-shadow: 0 0 20px currentColor;
-}
-
-.timer-tempo-phase-icon {
-  font-size: 28px;
-  margin-bottom: 5px;
-}
-
-.timer-tempo-phase-label {
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: rgba(255, 255, 255, 0.5);
-  margin-bottom: 3px;
-}
-
-.timer-tempo-phase-value {
-  font-size: 22px;
-  font-weight: 700;
-  color: #fff;
-}
-
-.timer-tempo-phase.descent {
-  color: #ff3366;
-}
-
-.timer-tempo-phase.pause {
-  color: #ffd700;
-}
-
-.timer-tempo-phase.lift {
-  color: #00ff88;
-}
-
-.timer-tempo-phase.descent.active {
-  background: rgba(255, 51, 102, 0.15);
-}
-
-.timer-tempo-phase.pause.active {
-  background: rgba(255, 215, 0, 0.15);
-}
-
-.timer-tempo-phase.lift.active {
-  background: rgba(0, 255, 136, 0.15);
+.tempo-phase-card.lift {
+  color: #08FFC8;
 }
 
 .timer-exercise-name {
-  font-size: 26px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 700;
   color: #fff;
-  margin: 25px 0;
+  margin: 0;
   text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .timer-controls {
   display: flex;
   gap: 15px;
-  margin-top: 30px;
   width: 90%;
   max-width: 450px;
 }
 
 .timer-btn {
   flex: 1;
-  padding: 20px 32px;
-  font-size: 18px;
-  font-weight: 700;
+  padding: 18px 28px;
+  font-size: 16px;
+  font-weight: 800;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   cursor: pointer;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  transition: all 0.3s ease;
+  letter-spacing: 2px;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.timer-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.timer-btn:active::before {
+  width: 300px;
+  height: 300px;
 }
 
 .timer-btn-pause {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   color: #fff;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .timer-btn-pause:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.15);
 }
 
 .timer-btn-end {
-  background: linear-gradient(135deg, #ff6b35, #ff3366);
+  background: linear-gradient(135deg, #FF2E63, #FF6B9D);
   color: #fff;
-  box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4);
+  box-shadow: 0 8px 25px rgba(255, 46, 99, 0.4);
 }
 
 .timer-btn-end:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 30px rgba(255, 107, 53, 0.6);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(255, 46, 99, 0.6);
 }
 
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+@keyframes glow {
+  0%, 100% { text-shadow: 0 0 40px rgba(0, 217, 255, 0.5); }
+  50% { text-shadow: 0 0 60px rgba(0, 217, 255, 0.8), 0 0 80px rgba(0, 217, 255, 0.5); }
 }
 
 .timer-time-value {
-  animation: pulse 2s ease-in-out infinite;
+  animation: glow 2s ease-in-out infinite;
 }
 
 @media (max-width: 768px) {
@@ -304,66 +291,66 @@
     height: 370px;
   }
 
-  .timer-circle-svg:nth-child(1) {
+  .timer-circle-1 {
     width: 370px;
     height: 370px;
   }
 
-  .timer-circle-svg:nth-child(2) {
+  .timer-circle-2 {
     width: 320px;
     height: 320px;
   }
 
-  .timer-circle-svg:nth-child(3) {
+  .timer-circle-3 {
     width: 270px;
     height: 270px;
   }
   
   .timer-time-value {
-    font-size: 75px;
+    font-size: 70px;
   }
   
   .timer-rep-counter {
-    font-size: 42px;
+    font-size: 40px;
   }
 }
 
 @media (max-width: 430px) {
   #timer-overlay-ultra-pro.active {
-    padding: 8px;
+    padding: 10px;
+    gap: 12px;
   }
   
   .timer-circles-container {
-    width: 280px;
-    height: 280px;
-    margin: 10px 0;
+    width: 300px;
+    height: 300px;
   }
 
-  .timer-circle-svg:nth-child(1) {
-    width: 280px;
-    height: 280px;
+  .timer-circle-1 {
+    width: 300px;
+    height: 300px;
   }
 
-  .timer-circle-svg:nth-child(2) {
-    width: 245px;
-    height: 245px;
+  .timer-circle-2 {
+    width: 260px;
+    height: 260px;
   }
 
-  .timer-circle-svg:nth-child(3) {
-    width: 210px;
-    height: 210px;
+  .timer-circle-3 {
+    width: 220px;
+    height: 220px;
   }
 
   .timer-circle-bg {
-    stroke-width: 13;
+    stroke-width: 14;
   }
 
-  .timer-circle-progress {
-    stroke-width: 13;
+  .timer-circle-progress, .session-segment, .set-segment {
+    stroke-width: 14;
   }
   
   .timer-time-value {
-    font-size: 50px;
+    font-size: 56px;
   }
 
   .timer-time-label {
@@ -372,60 +359,43 @@
   }
   
   .timer-rep-counter {
-    font-size: 28px;
-    margin: 0 0 10px 0;
+    font-size: 32px;
   }
 
-  .timer-tempo-container {
+  .timer-tempo-visual {
     max-width: 340px;
-    margin: 15px 0;
+    gap: 10px;
   }
 
-  .timer-tempo-bar-container {
-    height: 10px;
-    margin-bottom: 12px;
+  .tempo-phase-card {
+    padding: 14px 10px;
   }
 
-  .timer-tempo-title {
-    font-size: 13px;
-    margin-bottom: 10px;
+  .tempo-phase-number {
+    font-size: 32px;
+    margin-bottom: 6px;
   }
 
-  .timer-tempo-phases {
-    gap: 6px;
+  .tempo-phase-icon {
+    font-size: 24px;
+    margin-bottom: 6px;
   }
 
-  .timer-tempo-phase {
-    padding: 8px 4px;
-  }
-
-  .timer-tempo-phase-icon {
-    font-size: 18px;
-    margin-bottom: 2px;
-  }
-
-  .timer-tempo-phase-label {
+  .tempo-phase-name {
     font-size: 9px;
-    margin-bottom: 2px;
-  }
-
-  .timer-tempo-phase-value {
-    font-size: 16px;
   }
 
   .timer-exercise-name {
-    font-size: 19px;
-    margin: 12px 0;
+    font-size: 18px;
   }
 
   .timer-controls {
     max-width: 340px;
-    margin-top: 12px;
-    gap: 8px;
+    gap: 10px;
   }
 
   .timer-btn {
-    padding: 13px 18px;
+    padding: 14px 20px;
     font-size: 14px;
   }
 }
