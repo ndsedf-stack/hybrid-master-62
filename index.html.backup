@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Hybrid Master 61" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#1a1a2e" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+  
+  <title>💪 Hybrid Master 61</title>
+  
+  <link rel="icon" href="data:," />
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="styles/01-reset.css" />
+  <link rel="stylesheet" href="styles/02-variables.css" />
+  <link rel="stylesheet" href="styles/03-base.css" />
+  <link rel="stylesheet" href="styles/04-layout.css" />
+  <link rel="stylesheet" href="styles/05-components.css" />
+  <link rel="stylesheet" href="styles/06-series.css" />
+  <link rel="stylesheet" href="styles/06-workout-mode.css" />
+  <link rel="stylesheet" href="styles/07-timer.css" />
+  <link rel="stylesheet" href="styles/08-responsive.css" />
+  <link rel="stylesheet" href="styles/09-home.css" />
+  <link rel="stylesheet" href="styles/09-statistics.css" />
+  <link rel="stylesheet" href="styles/98-theme-switcher.css" />
+  <link rel="stylesheet" href="styles/99-theme-modern.css" />
+  <link rel="stylesheet" href="styles/10-iphone15-fix.css" />
+  <link rel="stylesheet" href="styles/11-improvements.css" />
+  <link rel="stylesheet" href="styles/12-workout-series-modern.css" />
+  <link rel="stylesheet" href="styles/13-workout-premium-design.css" />
+  <link rel="stylesheet" href="styles/14-ios18-premium-dark.css" />
+  <link rel="stylesheet" href="styles/23-superset-enhancement.css" />
+```
+  <link rel="stylesheet" href="styles/24-timer-premium.css">
+  <link rel="stylesheet" href="styles/24-timer-premium.css">
+  <link rel="stylesheet" href="styles/24-timer-premium.css">
+</head>
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header header">
+    <div class="header-content">
+      <h1 class="app-title">💪 Hybrid Master 61</h1>
+      <div class="header-actions"></div>
+    </div>
+  </header>
+  <!-- Main Content -->
+  <main class="app-container container main-content">
+    <!-- Container principal pour app.js - CHANGÉ DE id="app" À id="content" -->
+    <div id="content"></div>
+    <!-- Widget Timer -->
+    <div id="timer-widget" class="timer-container">
+      <div class="timer-header">
+        <div class="timer-info">
+          <p id="timer-exercise-name" class="timer-exercise-name">Exercice</p>
+          <p id="timer-set-number" class="timer-set-number">Set 1/4</p>
+        </div>
+        <button id="timer-close" class="timer-close-btn">×</button>
+      </div>
+      
+      <div class="timer-display">
+        <div class="timer-circle">
+          <svg width="160" height="160" viewBox="0 0 160 160">
+            <circle class="timer-progress-bg" cx="80" cy="80" r="70"></circle>
+            <circle class="timer-progress-circle" cx="80" cy="80" r="70" 
+                    transform="rotate(-90 80 80)"></circle>
+          </svg>
+          <div id="timer-time" class="timer-time">0:00</div>
+        </div>
+      </div>
+      
+      <div class="timer-controls">
+        <button id="timer-pause">Pause</button>
+        <button id="timer-minus-15">-15s</button>
+        <button id="timer-plus-15">+15s</button>
+        <button id="timer-reset">Reset</button>
+        <button id="timer-skip">Skip</button>
+      </div>
+    </div>
+    <!-- Navigation semaines -->
+    <nav class="bottom-nav week-navigation">
+      <button class="nav-btn nav-btn-prev" id="nav-prev" aria-label="Semaine précédente">
+        <span class="nav-icon">←</span>
+      </button>
+      <div class="week-info">
+        <span id="current-week-label" class="week-label">Semaine 1</span>
+      </div>
+      <button class="nav-btn nav-btn-next" id="nav-next" aria-label="Semaine suivante">
+        <span class="nav-icon">→</span>
+      </button>
+    </nav>
+  </main>
+  <!-- JavaScript -->
+  <script type="module" src="scripts/app.js"></script>
+  <script src="scripts/superset-injector.js"></script>
+</body>
+</html>
