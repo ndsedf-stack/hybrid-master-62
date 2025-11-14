@@ -1,5 +1,9 @@
 /**
- * TIMER MANAGER - VERSION DEBUG ULTIME
+ * TIMER MANAGER - VERSION ULTIME
+ * ✅ Superset (A1/A2)
+ * ✅ Tempo dynamique par exercice
+ * ✅ Repos variable
+ * ✅ Techniques d'intensification (Dropset, Rest-Pause, Cluster)
  */
 
 export default class TimerManager {
@@ -16,97 +20,94 @@ export default class TimerManager {
     this.sessionTotalTime = 0;
     this.sessionElapsedTime = 0;
     this.colors = ['#00D9FF', '#FF2E63', '#08FFC8', '#FFDE59', '#9D4EDD', '#06FFA5', '#FF6B9D'];
+    
+    // Nouveaux paramètres
+    this.isSupersetA1 = false;
+    this.isSupersetA2 = false;
+    this.supersetPartner = null;
+    this.intensificationTechnique = null;
+    this.dropsetStep = 0;
+    this.restPauseStep = 0;
+    this.clusterRep = 0;
   }
 
   startTimer(exerciseData, currentRep, totalReps, duration) {
-    console.log('🚀 START TIMER:', {exerciseData, currentRep, totalReps, duration});
+    console.log('🚀 START TIMER ULTIMATE:', {exerciseData, currentRep, totalReps, duration});
     
     this.exerciseData = exerciseData;
     this.currentRep = currentRep;
     this.totalReps = totalReps;
-    this.totalTime = duration;
-    this.remainingTime = duration;
+    
+    // Détection superset
+    this.detectSuperset();
+    
+    // Détection technique d'intensification
+    this.detectIntensification();
+    
+    // Tempo dynamique depuis programData
+    this.parseTempoFromExercise();
+    
+    // Repos variable depuis programData
+    this.totalTime = this.getRestDuration();
+    this.remainingTime = this.totalTime;
+    
+    console.log('⚙️ Config:', {
+      superset: this.isSupersetA1 || this.isSupersetA2,
+      technique: this.intensificationTechnique,
+      tempo: this.tempoValues,
+      repos: this.totalTime
+    });
     
     this.calculateSessionData();
-    this.parseTempoFromExercise();
     this.showOverlay();
     this.updateInterface();
     this.startCountdown();
   }
 
-  calculateSessionData() {
-    console.log('📊 CALCUL SESSION DATA');
+  detectSuperset() {
+    const name = this.exerciseData.name.toUpperCase();
+    this.isSupersetA1 = name.includes('A1') || name.startsWith('A1');
+    this.isSupersetA2 = name.includes('A2') || name.startsWith('A2');
     
-    const weekData = window.programData?.program?.week1;
-    console.log('Week data:', weekData);
-    
-    if (!weekData) {
-      console.error('❌ PAS DE WEEK DATA !');
-      this.fallbackSessionData();
-      return;
-    }
-
-    const dayKeys = ['dimanche', 'mardi', 'vendredi', 'maison'];
-    let found = false;
-    
-    for (const dayKey of dayKeys) {
-      const dayData = weekData[dayKey];
-      console.log(`Checking ${dayKey}:`, dayData);
-      
-      if (dayData?.exercises && Array.isArray(dayData.exercises)) {
-        console.log(`✅ Exercices trouvés dans ${dayKey}:`, dayData.exercises.length);
-        
-        this.sessionExercises = dayData.exercises.map(ex => ({
-          name: ex.name,
-          sets: parseInt(ex.sets) || 3,
-          rest: parseInt(ex.rest) || 90,
-          duration: (parseInt(ex.sets) || 3) * (parseInt(ex.rest) || 90)
-        }));
-        
-        console.log('Session exercises:', this.sessionExercises);
-        
-        this.sessionTotalTime = this.sessionExercises.reduce((sum, ex) => sum + ex.duration, 0);
-        
-        const currentIndex = this.sessionExercises.findIndex(ex => ex.name === this.exerciseData.name);
-        console.log('Current exercise index:', currentIndex);
-        
-        if (currentIndex >= 0) {
-          this.currentExerciseIndex = currentIndex;
-          this.sessionElapsedTime = this.sessionExercises
-            .slice(0, currentIndex)
-            .reduce((sum, ex) => sum + ex.duration, 0);
-          this.sessionElapsedTime += (this.currentRep - 1) * this.totalTime;
-          
-          console.log('✅ SESSION CALCULÉE:', {
-            exercises: this.sessionExercises.length,
-            currentIndex,
-            sessionTotal: this.sessionTotalTime,
-            sessionElapsed: this.sessionElapsedTime
-          });
-          
-          found = true;
-          break;
-        }
-      }
-    }
-
-    if (!found) {
-      console.warn('⚠️ Exercice non trouvé, fallback');
-      this.fallbackSessionData();
+    if (this.isSupersetA1 || this.isSupersetA2) {
+      console.log('🔗 SUPERSET détecté:', this.isSupersetA1 ? 'A1' : 'A2');
     }
   }
 
-  fallbackSessionData() {
-    console.log('🔄 FALLBACK SESSION DATA');
-    this.sessionExercises = [{
-      name: this.exerciseData.name,
-      sets: this.totalReps,
-      rest: Math.floor(this.totalTime / 60),
-      duration: this.totalTime * this.totalReps
-    }];
-    this.sessionTotalTime = this.totalTime * this.totalReps;
-    this.sessionElapsedTime = (this.currentRep - 1) * this.totalTime;
-    this.currentExerciseIndex = 0;
+  detectIntensification() {
+    const technique = this.exerciseData.technique?.toLowerCase() || '';
+    
+    if (technique.includes('dropset') || technique.includes('drop set')) {
+      this.intensificationTechnique = 'dropset';
+      console.log('💪 DROPSET détecté');
+    } else if (technique.includes('rest-pause') || technique.includes('rest pause')) {
+      this.intensificationTechnique = 'restpause';
+      console.log('⏸️ REST-PAUSE détecté');
+    } else if (technique.includes('cluster')) {
+      this.intensificationTechnique = 'cluster';
+      console.log('🎯 CLUSTER détecté');
+    }
+  }
+
+  getRestDuration() {
+    // Si superset A1, pas de repos (on passe direct à A2)
+    if (this.isSupersetA1) {
+      return 5; // 5s de transition
+    }
+    
+    // Si technique d'intensification
+    if (this.intensificationTechnique === 'restpause') {
+      return 15; // 15s entre mini-sets
+    }
+    if (this.intensificationTechnique === 'cluster') {
+      return 20; // 20s entre clusters
+    }
+    if (this.intensificationTechnique === 'dropset') {
+      return 10; // 10s pour changer le poids
+    }
+    
+    // Sinon, repos depuis programData
+    return parseInt(this.exerciseData.rest) || 90;
   }
 
   parseTempoFromExercise() {
@@ -129,14 +130,79 @@ export default class TimerManager {
     } else {
       this.tempoValues = [3, 1, 2];
     }
+    
+    console.log('🎵 Tempo:', this.tempoValues);
+  }
+
+  calculateSessionData() {
+    const weekData = window.programData?.program?.week1;
+    if (!weekData) {
+      this.fallbackSessionData();
+      return;
+    }
+
+    const dayKeys = ['dimanche', 'mardi', 'vendredi', 'maison'];
+    let found = false;
+    
+    for (const dayKey of dayKeys) {
+      const dayData = weekData[dayKey];
+      
+      if (dayData?.exercises && Array.isArray(dayData.exercises)) {
+        this.sessionExercises = dayData.exercises.map(ex => ({
+          name: ex.name,
+          sets: parseInt(ex.sets) || 3,
+          rest: parseInt(ex.rest) || 90,
+          duration: (parseInt(ex.sets) || 3) * (parseInt(ex.rest) || 90)
+        }));
+        
+        this.sessionTotalTime = this.sessionExercises.reduce((sum, ex) => sum + ex.duration, 0);
+        
+        const currentIndex = this.sessionExercises.findIndex(ex => ex.name === this.exerciseData.name);
+        
+        if (currentIndex >= 0) {
+          this.currentExerciseIndex = currentIndex;
+          this.sessionElapsedTime = this.sessionExercises
+            .slice(0, currentIndex)
+            .reduce((sum, ex) => sum + ex.duration, 0);
+          this.sessionElapsedTime += (this.currentRep - 1) * this.totalTime;
+          
+          found = true;
+          break;
+        }
+      }
+    }
+
+    if (!found) {
+      this.fallbackSessionData();
+    }
+  }
+
+  fallbackSessionData() {
+    this.sessionExercises = [{
+      name: this.exerciseData.name,
+      sets: this.totalReps,
+      rest: this.totalTime,
+      duration: this.totalTime * this.totalReps
+    }];
+    this.sessionTotalTime = this.totalTime * this.totalReps;
+    this.sessionElapsedTime = (this.currentRep - 1) * this.totalTime;
+    this.currentExerciseIndex = 0;
   }
 
   showOverlay() {
     const overlay = document.getElementById('timer-overlay-ultra-pro');
     if (!overlay) return;
 
+    // Label dynamique selon superset ou technique
+    let repLabel = `SET ${this.currentRep}/${this.totalReps}`;
+    if (this.isSupersetA1) repLabel = `A1 - SET ${this.currentRep}/${this.totalReps}`;
+    if (this.isSupersetA2) repLabel = `A2 - SET ${this.currentRep}/${this.totalReps}`;
+    if (this.intensificationTechnique === 'dropset') repLabel = `DROPSET ${this.currentRep}/${this.totalReps}`;
+    if (this.intensificationTechnique === 'restpause') repLabel = `REST-PAUSE ${this.currentRep}/${this.totalReps}`;
+    if (this.intensificationTechnique === 'cluster') repLabel = `CLUSTER ${this.currentRep}/${this.totalReps}`;
+
     overlay.innerHTML = `
-      <div class="timer-rep-counter">SET ${this.currentRep}/${this.totalReps}</div>
+      <div class="timer-rep-counter">${repLabel}</div>
 
       <div class="timer-circles-container">
         <svg class="timer-circle-svg timer-circle-1" viewBox="0 0 320 320">
@@ -156,7 +222,7 @@ export default class TimerManager {
 
         <div class="timer-time-display">
           <div class="timer-time-value" id="timer-display">0:00</div>
-          <div class="timer-time-label">REPOS</div>
+          <div class="timer-time-label">${this.getTimerLabel()}</div>
         </div>
       </div>
 
@@ -192,19 +258,17 @@ export default class TimerManager {
     overlay.classList.add('active');
   }
 
+  getTimerLabel() {
+    if (this.isSupersetA1) return 'TRANSITION → A2';
+    if (this.intensificationTechnique === 'dropset') return 'CHANGER POIDS';
+    if (this.intensificationTechnique === 'restpause') return 'REST-PAUSE';
+    if (this.intensificationTechnique === 'cluster') return 'CLUSTER REST';
+    return 'REPOS';
+  }
+
   drawColoredSegments() {
     const container = document.getElementById('session-segments');
-    if (!container) {
-      console.error('❌ Container session-segments introuvable !');
-      return;
-    }
-
-    if (this.sessionExercises.length === 0) {
-      console.error('❌ Aucun exercice dans sessionExercises !');
-      return;
-    }
-
-    console.log('🎨 DESSIN SEGMENTS:', this.sessionExercises.length);
+    if (!container || this.sessionExercises.length === 0) return;
 
     const radius = 150;
     const circumference = 2 * Math.PI * radius;
@@ -213,13 +277,6 @@ export default class TimerManager {
     this.sessionExercises.forEach((ex, index) => {
       const percentage = ex.duration / this.sessionTotalTime;
       const arcLength = percentage * circumference;
-      
-      console.log(`Segment ${index}:`, {
-        name: ex.name,
-        percentage: (percentage * 100).toFixed(1) + '%',
-        arcLength: arcLength.toFixed(2),
-        color: this.colors[index % this.colors.length]
-      });
 
       const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
       circle.setAttribute('cx', '160');
@@ -231,27 +288,13 @@ export default class TimerManager {
       circle.setAttribute('stroke-linecap', 'round');
       circle.setAttribute('stroke-dasharray', `${arcLength} ${circumference - arcLength}`);
       circle.setAttribute('stroke-dashoffset', `${-cumulativeAngle}`);
-      circle.setAttribute('opacity', '0.9');
+      circle.setAttribute('opacity', '1.0');
       circle.classList.add('session-segment');
       circle.dataset.index = index;
 
       container.appendChild(circle);
       cumulativeAngle += arcLength;
     });
-
-    console.log('✅ SEGMENTS CRÉÉS:', container.children.length);
-    
-    setTimeout(() => {
-      const segments = document.querySelectorAll('.session-segment');
-      console.log('Segments dans le DOM:', segments.length);
-      segments.forEach((seg, i) => {
-        console.log(`Segment ${i} visible:`, {
-          stroke: seg.getAttribute('stroke'),
-          opacity: seg.getAttribute('opacity'),
-          dasharray: seg.getAttribute('stroke-dasharray')
-        });
-      });
-    }, 100);
   }
 
   drawSetsSegments() {
@@ -279,8 +322,6 @@ export default class TimerManager {
 
       container.appendChild(circle);
     }
-
-    console.log('✅ SETS SEGMENTS CRÉÉS:', this.totalReps);
   }
 
   attachEvents() {
@@ -296,12 +337,23 @@ export default class TimerManager {
       this.sessionElapsedTime++;
 
       if (this.remainingTime <= 0) {
-        this.stopTimer();
+        this.handleTimerComplete();
         return;
       }
 
       this.updateInterface();
     }, 1000);
+  }
+
+  handleTimerComplete() {
+    console.log('✅ Timer terminé');
+    
+    // Si superset A1, notifier pour passer à A2
+    if (this.isSupersetA1) {
+      console.log('🔗 Fin A1 → Passer à A2');
+    }
+    
+    this.stopTimer();
   }
 
   updateInterface() {
@@ -335,17 +387,14 @@ export default class TimerManager {
       const exerciseEndTime = cumulativeTime + exerciseDuration;
 
       if (this.sessionElapsedTime >= exerciseEndTime) {
-        // Exercice terminé → très transparent et fin
         seg.setAttribute('opacity', '0.15');
         seg.setAttribute('stroke-width', '12');
       } else if (this.sessionElapsedTime >= cumulativeTime) {
-        // Exercice en cours → diminue de 1.0 à 0.2
         const progress = (this.sessionElapsedTime - cumulativeTime) / exerciseDuration;
         const opacity = 1.0 - (progress * 0.8);
         seg.setAttribute('opacity', opacity.toString());
         seg.setAttribute('stroke-width', '18');
       } else {
-        // Exercice pas encore commencé → pleine opacité
         seg.setAttribute('opacity', '1.0');
         seg.setAttribute('stroke-width', '18');
       }
