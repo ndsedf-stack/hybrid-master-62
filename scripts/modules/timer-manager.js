@@ -17,8 +17,8 @@ export default class TimerManager {
     this.totalTime = duration;
     this.remainingTime = duration;
     this.isPaused = false;
-    this.showOverlay();
     this.parseTempoFromExercise();
+    this.showOverlay();
     this.startCountdown();
   }
   parseTempoFromExercise() {
@@ -40,9 +40,9 @@ export default class TimerManager {
   showOverlay() {
     const overlay = document.getElementById('timer-overlay-ultra-pro');
     if (!overlay) return;
-    overlay.innerHTML = `
-      <img src="${this.exerciseData.gif || 'assets/gifs/default.svg'}" alt="${this.exerciseData.name}" class="timer-exercise-gif">
-      <div class="timer-rep-counter">REP ${this.currentRep}/${this.totalReps}</div>
+    overlay.innerHTML = \`
+      <img src="\${this.exerciseData.gif || 'assets/gifs/default.svg'}" alt="\${this.exerciseData.name}" class="timer-exercise-gif">
+      <div class="timer-rep-counter">REP \${this.currentRep}/\${this.totalReps}</div>
       <div class="timer-circles-container">
         <svg class="timer-circle-svg" viewBox="0 0 320 320">
           <circle cx="160" cy="160" r="140" class="timer-circle-bg"></circle>
@@ -61,7 +61,7 @@ export default class TimerManager {
           <circle cx="160" cy="160" r="80" class="timer-circle-progress timer-circle-current" id="circle-current"></circle>
         </svg>
         <div class="timer-time-display">
-          <div class="timer-time-value" id="timer-display">${this.formatTime(this.remainingTime)}</div>
+          <div class="timer-time-value" id="timer-display">\${this.formatTime(this.remainingTime)}</div>
           <div class="timer-time-label">REPOS</div>
         </div>
       </div>
@@ -74,26 +74,26 @@ export default class TimerManager {
           <div class="timer-tempo-phase descent active" id="tempo-descent">
             <div class="timer-tempo-phase-icon">⬇️</div>
             <div class="timer-tempo-phase-label">Descent</div>
-            <div class="timer-tempo-phase-value">${this.tempo[0]}s</div>
+            <div class="timer-tempo-phase-value">\${this.tempo[0]}s</div>
           </div>
           <div class="timer-tempo-phase pause" id="tempo-pause">
             <div class="timer-tempo-phase-icon">⏸️</div>
             <div class="timer-tempo-phase-label">Pause</div>
-            <div class="timer-tempo-phase-value">${this.tempo[1]}s</div>
+            <div class="timer-tempo-phase-value">\${this.tempo[1]}s</div>
           </div>
           <div class="timer-tempo-phase lift" id="tempo-lift">
             <div class="timer-tempo-phase-icon">⬆️</div>
             <div class="timer-tempo-phase-label">Lift</div>
-            <div class="timer-tempo-phase-value">${this.tempo[2]}s</div>
+            <div class="timer-tempo-phase-value">\${this.tempo[2]}s</div>
           </div>
         </div>
       </div>
-      <div class="timer-exercise-name">${this.exerciseData.name}</div>
+      <div class="timer-exercise-name">\${this.exerciseData.name}</div>
       <div class="timer-controls">
         <button class="timer-btn timer-btn-pause" id="timer-pause-btn">Pause</button>
         <button class="timer-btn timer-btn-end" id="timer-end-btn">Terminer</button>
       </div>
-    `;
+    \`;
     overlay.classList.add('active');
     document.getElementById('timer-pause-btn').addEventListener('click', () => this.togglePause());
     document.getElementById('timer-end-btn').addEventListener('click', () => this.endTimer());
@@ -170,11 +170,11 @@ export default class TimerManager {
     }
     const tempoBar = document.getElementById('tempo-bar');
     if (tempoBar) {
-      tempoBar.className = `timer-tempo-bar-fill phase-${currentPhase}`;
-      tempoBar.style.width = `${phaseProgress * 100}%`;
+      tempoBar.className = \`timer-tempo-bar-fill phase-\${currentPhase}\`;
+      tempoBar.style.width = \`\${phaseProgress * 100}%\`;
     }
     ['descent', 'pause', 'lift'].forEach(phase => {
-      const phaseEl = document.getElementById(`tempo-${phase}`);
+      const phaseEl = document.getElementById(\`tempo-\${phase}\`);
       if (phaseEl) {
         phase === currentPhase ? phaseEl.classList.add('active') : phaseEl.classList.remove('active');
       }
@@ -200,6 +200,6 @@ export default class TimerManager {
   formatTime(seconds) {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return \`\${mins}:\${secs.toString().padStart(2, '0')}\`;
   }
 }
